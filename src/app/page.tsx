@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Home, FileText, Users, BarChart3, Bell, Person, Lock,
-  ArrowForward, Plus, X, ChevronLeft, Description,
+  Home, FileText, Users, BarChart3, Bell, User, Lock,
+  ArrowRight, Plus, X, ChevronLeft, ClipboardList,
   AlertCircle, Download, Eye, Printer
 } from 'lucide-react';
 
@@ -99,7 +99,7 @@ function SplashScreen() {
         transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.2 }}
         className="w-24 h-24 bg-white/20 rounded-3xl flex items-center justify-center mb-6 backdrop-blur-sm"
       >
-        <Description className="w-12 h-12 text-white" />
+        <ClipboardList className="w-12 h-12 text-white" />
       </motion.div>
       <motion.h1
         initial={{ opacity: 0, y: 20 }}
@@ -168,7 +168,7 @@ function HomeScreen({ onNavigate, onFeatureTap }: { onNavigate: (i: number) => v
             <div className="flex items-center gap-3">
               <button className="text-white/90"><Bell className="w-5 h-5" /></button>
               <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                <Person className="w-4 h-4 text-white" />
+                <User className="w-4 h-4 text-white" />
               </div>
             </div>
           </div>
@@ -221,7 +221,7 @@ function HomeScreen({ onNavigate, onFeatureTap }: { onNavigate: (i: number) => v
             <div className="flex-1 flex flex-col justify-center">
               <div className="flex items-start gap-3">
                 <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
-                  <Description className="w-6 h-6 text-white" />
+                  <ClipboardList className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h4 className="text-white font-bold text-[15px]">PLP रिपोर्ट जनरेटर</h4>
@@ -232,7 +232,7 @@ function HomeScreen({ onNavigate, onFeatureTap }: { onNavigate: (i: number) => v
               </div>
               <div className="mt-3">
                 <span className="inline-flex items-center gap-1 text-white text-xs border border-white/60 rounded-full px-3 py-1.5">
-                  रिपोर्ट बनाएं <ArrowForward className="w-3.5 h-3.5" />
+                  रिपोर्ट बनाएं <ArrowRight className="w-3.5 h-3.5" />
                 </span>
               </div>
             </div>
@@ -261,7 +261,7 @@ function HomeScreen({ onNavigate, onFeatureTap }: { onNavigate: (i: number) => v
               <p className="text-white/70 text-[11px] mt-0.5">उपस्थिति पत्रक बनाएं और PDF तैयार करें</p>
             </div>
           </div>
-          <ArrowForward className="w-5 h-5 text-white/60" />
+          <ArrowRight className="w-5 h-5 text-white/60" />
         </motion.div>
       </div>
 
