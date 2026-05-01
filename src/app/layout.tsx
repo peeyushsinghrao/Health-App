@@ -1,21 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import "./web-portal.css";
 
 export const metadata: Metadata = {
-  title: "AHWC Health App Preview",
-  description: "Interactive preview of the AHWC Health App - Ayushman Arogya Mandir Monthly Performance Report System",
+  title: "Soochna Sahayak — Smart Office Assistant",
+  description:
+    "Soochna Sahayak (Smart Office Assistant) — Empowering Office Efficiency. PLP Report Generator, Staff Attendance, and more. An Initiative by Peeyush Singh Rao, Assistant Accounts Officer Grade II.",
 };
 
 export default function RootLayout({
@@ -25,12 +14,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="hi" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-        <Toaster />
-      </body>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;600;700&display=swap"
+          rel="stylesheet"
+        />
+        <meta name="theme-color" content="#0A6E6E" />
+      </head>
+      <body>{children}</body>
     </html>
   );
 }
