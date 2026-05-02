@@ -885,6 +885,209 @@ body::before{
 [data-theme="dark"] .screen-footer{background:rgba(30,41,59,0.6)}
 
 /* =========================================================
+   SOUND TOGGLE BUTTON
+   ========================================================= */
+.sound-toggle{
+  position:fixed;top:var(--space-5);right:calc(var(--space-5) + 62px);z-index:100;
+  width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:1.15rem;
+  background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--glass-border);
+  box-shadow:var(--shadow-md);
+  transition:all var(--transition-base);
+  animation:fadeInScale 0.5s cubic-bezier(0.4,0,0.2,1) 0.7s both;
+}
+.sound-toggle:hover{
+  transform:scale(1.1);
+  box-shadow:var(--shadow-lg),var(--shadow-glow);
+  border-color:var(--primary);
+}
+.sound-toggle:active{transform:scale(0.95);transition-duration:120ms}
+.sound-toggle span{
+  display:flex;align-items:center;justify-content:center;
+  transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s ease;
+  line-height:1;
+}
+.sound-toggle:hover span{transform:scale(1.15)}
+.sound-toggle.muted span{opacity:0.4}
+.sound-toggle.muted::after{
+  content:'';position:absolute;width:2px;height:60%;
+  background:var(--error);transform:rotate(45deg);border-radius:1px;
+  opacity:0;transition:opacity 0.2s ease;
+}
+.sound-toggle.muted:hover::after{opacity:1}
+
+/* =========================================================
+   ENHANCED MICRO-INTERACTIONS
+   ========================================================= */
+
+/* --- Dynamic Ripple (JS positions the circle at click point) --- */
+.ripple-wave{
+  position:absolute;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(255,255,255,0.35) 0%,rgba(255,255,255,0) 70%);
+  transform:scale(0);animation:rippleExpand 0.6s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+@keyframes rippleExpand{
+  0%{transform:scale(0);opacity:1}
+  100%{transform:scale(4);opacity:0}
+}
+
+/* --- Input Focus Glow Ring --- */
+.field-group input:focus,.field-group select:focus,.field-group textarea:focus{
+  animation:focusGlow 2s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes focusGlow{
+  0%{box-shadow:0 0 0 4px rgba(10,110,110,0.08),var(--shadow-md)}
+  30%{box-shadow:0 0 0 8px rgba(10,110,110,0.15),var(--shadow-md)}
+  100%{box-shadow:0 0 0 4px rgba(10,110,110,0.08),var(--shadow-md)}
+}
+
+/* --- Table cell focus glow --- */
+.inp-table td input:focus,.inp-table td select:focus{
+  animation:cellFocusGlow 1.8s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes cellFocusGlow{
+  0%{box-shadow:0 0 0 3px rgba(10,110,110,0.08)}
+  25%{box-shadow:0 0 0 6px rgba(10,110,110,0.14)}
+  100%{box-shadow:0 0 0 3px rgba(10,110,110,0.08)}
+}
+
+/* --- Loading Shimmer (skeleton placeholder) --- */
+.skeleton-shimmer{
+  background:linear-gradient(90deg,var(--bg-soft) 25%,var(--border-light) 50%,var(--bg-soft) 75%);
+  background-size:400% 100%;
+  animation:shimmer 1.5s ease-in-out infinite;
+}
+
+/* --- Button Shimmer Sweep --- */
+.btn-premium,.btn-pdf,.add-row-btn,.back-btn{
+  --shimmer-pos:-100%;
+  overflow:hidden;
+}
+.btn-premium::before,.btn-pdf::before,.add-row-btn::before{
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.12) 50%,transparent 100%) !important;
+  transition:left 0ms !important;
+  width:60%;
+}
+
+/* --- Card Press Depth Effect --- */
+.home-card{
+  --press-scale:0.97;
+  --press-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+.home-card:active{
+  transform:translateY(-2px) scale(var(--press-scale));
+  box-shadow:var(--press-shadow);
+  transition-duration:100ms;
+  transition-timing-function:cubic-bezier(0.4,0,0.2,1);
+}
+.home-card.pressed{
+  animation:cardPress 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes cardPress{
+  0%{transform:translateY(-2px) scale(var(--press-scale))}
+  40%{transform:translateY(0) scale(0.99)}
+  100%{transform:translateY(-2px) scale(1.01)}
+}
+
+/* --- Icon Hover Micro-Bounce --- */
+.card-icon{
+  transition:transform var(--transition-base),box-shadow var(--transition-base);
+}
+.home-card:hover .card-icon{
+  animation:iconBounce 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes iconBounce{
+  0%{transform:scale(1)}
+  40%{transform:scale(1.18) rotate(-6deg)}
+  70%{transform:scale(1.08) rotate(2deg)}
+  100%{transform:scale(1.1) rotate(-4deg)}
+}
+.home-card.primary:hover .card-icon{
+  animation:iconBouncePrimary 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes iconBouncePrimary{
+  0%{transform:scale(1)}
+  40%{transform:scale(1.2) rotate(-8deg)}
+  70%{transform:scale(1.1) rotate(3deg)}
+  100%{transform:scale(1.15) rotate(-4deg)}
+}
+
+/* --- Button Press Ripple (primary action emphasis) --- */
+.btn-premium:active,.btn-pdf:active,.add-row-btn:active{
+  animation:btnPress 0.15s ease;
+}
+@keyframes btnPress{
+  0%{transform:translateY(-2px) scale(0.97)}
+  50%{transform:translateY(0) scale(0.99)}
+  100%{transform:translateY(-1px) scale(0.97)}
+}
+
+/* --- Tooltip Animation --- */
+[data-tooltip]{
+  position:relative;
+}
+[data-tooltip]::after{
+  content:attr(data-tooltip);
+  position:absolute;bottom:calc(100% + 10px);left:50%;
+  transform:translateX(-50%) translateY(4px);
+  background:var(--text-primary);color:var(--card);
+  font-size:0.75rem;font-weight:500;letter-spacing:0.02em;
+  padding:var(--space-2) var(--space-3);border-radius:var(--radius-sm);
+  white-space:nowrap;pointer-events:none;
+  opacity:0;
+  transition:opacity 0.25s ease,transform 0.25s cubic-bezier(0.4,0,0.2,1);
+  z-index:50;
+  box-shadow:var(--shadow-md);
+}
+[data-tooltip]::before{
+  content:'';position:absolute;bottom:calc(100% + 6px);left:50%;
+  transform:translateX(-50%) translateY(4px);
+  border:5px solid transparent;border-top-color:var(--text-primary);
+  opacity:0;
+  transition:opacity 0.25s ease,transform 0.25s cubic-bezier(0.4,0,0.2,1);
+  z-index:50;
+}
+[data-tooltip]:hover::after,
+[data-tooltip]:hover::before{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+/* --- Success Pulse Animation (for PDF success) --- */
+.success-pulse{
+  animation:successPulse 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes successPulse{
+  0%{box-shadow:var(--shadow-md),0 0 0 0 rgba(16,185,129,0)}
+  40%{box-shadow:var(--shadow-md),0 0 0 8px rgba(16,185,129,0.2)}
+  100%{box-shadow:var(--shadow-md),0 0 0 16px rgba(16,185,129,0)}
+}
+
+/* --- Error Shake Enhancement --- */
+.err-box{animation:shakeEnhanced 0.5s cubic-bezier(0.4,0,0.2,1)}
+@keyframes shakeEnhanced{
+  0%,100%{transform:translateX(0)}
+  15%{transform:translateX(-6px) rotate(-0.5deg)}
+  30%{transform:translateX(5px) rotate(0.5deg)}
+  45%{transform:translateX(-4px)}
+  60%{transform:translateX(3px)}
+  75%{transform:translateX(-2px)}
+}
+
+/* --- Form Panel Header Icon Pulse --- */
+.form-panel-header span:first-child{
+  transition:transform var(--transition-base);
+}
+.form-panel:hover .form-panel-header span:first-child{
+  animation:headerIconPulse 1.2s ease-in-out infinite;
+}
+@keyframes headerIconPulse{
+  0%,100%{transform:scale(1) rotate(0deg)}
+  50%{transform:scale(1.08) rotate(3deg)}
+}
+
+/* =========================================================
    PRINT STYLES
    ========================================================= */
 @media print{

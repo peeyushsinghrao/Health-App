@@ -321,6 +321,7 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
   if (errs.length) {
     errBox.innerHTML = errs.map(e => `<div>⚠️ ${e}</div>`).join('');
     errBox.style.display = 'block';
+    if (window.soundFX) window.soundFX.error();
     return;
   }
   errBox.style.display = 'none';
@@ -340,6 +341,9 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
       pagebreak: { mode: 'avoid-all' },
     };
     await html2pdf().set(opt).from(element).save();
+    if (window.soundFX) window.soundFX.success();
+    var pdfBtn = document.getElementById('btn-pdf');
+    if (pdfBtn) { pdfBtn.classList.add('success-pulse'); setTimeout(function(){ pdfBtn.classList.remove('success-pulse'); }, 600); }
   } finally {
     overlay.classList.remove('active');
   }
@@ -740,6 +744,9 @@ document.getElementById('att-btn-pdf').addEventListener('click', async () => {
       pagebreak: { mode: 'avoid-all' }
     };
     await html2pdf().set(opt).from(element).save();
+    if (window.soundFX) window.soundFX.success();
+    var attPdfBtn = document.getElementById('att-btn-pdf');
+    if (attPdfBtn) { attPdfBtn.classList.add('success-pulse'); setTimeout(function(){ attPdfBtn.classList.remove('success-pulse'); }, 600); }
   } finally {
     overlay.classList.remove('active');
   }
@@ -788,3 +795,110 @@ renderAttTable();
   if (eb) eb.title = isInitDark ? 'Light Mode' : 'Dark Mode';
 })();
 /* === END DARK MODE TOGGLE === */
+
+/* =========================================================
+   SOUND SYSTEM — Web Audio API (lightweight, no external files)
+   ========================================================= */
+(function(){
+  var audioCtx = null;
+  var soundEnabled = localStorage.getItem('soundEnabled');
+  // Default ON if never set
+  if (soundEnabled === null) soundEnabled = 'true';
+
+  function getAudioCtx() {
+    if (!audioCtx) {
+      try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+      catch(e) { return null; }
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function playTone(freq, duration, vol, type) {
+    if (soundEnabled !== 'true') return;
+    var ctx = getAudioCtx();
+    if (!ctx) return;
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(Math.min(vol || 0.12, 0.3), ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + duration);
+  }
+
+  window.soundFX = {
+    click: function() { playTone(800, 0.06, 0.10, 'sine'); },
+    success: function() {
+      playTone(523, 0.12, 0.15, 'sine');
+      setTimeout(function(){ playTone(659, 0.15, 0.15, 'sine'); }, 80);
+      setTimeout(function(){ playTone(784, 0.18, 0.12, 'sine'); }, 170);
+    },
+    error: function() {
+      playTone(300, 0.15, 0.12, 'triangle');
+      setTimeout(function(){ playTone(260, 0.2, 0.10, 'triangle'); }, 120);
+    },
+    toggle: function() { playTone(600, 0.05, 0.08, 'sine'); }
+  };
+
+  window.isSoundEnabled = function() { return soundEnabled === 'true'; };
+
+  window.toggleSound = function() {
+    soundEnabled = soundEnabled === 'true' ? 'false' : 'true';
+    localStorage.setItem('soundEnabled', soundEnabled);
+
+    var btn = document.getElementById('sound-toggle');
+    var icon = document.getElementById('sound-icon');
+    if (btn && icon) {
+      if (soundEnabled === 'true') {
+        btn.classList.remove('muted');
+        icon.textContent = '\u{1F514}';
+        btn.title = 'Sound Effects — On';
+        btn.setAttribute('aria-label', 'Mute sound effects');
+      } else {
+        btn.classList.add('muted');
+        icon.textContent = '\u{1F507}';
+        btn.title = 'Sound Effects — Off';
+        btn.setAttribute('aria-label', 'Enable sound effects');
+      }
+    }
+    window.soundFX.toggle();
+  };
+
+  // Set initial state
+  var btn = document.getElementById('sound-toggle');
+  var icon = document.getElementById('sound-icon');
+  if (btn && icon) {
+    if (soundEnabled !== 'true') {
+      btn.classList.add('muted');
+      icon.textContent = '\u{1F507}';
+      btn.title = 'Sound Effects — Off';
+    } else {
+      icon.textContent = '\u{1F514}';
+      btn.title = 'Sound Effects — On';
+    }
+  }
+
+  /* === Enhanced Ripple Effect (positioned at click point) === */
+  document.addEventListener('click', function(e) {
+    var target = e.target.closest('.home-card,.btn-premium,.btn-pdf,.add-row-btn,.back-btn,.rm-btn,.sound-toggle,.theme-toggle');
+    if (!target) return;
+    var rect = target.getBoundingClientRect();
+    var x = e.clientX - rect.left;
+    var y = e.clientY - rect.top;
+    var size = Math.max(rect.width, rect.height) * 2.5;
+    var wave = document.createElement('span');
+    wave.className = 'ripple-wave';
+    wave.style.width = size + 'px';
+    wave.style.height = size + 'px';
+    wave.style.left = (x - size / 2) + 'px';
+    wave.style.top = (y - size / 2) + 'px';
+    target.appendChild(wave);
+    setTimeout(function() { if (wave.parentNode) wave.parentNode.removeChild(wave); }, 600);
+    window.soundFX.click();
+  });
+})();
+/* === END SOUND SYSTEM === */

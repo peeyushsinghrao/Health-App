@@ -76,6 +76,17 @@ export default function Home() {
         <span id="theme-icon">🌙</span>
       </button>
 
+      {/* ========== SOUND TOGGLE ========== */}
+      <button
+        id="sound-toggle"
+        className="sound-toggle no-print"
+        onClick={() => { if (typeof window !== 'undefined') (window as any).toggleSound?.(); }}
+        aria-label="Toggle sound effects"
+        title="Sound Effects"
+      >
+        <span id="sound-icon">🔔</span>
+      </button>
+
       {/* ========== HOME SCREEN ========== */}
       <div id="home-screen" className="home-screen">
         <div className="home-header-container">
@@ -85,6 +96,7 @@ export default function Home() {
         <div className="home-cards">
           <div
             className="home-card primary"
+            data-tooltip="Generate PLP Performance Report"
             onClick={() => { if (typeof window !== 'undefined') (window as any).showPanel?.('plp-panel'); }}
           >
             <div className="card-icon">📊</div>
@@ -93,6 +105,7 @@ export default function Home() {
           </div>
           <div
             className="home-card"
+            data-tooltip="Staff Attendance Tracker"
             onClick={() => { if (typeof window !== 'undefined') (window as any).showPanel?.('staff-att-panel'); }}
           >
             <div className="card-icon">👥</div>
