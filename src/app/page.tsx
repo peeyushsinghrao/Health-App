@@ -1,6 +1,7 @@
 'use client';
 
 import Script from 'next/script';
+import { BarChart3, Users, Heart, Volume2, ClipboardList, FileDown, Eye, Printer, Download, ArrowRight, ArrowLeft } from 'lucide-react';
 
 /* ═══════════════════════════════════════════════════════════════
    Soochna Sahayak — Smart Office Assistant
@@ -73,15 +74,12 @@ export default function Home() {
         aria-label="Toggle sound effects"
         title="Sound Effects"
       >
-        <span id="sound-icon">🔔</span>
+        <span id="sound-icon"><Volume2 size={20} strokeWidth={2} /></span>
       </button>
 
       {/* ========== HOME SCREEN ========== */}
       <div id="home-screen" className="home-screen">
         <div className="home-header-container">
-          <div className="hero-light-overlay" />
-          <div className="hero-orb hero-orb-1" />
-          <div className="hero-orb hero-orb-2" />
           <div className="home-header">Soochna Sahayak</div>
           <div className="home-subtitle">Smart Office Assistant — Empowering Office Efficiency</div>
           <span className="header-line" />
@@ -92,27 +90,27 @@ export default function Home() {
             data-tooltip="Generate PLP Performance Report"
             onClick={() => { if (typeof window !== 'undefined') (window as any).showPanel?.('plp-panel'); }}
           >
-            <div className="card-icon">📊</div>
+            <div className="card-icon"><BarChart3 size={32} strokeWidth={1.8} /></div>
             <div className="card-title">PLP Report</div>
             <div className="card-desc">Generate performance report</div>
-            <div className="card-arrow">→</div>
+            <div className="card-arrow"><ArrowRight size={20} strokeWidth={2.5} /></div>
           </div>
           <div
             className="home-card"
             data-tooltip="Staff Attendance Tracker"
             onClick={() => { if (typeof window !== 'undefined') (window as any).showPanel?.('staff-att-panel'); }}
           >
-            <div className="card-icon">👥</div>
+            <div className="card-icon"><Users size={32} strokeWidth={1.8} /></div>
             <div className="card-title">Staff Attendance</div>
             <div className="card-desc">Track staff attendance</div>
-            <div className="card-arrow">→</div>
+            <div className="card-arrow"><ArrowRight size={20} strokeWidth={2.5} /></div>
           </div>
           <div className="home-card coming-soon" onClick={() => alert('Coming Soon')}>
             <div className="card-badge">Coming Soon</div>
-            <div className="card-icon">🧘</div>
+            <div className="card-icon"><Heart size={32} strokeWidth={1.8} /></div>
             <div className="card-title">Yoga Instructor Attendance</div>
             <div className="card-desc">Coming Soon</div>
-            <div className="card-arrow">→</div>
+            <div className="card-arrow"><ArrowRight size={20} strokeWidth={2.5} /></div>
           </div>
         </div>
         <div className="home-footer">
@@ -127,13 +125,13 @@ export default function Home() {
           className="back-btn no-print"
           onClick={() => { if (typeof window !== 'undefined') (window as any).showHomeScreen?.(); }}
         >
-          ← Back to Home
+          <ArrowLeft size={16} strokeWidth={2.5} /> Back to Home
         </button>
 
         {/* Form Panel */}
         <div className="form-panel no-print">
           <div className="form-panel-header">
-            <span>📋</span>
+            <span><ClipboardList size={20} strokeWidth={2} /></span>
             <span>AHWC मासिक प्रदर्शन PLP रिपोर्ट — डेटा दर्ज करें</span>
           </div>
 
@@ -162,7 +160,7 @@ export default function Home() {
             </div>
 
             {/* Table 1 */}
-            <div className="sec-label">📊 तालिका 1 — लक्ष्य एवं प्राप्ति</div>
+            <div className="sec-label"><BarChart3 size={16} strokeWidth={2} /> तालिका 1 — लक्ष्य एवं प्राप्ति</div>
             <div className="tbl-scroll">
               <table className="inp-table">
                 <thead>
@@ -181,7 +179,7 @@ export default function Home() {
             </div>
 
             {/* Table 2 */}
-            <div className="sec-label">👥 तालिका 2 — कर्मचारी भुगतान विवरण</div>
+            <div className="sec-label"><Users size={16} strokeWidth={2} /> तालिका 2 — कर्मचारी भुगतान विवरण</div>
             <div className="tbl-scroll">
               <table className="inp-table">
                 <thead>
@@ -206,7 +204,7 @@ export default function Home() {
 
             {/* Generate PDF */}
             <div className="gen-btn-row">
-              <button className="btn-pdf ripple" id="btn-pdf">📄 Generate PDF</button>
+              <button className="btn-pdf ripple" id="btn-pdf"><FileDown size={20} strokeWidth={2} /> Generate PDF</button>
             </div>
           </div>
         </div>
@@ -307,12 +305,12 @@ export default function Home() {
           className="back-btn no-print"
           onClick={() => { if (typeof window !== 'undefined') (window as any).showHomeScreen?.(); }}
         >
-          ← Back to Home
+          <ArrowLeft size={16} strokeWidth={2.5} /> Back to Home
         </button>
 
         <div className="form-panel att-form-panel no-print">
           <div className="form-panel-header">
-            <span>👥</span>
+            <span><Users size={20} strokeWidth={2} /></span>
             <span>Staff Attendance — डेटा दर्ज करें</span>
           </div>
 
@@ -358,9 +356,9 @@ export default function Home() {
             </div>
 
             <div className="gen-btn-row att-btn-row">
-              <button className="btn-premium btn-neutral ripple" id="att-btn-preview">👁️ Preview</button>
-              <button className="btn-premium btn-primary ripple" id="att-btn-print">🖨️ Print</button>
-              <button className="btn-premium btn-accent ripple" id="att-btn-pdf">💾 Save PDF</button>
+              <button className="btn-premium btn-neutral ripple" id="att-btn-preview"><Eye size={18} strokeWidth={2} /> Preview</button>
+              <button className="btn-premium btn-primary ripple" id="att-btn-print"><Printer size={18} strokeWidth={2} /> Print</button>
+              <button className="btn-premium btn-accent ripple" id="att-btn-pdf"><Download size={18} strokeWidth={2} /> Save PDF</button>
             </div>
           </div>
         </div>
