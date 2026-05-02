@@ -90,8 +90,12 @@ export default function Home() {
       {/* ========== HOME SCREEN ========== */}
       <div id="home-screen" className="home-screen">
         <div className="home-header-container">
+          <div className="hero-light-overlay" />
+          <div className="hero-orb hero-orb-1" />
+          <div className="hero-orb hero-orb-2" />
           <div className="home-header">Soochna Sahayak</div>
           <div className="home-subtitle">Smart Office Assistant — Empowering Office Efficiency</div>
+          <span className="header-line" />
         </div>
         <div className="home-cards">
           <div
@@ -101,6 +105,7 @@ export default function Home() {
           >
             <div className="card-icon">📊</div>
             <div className="card-title">PLP Report</div>
+            <div className="card-desc">Generate performance report</div>
             <div className="card-arrow">→</div>
           </div>
           <div
@@ -110,12 +115,14 @@ export default function Home() {
           >
             <div className="card-icon">👥</div>
             <div className="card-title">Staff Attendance</div>
+            <div className="card-desc">Track staff attendance</div>
             <div className="card-arrow">→</div>
           </div>
           <div className="home-card coming-soon" onClick={() => alert('Coming Soon')}>
             <div className="card-badge">Coming Soon</div>
             <div className="card-icon">🧘</div>
             <div className="card-title">Yoga Instructor Attendance</div>
+            <div className="card-desc">Coming Soon</div>
             <div className="card-arrow">→</div>
           </div>
         </div>
