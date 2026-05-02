@@ -91,6 +91,11 @@
   --transition-base:280ms cubic-bezier(0.4,0,0.2,1);
   --transition-slow:400ms cubic-bezier(0.4,0,0.2,1);
   --transition-spring:500ms cubic-bezier(0.34,1.56,0.64,1);
+  --transition-bounce:600ms cubic-bezier(0.68,-0.55,0.265,1.55);
+
+  /* Animation durations */
+  --anim-duration:0.55s;
+  --anim-stagger:80ms;
 }
 
 /* =========================================================
@@ -133,7 +138,8 @@ body::before{
   display:flex;
   flex-direction:column;
   gap:var(--space-8);
-  animation:fadeSlideUp 0.6s var(--transition-base) both;
+  animation:fadeSlideUp var(--anim-duration) cubic-bezier(0.4,0,0.2,1) both;
+  will-change:transform,opacity;
 }
 @media(min-width:1024px){
   .outer-wrap{
@@ -144,8 +150,28 @@ body::before{
 }
 
 @keyframes fadeSlideUp{
-  from{opacity:0;transform:translateY(16px)}
+  from{opacity:0;transform:translateY(20px)}
   to{opacity:1;transform:translateY(0)}
+}
+
+@keyframes fadeInDown{
+  from{opacity:0;transform:translateY(-12px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+@keyframes fadeInScale{
+  from{opacity:0;transform:scale(0.95) translateY(12px)}
+  to{opacity:1;transform:scale(1) translateY(0)}
+}
+
+@keyframes shimmer{
+  0%{background-position:-200% 0}
+  100%{background-position:200% 0}
+}
+
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-6px)}
 }
 
 /* ====== FORM PANEL — Glassmorphism v2 ====== */
@@ -474,7 +500,8 @@ body::before{
   min-height:100vh;
   justify-content:center;align-items:center;
   max-width:1100px;margin:0 auto;
-  animation:fadeSlideUp 0.8s var(--transition-base) both;
+  animation:fadeInScale 0.7s cubic-bezier(0.4,0,0.2,1) both;
+  will-change:transform,opacity;
 }
 
 /* ====== Header ====== */
@@ -482,6 +509,8 @@ body::before{
   margin-bottom:var(--space-12);
   text-align:center;
   position:relative;
+  animation:fadeInDown 0.6s cubic-bezier(0.4,0,0.2,1) 0.08s both;
+  will-change:transform,opacity;
 }
 .home-header{
   font-size:clamp(2rem,5.5vw,2.75rem);font-weight:800;margin-bottom:var(--space-3);
@@ -501,7 +530,12 @@ body::before{
   background:linear-gradient(90deg,var(--primary),var(--accent));
   border-radius:var(--radius-full);
   margin:var(--space-5) auto 0;
-  opacity:0.6;
+  opacity:0;
+  animation:lineGrow 0.5s cubic-bezier(0.4,0,0.2,1) 0.5s forwards;
+}
+@keyframes lineGrow{
+  from{opacity:0;transform:translateX(-50%) scaleX(0)}
+  to{opacity:0.6;transform:translateX(-50%) scaleX(1)}
 }
 
 /* ====== PREMIUM CARDS v2 ====== */
@@ -517,6 +551,7 @@ body::before{
   box-shadow:var(--shadow-card);
   transition:all var(--transition-base);
   display:flex;flex-direction:column;align-items:center;gap:var(--space-5);
+  will-change:transform,box-shadow;
 }
 
 /* Subtle top accent line */
@@ -532,13 +567,13 @@ body::before{
   pointer-events:none;
 }
 .home-card:hover{
-  transform:translateY(-6px);
+  transform:translateY(-6px) scale(1.01);
   box-shadow:var(--shadow-card-hover),var(--shadow-glow);
   border-color:rgba(10,110,110,0.12);
 }
 .home-card:hover::before{transform:scaleX(1)}
 .home-card:hover::after{opacity:1}
-.home-card:active{transform:translateY(-3px) scale(0.985)}
+.home-card:active{transform:translateY(-2px) scale(0.97);transition-duration:120ms}
 
 /* Primary Card (PLP) — Hero highlight */
 .home-card.primary{
@@ -556,7 +591,7 @@ body::before{
 }
 .home-card.primary:hover{
   box-shadow:var(--shadow-card-hover),var(--shadow-glow-strong);
-  transform:translateY(-8px);
+  transform:translateY(-8px) scale(1.01);
 }
 .home-card.primary .card-icon{
   background:rgba(255,255,255,0.15);
@@ -595,7 +630,7 @@ body::before{
   color:var(--primary);transition:all var(--transition-base);
   border:1px solid rgba(10,110,110,0.08);
 }
-.home-card:hover .card-icon{transform:scale(1.08) rotate(-3deg)}
+.home-card:hover .card-icon{transform:scale(1.1) rotate(-4deg);box-shadow:0 4px 12px rgba(10,110,110,0.15)}
 
 .card-title{font-size:1.0625rem;font-weight:700;color:var(--text-primary);line-height:1.3;letter-spacing:-0.01em}
 .card-arrow{
@@ -604,10 +639,10 @@ body::before{
 }
 .home-card:hover .card-arrow{opacity:0.7;transform:translateX(0)}
 
-/* Card Stagger */
-.home-card:nth-child(1){animation:fadeSlideUp 0.5s var(--transition-base) 0.15s both}
-.home-card:nth-child(2){animation:fadeSlideUp 0.5s var(--transition-base) 0.25s both}
-.home-card:nth-child(3){animation:fadeSlideUp 0.5s var(--transition-base) 0.35s both}
+/* Card Stagger — 80ms between each */
+.home-card:nth-child(1){animation:fadeInScale var(--anim-duration) cubic-bezier(0.4,0,0.2,1) 0.15s both}
+.home-card:nth-child(2){animation:fadeInScale var(--anim-duration) cubic-bezier(0.4,0,0.2,1) 0.23s both}
+.home-card:nth-child(3){animation:fadeInScale var(--anim-duration) cubic-bezier(0.4,0,0.2,1) 0.31s both}
 
 /* ====== HOME FOOTER ====== */
 .home-footer{
@@ -616,6 +651,8 @@ body::before{
   border-radius:var(--radius-2xl);width:100%;max-width:560px;
   box-shadow:var(--shadow-sm);
   position:relative;
+  animation:fadeSlideUp var(--anim-duration) cubic-bezier(0.4,0,0.2,1) 0.4s both;
+  will-change:transform,opacity;
 }
 .home-footer::before{
   content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
@@ -638,9 +675,9 @@ body::before{
   letter-spacing:0.01em;
 }
 .back-btn::before{content:'←';transition:transform var(--transition-base);font-weight:700}
-.back-btn:hover{background:var(--primary);color:var(--text-white);border-color:var(--primary);transform:translateX(-3px);box-shadow:var(--shadow-md)}
-.back-btn:hover::before{transform:translateX(-3px)}
-.back-btn:active{transform:scale(0.96)}
+.back-btn:hover{background:var(--primary);color:var(--text-white);border-color:var(--primary);transform:translateX(-4px);box-shadow:var(--shadow-md)}
+.back-btn:hover::before{transform:translateX(-4px)}
+.back-btn:active{transform:scale(0.97);transition-duration:120ms}
 
 /* ====== STAFF ATTENDANCE ====== */
 .att-outer-wrap{animation:fadeSlideUp 0.6s var(--transition-base) both}
@@ -725,17 +762,18 @@ body::before{
    ========================================================= */
 :focus-visible{outline:2px solid var(--primary);outline-offset:3px;border-radius:4px}
 
-.page-transition{animation:pageTransition 0.4s ease both}
+.page-transition{animation:pageTransition 0.4s cubic-bezier(0.4,0,0.2,1) both}
 @keyframes pageTransition{
   from{opacity:0;transform:translateX(16px)}
   to{opacity:1;transform:translateX(0)}
 }
 
-.hover-lift{transition:transform var(--transition-base),box-shadow var(--transition-base)}
-.hover-lift:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.hover-lift{transition:transform var(--transition-base),box-shadow var(--transition-base);will-change:transform,box-shadow}
+.hover-lift:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg)}
+.hover-lift:active{transform:translateY(-2px) scale(0.97);transition-duration:120ms}
 
 .ripple{position:relative;overflow:hidden}
-.ripple::after{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:rgba(255,255,255,0.25);border-radius:50%;transform:translate(-50%,-50%);transition:width 0.5s,height 0.5s}
+.ripple::after{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:rgba(255,255,255,0.25);border-radius:50%;transform:translate(-50%,-50%);transition:width 0.45s cubic-bezier(0.4,0,0.2,1),height 0.45s cubic-bezier(0.4,0,0.2,1)}
 .ripple:active::after{width:300px;height:300px}
 
 /* =========================================================
@@ -753,8 +791,43 @@ body::before{
   }
 }
 
+/* =========================================================
+   SCROLL REVEAL SYSTEM
+   ========================================================= */
+.reveal{
+  opacity:0;
+  transform:translateY(20px);
+  transition:opacity 0.55s cubic-bezier(0.4,0,0.2,1),transform 0.55s cubic-bezier(0.4,0,0.2,1);
+}
+.reveal.visible{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* Stagger reveal for children */
+.reveal-stagger > *{
+  opacity:0;
+  transform:translateY(16px);
+  transition:opacity 0.45s cubic-bezier(0.4,0,0.2,1),transform 0.45s cubic-bezier(0.4,0,0.2,1);
+}
+.reveal-stagger.visible > *:nth-child(1){transition-delay:0ms}
+.reveal-stagger.visible > *:nth-child(2){transition-delay:80ms}
+.reveal-stagger.visible > *:nth-child(3){transition-delay:160ms}
+.reveal-stagger.visible > *:nth-child(4){transition-delay:240ms}
+.reveal-stagger.visible > *:nth-child(5){transition-delay:320ms}
+.reveal-stagger.visible > *{opacity:1;transform:translateY(0)}
+
+/* =========================================================
+   SUBTLE PARALLAX (CSS-only, mouse-driven via custom property)
+   ========================================================= */
+.home-screen{
+  --parallax-x:0px;
+  --parallax-y:0px;
+}
+
 /* Reduce motion for accessibility */
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important}
   html{scroll-behavior:auto}
+  .reveal,.reveal-stagger > *{opacity:1;transform:none;transition:none}
 }

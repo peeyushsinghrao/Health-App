@@ -17,6 +17,46 @@ export default function Home() {
       {/* Web Portal Logic */}
       <Script src="/web-portal.js" strategy="afterInteractive" />
 
+      {/* Lightweight animation init — scroll reveal + parallax (CSS-driven) */}
+      <Script id="anim-init" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: `
+(function(){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  /* Scroll reveal — IntersectionObserver toggles .visible class */
+  var reveals = document.querySelectorAll('.reveal, .reveal-stagger');
+  if(reveals.length){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); }
+      });
+    },{threshold:0.12, rootMargin:'0px 0px -40px 0px'});
+    reveals.forEach(function(el){ io.observe(el); });
+  }
+
+  /* Subtle parallax on home screen cards — CSS custom properties, rAF throttle */
+  var home = document.getElementById('home-screen');
+  var cards = home ? home.querySelectorAll('.home-card') : [];
+  if(cards.length && window.matchMedia('(hover:hover)').matches){
+    var raf = null;
+    document.addEventListener('mousemove', function(e){
+      if(raf) return;
+      raf = requestAnimationFrame(function(){
+        var cx = (e.clientX / window.innerWidth - 0.5) * 2;
+        var cy = (e.clientY / window.innerHeight - 0.5) * 2;
+        cards.forEach(function(c, i){
+          var depth = (i + 1) * 0.6;
+          c.style.transform = 'translate(' + (cx * depth * 0.5).toFixed(1) + 'px,' + (cy * depth * 0.3).toFixed(1) + 'px)';
+        });
+        raf = null;
+      });
+    });
+    document.addEventListener('mouseleave', function(){
+      cards.forEach(function(c){ c.style.transform = ''; });
+    });
+  }
+})();
+` }} />
+
       {/* ========== LOADING OVERLAY ========== */}
       <div className="overlay" id="overlay">
         <div className="overlay-box">
