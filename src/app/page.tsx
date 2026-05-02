@@ -65,6 +65,17 @@ export default function Home() {
         </div>
       </div>
 
+      {/* ========== DARK MODE TOGGLE ========== */}
+      <button
+        id="theme-toggle"
+        className="theme-toggle no-print"
+        onClick={() => { if (typeof window !== 'undefined') (window as any).toggleTheme?.(); }}
+        aria-label="Toggle dark mode"
+        title="Dark Mode"
+      >
+        <span id="theme-icon">🌙</span>
+      </button>
+
       {/* ========== HOME SCREEN ========== */}
       <div id="home-screen" className="home-screen">
         <div className="home-header-container">

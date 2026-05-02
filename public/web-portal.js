@@ -747,3 +747,44 @@ document.getElementById('att-btn-pdf').addEventListener('click', async () => {
 
 renderAttTable();
 /* === END STAFF ATTENDANCE === */
+
+/* === DARK MODE TOGGLE === */
+(function(){
+  window.toggleTheme = function() {
+    var html = document.documentElement;
+    var isDark = html.getAttribute('data-theme') === 'dark';
+
+    // Add smooth transition class
+    document.body.classList.add('dark-transition');
+
+    if (isDark) {
+      html.removeAttribute('data-theme');
+      localStorage.setItem('theme', 'light');
+    } else {
+      html.setAttribute('data-theme', 'dark');
+      localStorage.setItem('theme', 'dark');
+    }
+
+    // Remove transition class after animation completes
+    setTimeout(function(){ document.body.classList.remove('dark-transition'); }, 450);
+
+    // Update icon
+    var icon = document.getElementById('theme-icon');
+    if (icon) icon.textContent = isDark ? '\u{1F319}' : '\u2600\uFE0F';
+
+    // Update tooltip
+    var btn = document.getElementById('theme-toggle');
+    if (btn) {
+      btn.title = isDark ? 'Dark Mode' : 'Light Mode';
+      btn.setAttribute('aria-label', isDark ? 'Switch to dark mode' : 'Switch to light mode');
+    }
+  };
+
+  // Set initial icon state
+  var isInitDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  var ei = document.getElementById('theme-icon');
+  if (ei) ei.textContent = isInitDark ? '\u2600\uFE0F' : '\u{1F319}';
+  var eb = document.getElementById('theme-toggle');
+  if (eb) eb.title = isInitDark ? 'Light Mode' : 'Dark Mode';
+})();
+/* === END DARK MODE TOGGLE === */

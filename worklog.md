@@ -25,3 +25,27 @@ Stage Summary:
 - Active branch: main (clean, up to date with origin)
 - How to run: cd /home/z/my-project && npm run dev
 - Preview: http://localhost:3000
+---
+Task ID: 1
+Agent: Main Agent
+Task: Implement Phase 2 Glass UI + Dark Mode Toggle
+
+Work Log:
+- Read all current source files (web-portal.css, web-portal.js, page.tsx, layout.tsx)
+- Added complete dark mode CSS variable system with [data-theme="dark"] selector
+- Implemented smooth theme transition class (body.dark-transition) with cubic-bezier easing
+- Applied Glass UI effect to home cards: rgba(255,255,255,0.7) background, backdrop-filter blur(10px), semi-transparent border
+- Added soft gradient background layer to cards via ::after pseudo-element
+- Added dark mode toggle button CSS (fixed position, glass effect, hover rotation animation)
+- Added comprehensive dark mode overrides: body background, header gradient, input fields, table rows, section labels, A4 preview wrapper, scrollbar, overlay, buttons, error box, text selection, footer glass
+- Added theme toggle button JSX to page.tsx (fixed top-right, moon/sun icons)
+- Added dark mode toggle JS logic to web-portal.js (localStorage persistence, icon swapping, smooth transition)
+- Added FOUC-prevention inline script to layout.tsx <head> (synchronous theme detection before render)
+- Build verified successful, all CSS features confirmed in compiled output
+
+Stage Summary:
+- Files modified: web-portal.css (glass + dark mode CSS), page.tsx (toggle button), layout.tsx (FOUC script), web-portal.js (toggle logic)
+- Dark mode: background #0F172A, card #1E293B, text #E5E7EB, accent #0D9488
+- Toggle: fixed top-right circular button with moon/sun icon, glass morphism style, hover scale+rotate
+- Theme persistence via localStorage, respects system prefers-color-scheme
+- Smooth 400ms cubic-bezier transition between themes

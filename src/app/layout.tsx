@@ -22,6 +22,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
         <meta name="theme-color" content="#0A6E6E" />
+        <script dangerouslySetInnerHTML={{ __html: `(function(){var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.setAttribute('data-theme','dark')}})();` }} />
       </head>
       <body>{children}</body>
     </html>
