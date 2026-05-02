@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "./web-portal.css";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Soochna Sahayak — Smart Office Assistant",
@@ -16,14 +16,17 @@ export default function RootLayout({
     <html lang="hi" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
           rel="stylesheet"
         />
-        <meta name="theme-color" content="#0A6E6E" />
+        <meta name="theme-color" content="#0A0F1E" />
       </head>
-      <body>{children}</body>
+      <body className="antialiased">
+        <div className="grain-overlay pointer-events-none fixed inset-0 z-50"></div>
+        {children}
+      </body>
     </html>
   );
 }
