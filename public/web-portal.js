@@ -96,8 +96,8 @@ function renderKaryaTable() {
     <tr>
       <td class="sno">${i+1}</td>
       <td class="karya-name">${KARYA_NAMES[i]}</td>
-      <td><input type="number" min="0" value="${row.lakshya}" data-row="${i}" data-field="lakshya" placeholder="0"></td>
-      <td><input type="number" min="0" value="${row.prapti}" data-row="${i}" data-field="prapti" placeholder="0"></td>
+      <td><input type="text" inputMode="numeric" pattern="[0-9]*" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" value="${row.lakshya}" data-row="${i}" data-field="lakshya" placeholder="0"></td>
+      <td><input type="text" inputMode="numeric" pattern="[0-9]*" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" value="${row.prapti}" data-row="${i}" data-field="prapti" placeholder="0"></td>
       <td class="pct-cell">${pcts[i].toFixed(2)}%</td>
       <td class="rashi-cell">₹${rashis[i]}</td>
     </tr>`).join('');
@@ -201,12 +201,55 @@ function renderAll() {
 /* =========================================================
    EVENT DELEGATION — FORM INPUTS
    ========================================================= */
+function updatePLPFormCells() {
+  const pcts = getPercentArr(), rashis = getRashiArr(), total = getTotalRashi(), perf = getPerformancePct();
+  
+  // Table 1 Update
+  state.rows.forEach((r, i) => {
+    const tr = document.querySelector(`#karya-tbody tr:nth-child(${i+1})`);
+    if(tr) {
+      const pctCell = tr.querySelector('.pct-cell');
+      if(pctCell) pctCell.textContent = pcts[i].toFixed(2) + '%';
+      const rashiCell = tr.querySelector('.rashi-cell');
+      if(rashiCell) rashiCell.textContent = '₹' + rashis[i];
+    }
+  });
+  const kTfoot = document.getElementById('karya-tfoot');
+  if(kTfoot) {
+    kTfoot.innerHTML = `<tr>
+      <td colspan="5" style="text-align:right;font-weight:700;padding:6px 8px">
+        कुल: ₹${total} / ₹5000 &nbsp;|&nbsp; प्रदर्शन: ${perf.toFixed(2)}%
+      </td>
+      <td style="font-weight:700;color:var(--green)">₹${total}</td>
+    </tr>`;
+  }
+  
+  // Table 2 Update (amount depends on perf)
+  state.karmachari.forEach((k, i) => {
+    const tr = document.querySelector(`#karma-tbody tr:nth-child(${i+1})`);
+    if(tr) {
+      const rashiCell = tr.querySelector('.rashi-cell');
+      if(rashiCell) rashiCell.textContent = inr(getPayment(k.pad));
+    }
+  });
+  const kTotal = state.karmachari.reduce((s, r) => s + getPayment(r.pad), 0);
+  const cTfoot = document.getElementById('karma-tfoot');
+  if(cTfoot) {
+    cTfoot.innerHTML = `<tr>
+      <td colspan="7" style="text-align:right;font-weight:700;padding:6px 8px">कुल भुगतान:</td>
+      <td style="font-weight:700;color:var(--green)">${inr(kTotal)}</td>
+      <td></td>
+    </tr>`;
+  }
+}
+
 document.getElementById('karya-tbody').addEventListener('input', e => {
   const el = e.target;
   const row = el.dataset.row, field = el.dataset.field;
   if (row === undefined || !field) return;
   state.rows[+row][field] = el.value;
-  renderAll();
+  updatePLPFormCells();
+  renderPreview();
 });
 
 document.getElementById('karma-tbody').addEventListener('input', e => {
@@ -217,7 +260,7 @@ document.getElementById('karma-tbody').addEventListener('input', e => {
   if (kf === 'ifsc') val = val.toUpperCase();
   state.karmachari[+ki][kf] = val;
   if (kf === 'ifsc') el.value = val;
-  renderAll();
+  renderPreview();
 });
 
 document.getElementById('karma-tbody').addEventListener('change', e => {
@@ -225,7 +268,10 @@ document.getElementById('karma-tbody').addEventListener('change', e => {
   const ki = el.dataset.ki, kf = el.dataset.kf;
   if (ki === undefined || !kf) return;
   state.karmachari[+ki][kf] = el.value;
-  renderAll();
+  if (kf === 'pad') {
+    updatePLPFormCells();
+  }
+  renderPreview();
 });
 
 document.getElementById('karma-tbody').addEventListener('click', e => {
@@ -490,7 +536,7 @@ function renderAttTable() {
         <td><input type="text" data-idx="${idx}" class="att-name-input" value="${esc(s.name)}" placeholder="नाम एवं पद"></td>
         ${daysCells}
         <td style="font-weight:bold" id="att-n1-${idx}">${currentPeriodCL}</td>
-        <td><input type="number" min="0" data-idx="${idx}" class="att-prev-input" value="${s.prevLeaves}"></td>
+        <td><input type="text" inputMode="numeric" pattern="[0-9]*" autocomplete="off" autocorrect="off" data-idx="${idx}" class="att-prev-input" value="${s.prevLeaves}"></td>
         <td style="font-weight:bold" id="att-n3-${idx}">${totalCL}</td>
         <td><button class="rm-btn" onclick="removeAttRow(${idx})" ${attState.staff.length <= 1 ? 'disabled' : ''}>✕</button></td>
       </tr>
@@ -861,3 +907,317 @@ renderAttTable();
   });
 })();
 /* === END SOUND SYSTEM === */
+
+/* === PLP PREVIEW & PRINT === */
+(function() {
+  var plpPreviewBtn = document.getElementById('btn-plp-preview');
+  if (plpPreviewBtn) {
+    plpPreviewBtn.addEventListener('click', function() {
+      var docPage = document.getElementById('doc-page');
+      if (docPage) docPage.scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+
+  var plpPrintBtn = document.getElementById('btn-plp-print');
+  if (plpPrintBtn) {
+    plpPrintBtn.addEventListener('click', function() {
+      window.print();
+    });
+  }
+})();
+
+/* === EXCEL EXPORT FUNCTIONS === */
+function exportPLPToExcel() {
+  if (typeof XLSX === 'undefined') { alert('SheetJS library not loaded.'); return; }
+  var pcts = getPercentArr(), rashis = getRashiArr(), total = getTotalRashi(), perf = getPerformancePct();
+  var ws_data = [
+    ['आयुष्मान आरोग्य मंदिर (AHWC) - PLP रिपोर्ट'],
+    [''],
+    ['AHWC का नाम:', state.ahwcName],
+    ['जिला:', state.jila],
+    ['माह:', state.maah],
+    ['वर्ष:', state.varsh],
+    [''],
+    ['तालिका 1 - कार्य विवरण एवं प्रदर्शन'],
+    ['क्र.', 'कार्य का नाम', 'लक्ष्य', 'प्राप्ति', 'प्रतिशत', 'राशि (₹)']
+  ];
+  state.rows.forEach(function(r, i) {
+    ws_data.push([i + 1, KARYA_NAMES[i] || '', r.lakshya || '', r.prapti || '', pcts[i].toFixed(2) + '%', rashis[i]]);
+  });
+  ws_data.push(['', '', '', '', 'कुल:', total]);
+  ws_data.push(['', '', '', '', 'प्रदर्शन:', perf.toFixed(2) + '%']);
+  ws_data.push(['']);
+  ws_data.push(['तालिका 2 - कर्मचारी भुगतान विवरण']);
+  ws_data.push(['क्र.', 'नाम', 'पद', 'बैंक खाता', 'बैंक नाम', 'IFSC', 'मोबाइल', 'भुगतान (₹)']);
+  state.karmachari.forEach(function(k, i) {
+    ws_data.push([i + 1, k.naam, k.pad, k.bank_khataa, k.bank_naam, k.ifsc, k.mobile, inr(getPayment(k.pad))]);
+  });
+  var wb = XLSX.utils.book_new();
+  var ws = XLSX.utils.aoa_to_sheet(ws_data);
+  ws['!cols'] = [{wch:5},{wch:50},{wch:10},{wch:10},{wch:10},{wch:12},{wch:15},{wch:12}];
+  XLSX.utils.book_append_sheet(wb, ws, 'PLP Report');
+  var filename = 'PLP_Report_' + (state.ahwcName || 'AHWC').replace(/\s+/g,'_') + '_' + state.maah + '_' + state.varsh + '.xlsx';
+  XLSX.writeFile(wb, filename);
+  if (window.soundFX) window.soundFX.success();
+}
+
+function exportAttToExcel() {
+  if (typeof XLSX === 'undefined') { alert('SheetJS library not loaded.'); return; }
+  if (!validateAttForm()) return;
+
+  var officeName = attState.officeName || '';
+  var kramankVal = attState.kramank || '';
+  var dateVal = attState.date || '';
+  var fromDate = attState.periodFrom || '';
+  var toDate = attState.periodTo || '';
+
+  var dates = getDatesArray(fromDate, toDate);
+  var dateHeaders = dates.map(function(d) { return d.getDate().toString(); });
+  var totalCols = 2 + dateHeaders.length + 3;
+
+  // Format date strings
+  function fmtDate(ds) {
+    if (!ds) return '';
+    var d = new Date(ds);
+    return String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + d.getFullYear();
+  }
+
+  var wsData = [
+    ['आयुर्वेद विभाग'],
+    ['कार्यालय राजकीय ' + officeName],
+    ['क्रमांक - उपस्थिति / ' + kramankVal].concat(Array(totalCols - 2).fill('')).concat(['दिनांक ' + fmtDate(dateVal)]),
+    ['उपस्थिति पत्रक'],
+    ['उपस्थिति अवधि ' + fmtDate(fromDate) + ' से ' + fmtDate(toDate) + ' तक'],
+    [],
+    ['क्र.सं.', 'नाम कार्मिक मय पद'].concat(dateHeaders).concat([
+      'उपस्थिति पत्रक अवधि में लिए गए आकस्मिक अवकाश का योग',
+      'पूर्व उपस्थिति पत्रक तक लिए गए आकस्मिक अवकाश का योग',
+      'अब तक कुल लिए आकस्मिक अवकाश का योग'
+    ])
+  ];
+
+  attState.staff.forEach(function(s, idx) {
+    var currentPeriodCL = 0;
+    var dayVals = dates.map(function(d) {
+      var ds = d.toISOString().split('T')[0];
+      var val = s.days[ds] || 'उपस्थित';
+      if (val === 'आकस्मिक अवकाश') currentPeriodCL++;
+      return val;
+    });
+    var prevCL = parseInt(s.prevLeaves) || 0;
+    wsData.push([idx+1, s.name || ''].concat(dayVals).concat([currentPeriodCL, prevCL, currentPeriodCL + prevCL]));
+  });
+
+  wsData.push([]);
+  wsData.push(['प्रमाणित किया जाता है कि उपस्थिति पत्रक का मिलान उपस्थिति पंजिका से कर लिया गया है, साथ ही कोई भी कार्मिक बिना सक्षम स्तर से अवकाश स्वीकृत कराए उपस्थिति पत्रक में उल्लिखित अवधि के दौरान अनुपस्थित नहीं रहा है।']);
+  wsData.push([]);
+  var sigRow = Array(totalCols - 1).fill(''); sigRow.push('हस्ताक्षर प्रभारी');
+  wsData.push(sigRow);
+  var offRow = Array(totalCols - 1).fill(''); offRow.push(officeName);
+  wsData.push(offRow);
+
+  var wb = XLSX.utils.book_new();
+  var ws = XLSX.utils.aoa_to_sheet(wsData);
+
+  ws['!merges'] = [
+    {s:{r:0,c:0}, e:{r:0,c:totalCols-1}},
+    {s:{r:1,c:0}, e:{r:1,c:totalCols-1}},
+    {s:{r:3,c:0}, e:{r:3,c:totalCols-1}},
+    {s:{r:4,c:0}, e:{r:4,c:totalCols-1}}
+  ];
+
+  var cols = [{wch:6},{wch:30}];
+  dateHeaders.forEach(function(){ cols.push({wch:8}); });
+  cols.push({wch:20},{wch:20},{wch:16});
+  ws['!cols'] = cols;
+
+  XLSX.utils.book_append_sheet(wb, ws, 'उपस्थिति पत्रक');
+  XLSX.writeFile(wb, 'Upasthiti_Patrak_' + fromDate + '_' + toDate + '.xlsx');
+  if (window.soundFX) window.soundFX.success();
+}
+
+// Attach event listeners when DOM is ready
+(function() {
+  var plpExcelBtn = document.getElementById('btn-excel');
+  if (plpExcelBtn) plpExcelBtn.addEventListener('click', exportPLPToExcel);
+  var attExcelBtn = document.getElementById('att-btn-excel');
+  if (attExcelBtn) attExcelBtn.addEventListener('click', exportAttToExcel);
+})();
+/* === END EXCEL EXPORT === */
+
+/* === PROGRESS PILL (19.10) === */
+function updateProgressPill() {
+  var pill = document.getElementById('att-progress-pill');
+  if (!pill) return;
+  var staffCount = attState.staff.length;
+  var from = attState.periodFrom;
+  var to = attState.periodTo;
+  var dayCount = (from && to) ? getDatesArray(from, to).length : 0;
+  function fmtDDMM(ds) {
+    if (!ds) return '—';
+    var d = new Date(ds);
+    return String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth()+1).padStart(2,'0');
+  }
+  pill.innerHTML =
+    '<span>' + staffCount + ' कार्मिक</span>' +
+    '<span class="progress-pill-dot">·</span>' +
+    '<span>' + dayCount + ' दिन</span>' +
+    '<span class="progress-pill-dot">·</span>' +
+    '<span>अवधि: ' + fmtDDMM(from) + '–' + fmtDDMM(to) + '</span>';
+}
+// Hook progress pill into existing listeners
+var _origRenderAttTable = renderAttTable;
+renderAttTable = function() {
+  _origRenderAttTable();
+  updateProgressPill();
+};
+updateProgressPill();
+
+/* === TOAST NOTIFICATION (19.11) === */
+function showToast(message, duration) {
+  duration = duration || 2000;
+  var toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  requestAnimationFrame(function() { toast.classList.add('show'); });
+  setTimeout(function() {
+    toast.classList.remove('show');
+    setTimeout(function() { toast.remove(); }, 200);
+  }, duration);
+}
+
+/* === AUTO-SAVE (19.11) === */
+function debounce(fn, delay) {
+  var timer;
+  return function() {
+    clearTimeout(timer);
+    timer = setTimeout(fn, delay);
+  };
+}
+
+function collectAttStaffData() {
+  return attState.staff.map(function(s) {
+    return { name: s.name, prevLeaves: s.prevLeaves, days: Object.assign({}, s.days) };
+  });
+}
+
+function autoSaveAtt() {
+  var data = {
+    officeName: attState.officeName,
+    kramank: attState.kramank,
+    date: attState.date,
+    from: attState.periodFrom,
+    to: attState.periodTo,
+    note: attState.note,
+    staffRows: collectAttStaffData(),
+    savedAt: new Date().toISOString()
+  };
+  try {
+    localStorage.setItem('att_draft', JSON.stringify(data));
+    showToast('✓ ड्राफ्ट सुरक्षित');
+  } catch(e) { /* storage full */ }
+}
+
+var debouncedAutoSave = debounce(autoSaveAtt, 1500);
+
+// Listen for input changes on the staff attendance panel
+var staffPanel = document.getElementById('staff-att-panel');
+if (staffPanel) {
+  staffPanel.addEventListener('input', debouncedAutoSave);
+  staffPanel.addEventListener('change', debouncedAutoSave);
+}
+
+// Restore from localStorage on load
+(function restoreAttDraft() {
+  try {
+    var saved = localStorage.getItem('att_draft');
+    if (!saved) return;
+    var data = JSON.parse(saved);
+    if (data.officeName) { attState.officeName = data.officeName; var el = document.getElementById('att-office-name'); if (el) el.value = data.officeName; }
+    if (data.kramank) { attState.kramank = data.kramank; var el = document.getElementById('att-kramank'); if (el) el.value = data.kramank; }
+    if (data.date) { attState.date = data.date; var el = document.getElementById('att-date'); if (el) el.value = data.date; }
+    if (data.from) { attState.periodFrom = data.from; var el = document.getElementById('att-period-from'); if (el) el.value = data.from; }
+    if (data.to) { attState.periodTo = data.to; var el = document.getElementById('att-period-to'); if (el) el.value = data.to; }
+    if (data.note) { attState.note = data.note; var el = document.getElementById('att-note'); if (el) el.value = data.note; }
+    if (data.staffRows && data.staffRows.length > 0) {
+      attState.staff = data.staffRows;
+    }
+    renderAttTable();
+    showToast('📂 पिछला ड्राफ्ट पुनः लोड किया गया');
+  } catch(e) { /* ignore parse errors */ }
+})();
+
+/* === TYPEWRITER EFFECT (19.9) === */
+function typewriter(element, text, speed) {
+  speed = speed || 20;
+  element.textContent = '';
+  var chars = [...text]; // Handle Hindi Unicode properly
+  var i = 0;
+  var timer = setInterval(function() {
+    element.textContent += chars[i];
+    i++;
+    if (i >= chars.length) clearInterval(timer);
+  }, speed);
+}
+
+// Trigger when cert block enters viewport
+if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  var certTextEl = document.getElementById('att-cert-text');
+  if (certTextEl) {
+    var certFullText = certTextEl.textContent.trim();
+    var certObserver = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting) {
+        typewriter(certTextEl, certFullText, 20);
+        certObserver.disconnect();
+      }
+    }, { threshold: 0.5 });
+    certObserver.observe(certTextEl.closest('.cert-block') || certTextEl);
+  }
+}
+
+/* === DARK MODE TOGGLE (19.12) === */
+window.toggleTheme = function() {
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  var newTheme = isDark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+};
+
+// On load — restore saved theme
+(function() {
+  var savedTheme = localStorage.getItem('theme');
+  if (!savedTheme) {
+    savedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  document.documentElement.setAttribute('data-theme', savedTheme);
+})();
+
+/* === GLOWING TOP BORDER ON SCROLL (19.8) === */
+window.addEventListener('scroll', function() {
+  document.body.classList.toggle('scrolled', window.scrollY > 20);
+});
+
+/* === SCROLL-TRIGGERED FADE FOR FORM PANELS (19.5) === */
+(function() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  // Only apply to panels that are NOT the first visible panel
+  var panels = document.querySelectorAll('.form-panel');
+  if (panels.length > 1) {
+    for (var i = 1; i < panels.length; i++) {
+      panels[i].classList.add('scroll-reveal');
+    }
+  }
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('panel-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.form-panel.scroll-reveal').forEach(function(el) {
+    observer.observe(el);
+  });
+})();
+

@@ -1,25 +1,41 @@
 'use client';
 
 import Script from 'next/script';
-import { BarChart3, Users, Heart, Volume2, ClipboardList, FileDown, Eye, Printer, Download, ArrowRight, ChevronLeft } from 'lucide-react';
+import { BarChart3, Users, Heart, Volume2, FileDown, Eye, Printer, Download, ArrowRight, ChevronLeft, Sparkles, FileText, Calendar, Table, Sun, Moon } from 'lucide-react';
 import './web-portal.css';
 
 /* ═══════════════════════════════════════════════════════════════
    Soochna Sahayak — Smart Office Assistant
-   Full responsive website (web_portal port)
+   Premium Government SaaS UI Redesign
    ═══════════════════════════════════════════════════════════════ */
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)] font-sans antialiased animate-fade-in relative overflow-x-hidden selection:bg-[var(--accent-primary)] selection:text-[var(--bg-base)]">
+    <div className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)] font-body antialiased relative overflow-x-hidden selection:bg-[var(--accent-primary)] selection:text-[var(--bg-base)]">
+      
       {/* html2pdf.js CDN */}
       <Script
         src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
         strategy="beforeInteractive"
       />
+      {/* SheetJS for Excel Export */}
+      <Script
+        src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"
+        strategy="beforeInteractive"
+      />
       {/* Web Portal Logic */}
       <Script src="/web-portal.js" strategy="afterInteractive" />
 
-      {/* Lightweight animation init — scroll reveal + parallax (CSS-driven) */}
+      {/* Expose web-portal functions to window for React onClick handlers */}
+      <Script id="expose-functions" strategy="lazyOnload" dangerouslySetInnerHTML={{ __html: `
+(function(){
+  // Expose functions from web-portal.js to window object
+  if(typeof showPanel === 'function') window.showPanel = showPanel;
+  if(typeof showHomeScreen === 'function') window.showHomeScreen = showHomeScreen;
+  if(typeof toggleSound === 'function') window.toggleSound = toggleSound;
+})();
+` }} />
+
+      {/* Animation Init — scroll reveal + parallax */}
       <Script id="anim-init" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: `
 (function(){
   if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -56,25 +72,20 @@ export default function Home() {
 })();
 ` }} />
 
-      {/* Top Border Accent Line */}
-      <div className="fixed top-0 left-0 right-0 h-[3px] bg-[var(--accent-primary)] z-50 pointer-events-none"></div>
-
       {/* ========== LOADING OVERLAY ========== */}
-      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] flex-col items-center justify-center transition-opacity" id="overlay" style={{ display: 'none' }}>
-        <div className="bg-[var(--bg-elevated)] border border-[var(--border)] p-8 rounded-2xl flex flex-col items-center gap-4 shadow-[var(--shadow-glow-gold)]">
-          <div className="flex space-x-2 spin">
-            <div className="w-3 h-3 bg-[var(--accent-primary)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-            <div className="w-3 h-3 bg-[var(--accent-primary)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-            <div className="w-3 h-3 bg-[var(--accent-primary)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-          </div>
-          <div className="text-[var(--text-secondary)] font-medium text-sm tracking-wide">PDF तैयार हो रही है...</div>
+      <div className="loading-overlay opacity-0 pointer-events-none" id="overlay">
+        <div className="loading-dots">
+          <div className="loading-dot"></div>
+          <div className="loading-dot"></div>
+          <div className="loading-dot"></div>
         </div>
+        <div className="loading-text">PDF तैयार हो रही है...</div>
       </div>
 
       {/* ========== SOUND TOGGLE ========== */}
       <button
         id="sound-toggle"
-        className="fixed bottom-6 right-6 p-3 rounded-full bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--accent-primary)] hover:border-[var(--accent-primary)] transition-all z-50 no-print shadow-[var(--shadow-card-rest)] hover:shadow-[var(--shadow-glow-gold)]"
+        className="fixed bottom-6 right-6 p-3 rounded-full bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--accent-primary)] hover:border-[var(--accent-primary)] hover:shadow-[var(--shadow-green)] transition-all duration-300 z-50 no-print btn"
         onClick={() => { if (typeof window !== 'undefined') (window as any).toggleSound?.(); }}
         aria-label="Toggle sound effects"
         title="Sound Effects"
@@ -82,111 +93,205 @@ export default function Home() {
         <span id="sound-icon"><Volume2 size={20} strokeWidth={2} /></span>
       </button>
 
-      {/* ========== HOME SCREEN ========== */}
-      <div id="home-screen" className="flex flex-col min-h-screen px-6 py-12 md:px-12 md:py-24 max-w-7xl mx-auto w-full relative z-10">
-        
-        {/* HERO SECTION */}
-        <div className="flex flex-col justify-center min-h-[40vh] w-full items-start pt-12 pb-16 relative">
-          <div className="inline-block px-4 py-1.5 mb-6 rounded-full border border-[var(--accent-primary)] text-[var(--accent-primary)] text-[11px] font-semibold tracking-[0.1em] uppercase animate-fade-up bg-transparent backdrop-blur-md">
-            Smart Office Assistant
+      {/* ========== NAVBAR ========== */}
+      <nav className="nav-bar">
+        <div className="flex items-center gap-3">
+          <span className="nav-brand-dot"></span>
+          <div className="w-10 h-10 rounded-xl bg-[var(--accent-primary)] flex items-center justify-center shadow-md">
+            <Sparkles className="w-5 h-5 text-white" />
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold display-font text-[var(--text-primary)] mb-6 animate-fade-up delay-100 !leading-[1.1] tracking-tight">
-            Soochna Sahayak
-          </h1>
-          <p className="text-[var(--text-secondary)] text-lg md:text-xl font-light max-w-2xl animate-fade-up delay-200">
-            Streamlining administrative workflows for Ayurveda Department
-          </p>
+          <div className="hidden sm:block">
+            <h1 className="font-display text-lg font-semibold text-[var(--text-primary)]">
+              Soochna <span className="text-[var(--accent-primary)]">Sahayak</span>
+            </h1>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            className="theme-toggle"
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                if ((window as any).toggleTheme) {
+                  (window as any).toggleTheme();
+                } else {
+                  // Fallback: toggle directly
+                  const html = document.documentElement;
+                  const isDark = html.getAttribute('data-theme') === 'dark';
+                  const newTheme = isDark ? 'light' : 'dark';
+                  html.setAttribute('data-theme', newTheme);
+                  localStorage.setItem('theme', newTheme);
+                }
+                // Update icon visibility
+                const sunEl = document.querySelector('.theme-icon-sun') as HTMLElement;
+                const moonEl = document.querySelector('.theme-icon-moon') as HTMLElement;
+                const isDarkNow = document.documentElement.getAttribute('data-theme') === 'dark';
+                if (sunEl) sunEl.style.display = isDarkNow ? 'none' : 'block';
+                if (moonEl) moonEl.style.display = isDarkNow ? 'block' : 'none';
+              }
+            }}
+            aria-label="Toggle dark mode"
+            id="theme-toggle-btn"
+          >
+            <Sun size={16} className="theme-icon-sun" />
+            <Moon size={16} className="theme-icon-moon" style={{ display: 'none' }} />
+          </button>
+          <span className="badge badge-primary hidden sm:inline-flex">
+            Ayurveda Dept
+          </span>
+        </div>
+      </nav>
+
+      {/* ========== HOME SCREEN ========== */}
+      <div id="home-screen" className="flex flex-col min-h-screen max-w-[1200px] mx-auto w-full relative z-10" style={{ display: 'flex' }}>
+
+        {/* HERO SECTION */}
+        <div className="flex flex-col lg:flex-row justify-between items-start pt-16 pb-12 px-4 sm:px-8 lg:px-16 relative gap-8">
+          <div className="flex flex-col w-full lg:max-w-[60%]">
+            {/* Eyebrow Badge */}
+            <div className="hero-eyebrow animate-rise-up mb-6">
+              Smart Office Assistant
+            </div>
+
+            {/* Hero Title */}
+            <h1 className="hero-title animate-rise-up delay-100 mb-4">
+              Soochna Sahayak
+            </h1>
+
+            {/* Subtitle */}
+            <p className="font-display text-xl text-[var(--text-secondary)] italic mb-4 animate-rise-up delay-150">
+              Streamlining administrative workflows
+            </p>
+
+            {/* Horizontal Rule */}
+            <div className="hero-rule mb-6"></div>
+
+            {/* Description */}
+            <p className="text-[14px] sm:text-[15px] text-[var(--text-secondary)] max-w-xl leading-relaxed animate-rise-up delay-250">
+              A premium government productivity tool for the Ayurveda Department — designed with the warmth of parchment and the precision of modern SaaS.
+            </p>
+          </div>
+
+          {/* Decorative 'स' */}
+          <div className="hero-deco hidden lg:block">स</div>
+        </div>
+
+        {/* Stats Row */}
+        <div className="stats-row animate-rise-up delay-300">
+          <div className="stat-item">
+            <span className="stat-dot"></span>
+            <span className="stat-count">2</span>
+            <span className="stat-label">Active Tools</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-dot"></span>
+            <span className="stat-count">A4</span>
+            <span className="stat-label">PDF Export</span>
+          </div>
         </div>
 
         {/* CARD GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full mb-auto pb-24 relative">
+        <div className="card-grid">
+
           {/* PLP Card - Primary Featured */}
           <div
-            className="home-card group relative overflow-hidden bg-[var(--bg-surface)] border border-[var(--border)] rounded-[16px] p-[32px] cursor-pointer transition-all duration-300 hover:bg-[var(--bg-elevated)] hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)] animate-fade-up delay-300 md:col-span-2 lg:col-span-1"
+            className="home-card group card featured cursor-pointer"
             data-tooltip="Generate PLP Performance Report"
             onClick={() => { if (typeof window !== 'undefined') (window as any).showPanel?.('plp-panel'); }}
-            style={{ borderColor: 'rgba(245,166,35,0.4)' }}
           >
-            {/* Gradient Overlay */}
-            <div className="absolute -top-24 -right-24 w-48 h-48 bg-[var(--accent-primary)]/10 rounded-full blur-[40px] group-hover:bg-[var(--accent-primary)]/20 transition-all pointer-events-none"></div>
-            
-            <div className="absolute top-6 right-6 px-3 py-1 rounded-full bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-[11px] font-semibold tracking-wider uppercase border border-[var(--accent-primary)]/30 pointer-events-none">
-              Primary
+            <div className="absolute top-6 right-6 badge badge-primary">सक्रिय</div>
+
+            {/* Icon Block */}
+            <div className="card-icon-wrap w-[46px] h-[46px] rounded-[10px] bg-[var(--accent-light)] flex items-center justify-center mb-6 text-[var(--accent-primary)]">
+              <BarChart3 size={22} strokeWidth={1.5} />
             </div>
 
-            <div className="w-12 h-12 rounded-xl flex items-center mb-6 text-[var(--accent-primary)] transition-transform duration-300">
-              <BarChart3 size={32} strokeWidth={1.8} />
-            </div>
-            <h3 className="text-[20px] font-semibold text-[var(--text-primary)] mb-2">PLP Report</h3>
-            <p className="text-[var(--text-secondary)] text-[14px]">Generate performance report</p>
-            <div className="absolute bottom-8 right-8 text-[var(--text-secondary)] group-hover:text-[var(--accent-primary)] group-hover:translate-x-1 transition-all duration-300">
-              <ArrowRight size={20} strokeWidth={2.5} />
+            {/* Card Title */}
+            <h3 className="font-display text-[19px] font-semibold text-[var(--text-primary)] mb-2">PLP Report</h3>
+
+            {/* Description */}
+            <p className="font-body text-[13px] text-[var(--text-muted)] leading-[1.65] mb-6">
+              AHWC मासिक प्रदर्शन रिपोर्ट तैयार करें
+            </p>
+
+            {/* Card Footer */}
+            <div className="flex items-center justify-between pt-4 border-t border-[var(--border)]">
+              <span className="text-[11px] font-medium text-[var(--accent-primary)] uppercase tracking-wider">Generate Report</span>
+              <ArrowRight size={18} className="card-arrow text-[var(--text-muted)]" />
             </div>
           </div>
 
           {/* Staff Attendance Card */}
           <div
-            className="home-card group relative overflow-hidden bg-[var(--bg-surface)] border border-[var(--border)] rounded-[16px] p-[32px] cursor-pointer transition-all duration-300 hover:bg-[var(--bg-elevated)] hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)] hover:border-[rgba(245,166,35,0.4)] animate-fade-up delay-400"
+            className="home-card group card cursor-pointer"
             data-tooltip="Staff Attendance Tracker"
             onClick={() => { if (typeof window !== 'undefined') (window as any).showPanel?.('staff-att-panel'); }}
           >
-            <div className="w-12 h-12 rounded-xl flex items-center mb-6 text-[var(--accent-secondary)] transition-transform duration-300">
-              <Users size={32} strokeWidth={1.8} />
+            <div className="absolute top-6 right-6 badge badge-primary">सक्रिय</div>
+
+            <div className="card-icon-wrap w-[46px] h-[46px] rounded-[10px] bg-[var(--accent-light)] flex items-center justify-center mb-6 text-[var(--accent-primary)]">
+              <Users size={22} strokeWidth={1.5} />
             </div>
-            <h3 className="text-[20px] font-semibold text-[var(--text-primary)] mb-2">Staff Attendance</h3>
-            <p className="text-[var(--text-secondary)] text-[14px]">Track staff attendance</p>
-            <div className="absolute bottom-8 right-8 text-[var(--text-secondary)] group-hover:text-[var(--accent-primary)] group-hover:translate-x-1 transition-all duration-300">
-              <ArrowRight size={20} strokeWidth={2.5} />
+
+            <h3 className="font-display text-[19px] font-semibold text-[var(--text-primary)] mb-2">Staff Attendance</h3>
+
+            <p className="font-body text-[13px] text-[var(--text-muted)] leading-[1.65] mb-6">
+              कार्मिक उपस्थिति पत्रक तैयार करें
+            </p>
+
+            <div className="flex items-center justify-between pt-4 border-t border-[var(--border)]">
+              <span className="text-[11px] font-medium text-[var(--accent-primary)] uppercase tracking-wider">Track Attendance</span>
+              <ArrowRight size={18} className="card-arrow text-[var(--text-muted)]" />
             </div>
           </div>
 
-          {/* Yoga Card */}
-          <div
-            className="home-card group relative overflow-hidden bg-[var(--bg-surface)] border border-[var(--border)] rounded-[16px] p-[32px] transition-all duration-300 opacity-50 cursor-not-allowed animate-fade-up delay-500"
-            onClick={() => alert('Coming Soon')}
-          >
-            <div className="absolute top-6 right-6 px-3 py-1 rounded-full bg-[var(--text-muted)]/20 text-[var(--text-secondary)] text-[11px] font-semibold tracking-wider uppercase border border-[var(--text-muted)]/30 pointer-events-none">
-              Coming Soon
+          {/* Yoga Card - Coming Soon */}
+          <div className="card card-disabled">
+            <div className="absolute top-6 right-6 badge badge-secondary">शीघ्र आ रहा है</div>
+
+            <div className="card-icon-wrap w-[46px] h-[46px] rounded-[10px] bg-[var(--bg-elevated)] flex items-center justify-center mb-6 text-[var(--text-muted)]">
+              <Heart size={22} strokeWidth={1.5} />
             </div>
-            <div className="w-12 h-12 rounded-xl flex items-center mb-6 text-[var(--text-secondary)]">
-              <Heart size={32} strokeWidth={1.8} />
-            </div>
-            <h3 className="text-[20px] font-semibold text-[var(--text-primary)] mb-2">Yoga Instructor</h3>
-            <p className="text-[var(--text-secondary)] text-[14px]">Attendance coming soon</p>
-            <div className="absolute bottom-8 right-8 text-[var(--text-secondary)]">
-              <ArrowRight size={20} strokeWidth={2.5} />
+
+            <h3 className="font-display text-[19px] font-semibold text-[var(--text-secondary)] mb-2">Yoga Instructor</h3>
+
+            <p className="font-body text-[13px] text-[var(--text-muted)] leading-[1.65] mb-6">
+              योग प्रशिक्षक उपस्थिति शीघ्र उपलब्ध
+            </p>
+
+            <div className="flex items-center justify-between pt-4 border-t border-[var(--border)]">
+              <span className="text-[11px] font-medium text-[var(--text-muted)] uppercase tracking-wider">Coming Soon</span>
             </div>
           </div>
         </div>
 
         {/* FOOTER */}
-        <div className="mt-auto pt-8 border-t border-[var(--border)] text-center pb-6">
-          <p className="text-[13px] text-[var(--text-muted)] mb-1">Empowering Office Efficiency</p>
-          <p className="text-[13px] text-[var(--text-muted)]">An Initiative by Peeyush Singh Rao, Assistant Accounts Officer Grade II</p>
-        </div>
+        <footer>
+          <p className="footer-line1">Empowering Office Efficiency</p>
+          <p className="footer-line2">An Initiative by Peeyush Singh Rao, Assistant Accounts Officer Grade II</p>
+        </footer>
       </div>
 
       {/* ========== PLP PANEL ========== */}
-      <div id="plp-panel" className="animate-fade-in flex-col px-6 py-12 md:px-12 max-w-[1400px] mx-auto w-full gap-8" style={{ display: 'none' }}>
+      <div id="plp-panel" className="page inner-page-wrap flex flex-col px-4 sm:px-6 py-8 sm:py-12 md:px-12 max-w-[1400px] mx-auto w-full gap-8 min-h-screen safe-bottom-mobile" style={{ display: 'none' }}>
         <button
-          className="back-btn flex items-center gap-2 bg-transparent border border-[var(--border)] text-[var(--text-secondary)] px-4 py-2 rounded-lg hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] transition-all mb-8 self-start no-print"
+          className="back-btn no-print"
           onClick={() => { if (typeof window !== 'undefined') (window as any).showHomeScreen?.(); }}
         >
-          <ChevronLeft size={16} strokeWidth={2.5} /> Back
+          <ChevronLeft size={16} strokeWidth={2} /> होम
         </button>
 
-        <div className="flex flex-col xl:flex-row gap-8 w-full">
+        <div className="flex flex-col xl:flex-row gap-6 xl:gap-8 w-full">
           {/* Form Panel */}
-          <div className="form-panel flex-1 bg-[var(--bg-surface)] border border-[var(--border)] rounded-[16px] p-[20px] md:p-[32px] shadow-[var(--shadow-card-rest)] no-print backdrop-blur-md">
-            
-            <div className="mb-8 border-l-4 border-[var(--accent-primary)] pl-4">
-              <h2 className="display-font text-2xl md:text-3xl font-semibold text-[var(--text-primary)] mb-1">AHWC मासिक प्रदर्शन PLP रिपोर्ट</h2>
-              <p className="text-[var(--text-secondary)] text-sm">डेटा दर्ज करें</p>
+          <div className="form-panel flex-1 no-print">
+
+            <div className="page-title-area">
+              <h2 className="font-display text-[26px] font-semibold text-[var(--text-primary)] mb-1">AHWC मासिक प्रदर्शन PLP रिपोर्ट</h2>
+              <p className="text-[var(--text-muted)] text-sm">डेटा दर्ज करें</p>
             </div>
 
             <div className="flex flex-col gap-6">
               {/* Error Box */}
-              <div className="err-box bg-red-900/20 border border-red-500/30 text-red-400 p-4 rounded-lg text-sm mb-4" id="err-box" style={{ display: 'none' }} />
+              <div className="err-box bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg text-sm mb-4" id="err-box" style={{ display: 'none' }} />
 
               {/* Basic Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -253,12 +358,21 @@ export default function Home() {
                 </table>
               </div>
 
-              <button className="bg-transparent border border-[var(--border)] text-[var(--text-primary)] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] transition-all px-4 py-2 rounded-lg text-sm font-medium self-start mt-2" id="add-karma-btn">+ कर्मचारी जोड़ें</button>
+              <button className="add-row-btn" id="add-karma-btn">+ कर्मचारी जोड़ें</button>
 
-              {/* Generate PDF */}
-              <div className="flex pt-4 sticky bottom-0 md:relative bg-[var(--bg-surface)] md:bg-transparent p-4 md:p-0 border-t border-[var(--border)] md:border-none z-20 mt-4">
-                <button className="flex-1 md:flex-none flex justify-center items-center gap-2 bg-[var(--accent-primary)] text-[var(--bg-base)] font-semibold px-7 py-3 rounded-[10px] hover:brightness-110 hover:-translate-y-[1px] active:translate-y-0 transition-all" id="btn-pdf">
-                  <FileDown size={20} strokeWidth={2} /> Save PDF
+              {/* Generate PDF & Excel */}
+              <div className="flex flex-wrap gap-3 pt-4 sticky bottom-0 md:relative bg-[var(--bg-surface)] md:bg-transparent p-4 md:p-0 border-t border-[var(--border)] md:border-none z-20 mt-4 btn-row">
+                <button className="btn btn-ghost" id="btn-plp-preview">
+                  <Eye size={16} /> Preview
+                </button>
+                <button className="btn btn-secondary" id="btn-plp-print">
+                  <Printer size={16} /> Print
+                </button>
+                <button className="btn btn-primary" id="btn-pdf">
+                  <FileDown size={16} /> Save PDF
+                </button>
+                <button className="btn btn-secondary" id="btn-excel">
+                  <Table size={16} /> Export Excel
                 </button>
               </div>
             </div>
@@ -356,24 +470,24 @@ export default function Home() {
       </div>
 
       {/* ========== STAFF ATTENDANCE PANEL ========== */}
-      <div id="staff-att-panel" className="animate-fade-in flex-col px-6 py-12 md:px-12 max-w-[1400px] mx-auto w-full gap-8" style={{ display: 'none' }}>
+      <div id="staff-att-panel" className="page inner-page-wrap flex flex-col px-4 sm:px-6 py-8 sm:py-12 md:px-12 max-w-[1400px] mx-auto w-full gap-8 min-h-screen safe-bottom-mobile" style={{ display: 'none' }}>
         <button
-          className="back-btn flex items-center gap-2 bg-transparent border border-[var(--border)] text-[var(--text-secondary)] px-4 py-2 rounded-lg hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] transition-all mb-8 self-start no-print"
+          className="back-btn no-print"
           onClick={() => { if (typeof window !== 'undefined') (window as any).showHomeScreen?.(); }}
         >
-          <ChevronLeft size={16} strokeWidth={2.5} /> Back
+          <ChevronLeft size={16} strokeWidth={2} /> होम
         </button>
 
         <div className="flex flex-col xl:flex-row gap-8 w-full">
-          <div className="form-panel flex-1 bg-[var(--bg-surface)] border border-[var(--border)] rounded-[16px] p-[20px] md:p-[32px] shadow-[var(--shadow-card-rest)] no-print backdrop-blur-md">
-            
-            <div className="mb-8 border-l-4 border-[var(--accent-primary)] pl-4">
-              <h2 className="display-font text-2xl md:text-3xl font-semibold text-[var(--text-primary)] mb-1">Staff Attendance</h2>
-              <p className="text-[var(--text-secondary)] text-sm">डेटा दर्ज करें</p>
+          <div className="form-panel flex-1 no-print">
+
+            <div className="page-title-area">
+              <h2 className="font-display text-[26px] font-semibold text-[var(--text-primary)] mb-1">Staff Attendance</h2>
+              <p className="text-[var(--text-muted)] text-sm">डेटा दर्ज करें</p>
             </div>
 
             <div className="flex flex-col gap-6">
-              <div className="err-box bg-red-900/20 border border-red-500/30 text-red-400 p-4 rounded-lg text-sm mb-4" id="att-err-box" style={{ display: 'none' }} />
+              <div className="err-box bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg text-sm mb-4" id="att-err-box" style={{ display: 'none' }} />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
@@ -381,8 +495,13 @@ export default function Home() {
                   <input className="form-input-base" type="text" id="att-office-name" placeholder="कार्यालय का पूरा नाम टाइप करें" />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-[13px] font-medium text-[var(--text-secondary)] tracking-[0.02em] uppercase">क्रमांक - उपस्थिति /</label>
-                  <input className="form-input-base" type="text" id="att-kramank" placeholder="क्रमांक" />
+                  <label className="text-[13px] font-medium text-[var(--text-secondary)] tracking-[0.02em] uppercase">
+                    क्रमांक - उपस्थिति /
+                    <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginLeft: '6px', fontWeight: 400, textTransform: 'none', letterSpacing: '0' }}>
+                      (वैकल्पिक)
+                    </span>
+                  </label>
+                  <input className="form-input-base" type="text" id="att-kramank" placeholder="क्रमांक (वैकल्पिक)" />
                 </div>
                 <div className="flex flex-col gap-2 md:col-span-2">
                   <label className="text-[13px] font-medium text-[var(--text-secondary)] tracking-[0.02em] uppercase">दिनांक</label>
@@ -410,22 +529,36 @@ export default function Home() {
                 </table>
               </div>
 
-              <button className="bg-transparent border border-[var(--border)] text-[var(--text-primary)] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] transition-all px-4 py-2 rounded-lg text-sm font-medium self-start mt-2" id="att-add-row-btn">+ कार्मिक जोड़ें</button>
+              <button className="add-row-btn" id="att-add-row-btn">+ कार्मिक जोड़ें</button>
 
               <div className="flex flex-col gap-2 mt-4">
-                <label className="text-[13px] font-medium text-[var(--text-secondary)] tracking-[0.02em] uppercase">नोट</label>
-                <textarea className="form-input-base" id="att-note" rows={3} placeholder="कोई विशेष टिप्पणी हो तो यहाँ लिखें..." />
+                <label className="field-label">नोट</label>
+                <textarea className="form-input-base field-textarea" id="att-note" rows={3} placeholder="कोई विशेष टिप्पणी हो तो यहाँ लिखें..." />
               </div>
 
-              <div className="flex flex-wrap gap-4 pt-4 sticky bottom-0 md:relative bg-[var(--bg-surface)] md:bg-transparent p-4 md:p-0 border-t border-[var(--border)] md:border-none z-20 mt-4">
-                <button className="flex-1 md:flex-none flex justify-center items-center gap-2 bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-semibold px-6 py-3 rounded-[10px] hover:bg-[var(--accent-primary)]/20 transition-all border-none" id="att-btn-preview">
-                  <Eye size={18} strokeWidth={2} /> Preview
+              {/* Progress Pill */}
+              <div className="progress-pill-wrap" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <div className="progress-pill" id="att-progress-pill">
+                  <span>0 कार्मिक</span>
+                  <span className="progress-pill-dot">·</span>
+                  <span>0 दिन</span>
+                  <span className="progress-pill-dot">·</span>
+                  <span>अवधि: —–—</span>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-3 pt-4 sticky bottom-0 md:relative bg-[var(--bg-surface)] md:bg-transparent p-4 md:p-0 border-t border-[var(--border)] md:border-none z-20 mt-4 btn-row">
+                <button className="btn btn-ghost" id="att-btn-preview">
+                  <Eye size={16} /> Preview
                 </button>
-                <button className="flex-1 md:flex-none flex justify-center items-center gap-2 bg-transparent border border-[var(--border)] text-[var(--text-primary)] font-semibold px-6 py-3 rounded-[10px] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] transition-all" id="att-btn-print">
-                  <Printer size={18} strokeWidth={2} /> Print
+                <button className="btn btn-secondary" id="att-btn-print">
+                  <Printer size={16} /> Print
                 </button>
-                <button className="flex-1 md:flex-none flex justify-center items-center gap-2 bg-[var(--accent-primary)] text-[var(--bg-base)] font-semibold px-6 py-3 rounded-[10px] hover:brightness-110 hover:-translate-y-[1px] active:translate-y-0 transition-all border-none" id="att-btn-pdf">
-                  <Download size={18} strokeWidth={2} /> Save PDF
+                <button className="btn btn-excel" id="att-btn-excel">
+                  <Table size={16} /> Excel
+                </button>
+                <button className="btn btn-primary" id="att-btn-pdf">
+                  <Download size={16} /> Save PDF
                 </button>
               </div>
             </div>
@@ -464,8 +597,10 @@ export default function Home() {
                   <strong>नोट :</strong> <span id="att-doc-note-text" />
                 </div>
 
-                <div className="doc-certify" style={{ marginTop: '20px', fontWeight: 'bold', textAlign: 'center', border: 'none', background: 'transparent' }}>
-                  प्रमाणित किया जाता है कि उपस्थिति पत्रक का मिलान उपस्थिति पंजिका से कर लिया गया है, साथ ही कोई भी कार्मिक बिना सक्षम स्तर से अवकाश स्वीकृत कराए उपस्थिति पत्रक में उल्लिखित अवधि के दौरान अनुपस्थित नहीं रहा है।
+                <div className="cert-block" style={{ marginTop: '20px', border: 'none', background: 'transparent' }}>
+                  <div className="cert-text" id="att-cert-text" style={{ fontWeight: 'bold', textAlign: 'center' }}>
+                    प्रमाणित किया जाता है कि उपस्थिति पत्रक का मिलान उपस्थिति पंजिका से कर लिया गया है, साथ ही कोई भी कार्मिक बिना सक्षम स्तर से अवकाश स्वीकृत कराए उपस्थिति पत्रक में उल्लिखित अवधि के दौरान अनुपस्थित नहीं रहा है।
+                  </div>
                 </div>
 
                 <div className="doc-sig" style={{ marginTop: '40px', textAlign: 'right' }}>

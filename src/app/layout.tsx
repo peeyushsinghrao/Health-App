@@ -18,13 +18,13 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Lora:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@100..800&display=swap"
           rel="stylesheet"
         />
-        <meta name="theme-color" content="#0A0F1E" />
+        <meta name="theme-color" content="#FAFAF5" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
       </head>
-      <body className="antialiased">
-        <div className="grain-overlay pointer-events-none fixed inset-0 z-50"></div>
+      <body className="antialiased font-body">
         {children}
       </body>
     </html>
