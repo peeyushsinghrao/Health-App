@@ -28,6 +28,10 @@ export default function App() {
     document.documentElement.setAttribute("data-theme", savedTheme);
 
     const loadScript = (src: string, onload?: () => void) => {
+      if (document.querySelector(`script[src="${src}"]`)) {
+        onload?.();
+        return;
+      }
       const s = document.createElement("script");
       s.src = src;
       s.async = true;
@@ -48,6 +52,14 @@ export default function App() {
         w.showHomeScreen = w.showHomeScreen;
       if (typeof w.toggleSound === "function") w.toggleSound = w.toggleSound;
     });
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/sw.js").catch((err) => {
+          console.warn("SW registration failed:", err);
+        });
+      });
+    }
 
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (!motionQuery.matches) {
