@@ -4,23 +4,6 @@ import "./app/globals.css";
 
 export default function App() {
   useEffect(() => {
-    const link1 = document.createElement("link");
-    link1.rel = "preconnect";
-    link1.href = "https://fonts.googleapis.com";
-    document.head.appendChild(link1);
-
-    const link2 = document.createElement("link");
-    link2.rel = "preconnect";
-    link2.href = "https://fonts.gstatic.com";
-    link2.crossOrigin = "anonymous";
-    document.head.appendChild(link2);
-
-    const link3 = document.createElement("link");
-    link3.rel = "stylesheet";
-    link3.href =
-      "https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Lora:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@100..800&family=Noto+Sans+Devanagari:wght@400;500;700&family=Noto+Serif+Devanagari:wght@400;700&display=swap";
-    document.head.appendChild(link3);
-
     document.documentElement.lang = "hi";
     document.title = "Soochna Sahayak — Smart Office Assistant";
 
