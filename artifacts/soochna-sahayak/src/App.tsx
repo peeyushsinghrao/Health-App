@@ -28,13 +28,7 @@ export default function App() {
     loadScript(
       "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"
     );
-    loadScript("/web-portal.js", () => {
-      const w = window as any;
-      if (typeof w.showPanel === "function") w.showPanel = w.showPanel;
-      if (typeof w.showHomeScreen === "function")
-        w.showHomeScreen = w.showHomeScreen;
-      if (typeof w.toggleSound === "function") w.toggleSound = w.toggleSound;
-    });
+    loadScript("/web-portal.js");
 
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
