@@ -19,6 +19,7 @@ A premium government productivity tool for the Ayurveda Department (Rajasthan). 
 - `artifacts/soochna-sahayak/src/web-portal.css` — print/document styles
 - `artifacts/soochna-sahayak/public/web-portal.js` — vanilla JS portal logic (DOM manipulation, PDF/Excel)
 - `artifacts/soochna-sahayak/index.html` — HTML entry with Google Fonts (Lora, DM Sans, JetBrains Mono, Noto Devanagari)
+- **Staff Attendance UI** (redesigned May 2026): 3-step card layout, color-coded status legend, sticky columns, collapsible preview, tap-friendly dropdowns
 
 ## Stack
 
