@@ -2,7 +2,7 @@
 
 import Script from 'next/script';
 import { BarChart3, Users, Heart, Volume2, FileDown, Eye, Printer, Download, ArrowRight, ChevronLeft, Sparkles, FileText, Calendar, Table, Sun, Moon } from 'lucide-react';
-import './web-portal.css';
+import '../../web-portal.css';
 
 /* ═══════════════════════════════════════════════════════════════
    Soochna Sahayak — Smart Office Assistant
@@ -138,6 +138,16 @@ export default function Home() {
           <span className="badge badge-primary hidden sm:inline-flex">
             Ayurveda Dept
           </span>
+          <button
+            id="pwa-install-btn"
+            className="hidden items-center gap-2 text-xs font-semibold text-[var(--accent)] bg-[var(--accent-light)] border border-[rgba(26,92,56,0.2)] rounded-full px-3 py-1.5 cursor-pointer transition-all hover:bg-[rgba(26,92,56,0.15)]"
+            style={{ display: 'none' }}
+          >
+            <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            इंस्टॉल करें
+          </button>
         </div>
       </nav>
 
@@ -264,6 +274,9 @@ export default function Home() {
           </div>
         </div>
 
+        {/* HISTORY SECTION */}
+        <div id="history-section" className="history-section no-print" style={{ display: 'none' }} />
+
         {/* FOOTER */}
         <footer>
           <p className="footer-line1">Empowering Office Efficiency</p>
@@ -361,7 +374,7 @@ export default function Home() {
               <button className="add-row-btn" id="add-karma-btn">+ कर्मचारी जोड़ें</button>
 
               {/* Generate PDF & Excel */}
-              <div className="flex flex-wrap gap-3 pt-4 sticky bottom-0 md:relative bg-[var(--bg-surface)] md:bg-transparent p-4 md:p-0 border-t border-[var(--border)] md:border-none z-20 mt-4 btn-row">
+              <div className="flex flex-wrap gap-3 pt-4 bg-[var(--bg-surface)] md:bg-transparent p-4 md:p-0 border-t border-[var(--border)] md:border-none z-20 mt-4 btn-row no-print">
                 <button className="btn btn-ghost" id="btn-plp-preview">
                   <Eye size={16} /> Preview
                 </button>
@@ -547,7 +560,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-3 pt-4 sticky bottom-0 md:relative bg-[var(--bg-surface)] md:bg-transparent p-4 md:p-0 border-t border-[var(--border)] md:border-none z-20 mt-4 btn-row">
+              <div className="flex flex-wrap gap-3 pt-4 bg-[var(--bg-surface)] md:bg-transparent p-4 md:p-0 border-t border-[var(--border)] md:border-none z-20 mt-4 btn-row no-print">
                 <button className="btn btn-ghost" id="att-btn-preview">
                   <Eye size={16} /> Preview
                 </button>
@@ -568,48 +581,52 @@ export default function Home() {
             <div className="text-[var(--text-secondary)] font-medium text-sm mb-4 flex items-center gap-2 no-print">📄 दस्तावेज़ प्रीव्यू (A4)</div>
             <div className="a4-scaler bg-[var(--bg-surface)] border border-[var(--border)] rounded-xl overflow-hidden p-6 shadow-[var(--shadow-card-rest)]">
               <div id="att-doc-page" className="att-doc-page doc-page">
-                <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '4px' }}>आयुर्वेद विभाग</div>
-                <div style={{ textAlign: 'center', marginBottom: '12px', fontSize: '0.9rem' }}>
-                  कार्यालय राजकीय <span id="att-doc-office" />
+
+                {/* ── HEADER BAR ── */}
+                <div style={{
+                  border: '1.5px solid #000', padding: '4px 8px',
+                  fontWeight: 700, fontSize: '9pt', marginBottom: 0,
+                  background: '#f8f8f8', fontFamily: "'Noto Sans Devanagari', serif"
+                }}>
+                  अवधि - <span id="att-doc-period-from" /> से <span id="att-doc-period-to" /> तक
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                  <div>क्रमांक - उपस्थिति / <span id="att-doc-kramank" /></div>
-                  <div>दिनांक <span id="att-doc-date" /></div>
-                </div>
+                {/* ── MAIN ATTENDANCE TABLE ── */}
+                <table id="att-doc-table" style={{
+                  width: '100%', borderCollapse: 'collapse',
+                  tableLayout: 'fixed', fontFamily: "'Noto Sans Devanagari', serif"
+                }}>
+                  <thead id="att-doc-tbl-head" />
+                  <tbody id="att-doc-tbody" />
+                </table>
 
-                <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '1.3rem', margin: '20px 0' }}>उपस्थिति पत्रक</div>
-
-                <div style={{ marginBottom: '8px' }}>
-                  उपस्थिति अवधि <span id="att-doc-period-from" /> से <span id="att-doc-period-to" /> तक
-                </div>
-
-                <div className="doc-tbl-scroll">
-                  <table className="doc-tbl">
-                    <thead>
-                      <tr id="att-doc-tbl-head" />
-                    </thead>
-                    <tbody id="att-doc-tbody" />
-                  </table>
-                </div>
-
-                <div id="att-doc-note-sec" style={{ marginTop: '10px', display: 'none' }}>
+                {/* ── CERTIFICATION ── */}
+                <div id="att-doc-note-sec" style={{ marginTop: '8px', display: 'none' }}>
                   <strong>नोट :</strong> <span id="att-doc-note-text" />
                 </div>
 
-                <div className="cert-block" style={{ marginTop: '20px', border: 'none', background: 'transparent' }}>
-                  <div className="cert-text" id="att-cert-text" style={{ fontWeight: 'bold', textAlign: 'center' }}>
-                    प्रमाणित किया जाता है कि उपस्थिति पत्रक का मिलान उपस्थिति पंजिका से कर लिया गया है, साथ ही कोई भी कार्मिक बिना सक्षम स्तर से अवकाश स्वीकृत कराए उपस्थिति पत्रक में उल्लिखित अवधि के दौरान अनुपस्थित नहीं रहा है।
+                <div style={{
+                  marginTop: '8px', fontSize: '7pt', lineHeight: 1.5,
+                  border: '1px solid #999', padding: '5px 8px', background: '#fafafa'
+                }}>
+                  प्रमाणित किया जाता है कि उपस्थिति पत्रक का मिलान उपस्थिति पंजिका से कर लिया गया है,
+                  साथ ही कोई भी कार्मिक बिना सक्षम स्तर से अवकाश स्वीकृत कराए उपस्थिति पत्रक में
+                  उल्लिखित अवधि के दौरान अनुपस्थित नहीं रहा है।
+                </div>
+
+                {/* ── SIGNATURE ── */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px' }}>
+                  <div style={{ fontSize: '7.5pt' }}>
+                    क्रमांक - उपस्थिति / <span id="att-doc-kramank" />
+                    &nbsp;&nbsp;&nbsp; दिनांक <span id="att-doc-date" />
+                  </div>
+                  <div style={{ textAlign: 'center', minWidth: '150px' }}>
+                    <div style={{ height: '36px', borderBottom: '1.5px solid #000', marginBottom: '4px' }} />
+                    <div style={{ fontWeight: 700, fontSize: '7.5pt' }}>हस्ताक्षर प्रभारी</div>
+                    <div id="att-doc-seal-office" style={{ fontSize: '7pt', marginTop: '2px' }} />
                   </div>
                 </div>
 
-                <div className="doc-sig" style={{ marginTop: '40px', textAlign: 'right' }}>
-                  <div className="sig-block" style={{ display: 'inline-block', textAlign: 'center' }}>
-                    <div style={{ height: '40px' }} />
-                    <div style={{ fontWeight: 'bold' }}>हस्ताक्षर प्रभारी</div>
-                    <div id="att-doc-seal-office" style={{ marginTop: '4px' }} />
-                  </div>
-                </div>
               </div>
             </div>
           </div>

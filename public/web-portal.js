@@ -31,7 +31,7 @@ const currentYear = new Date().getFullYear();
 let state = {
   ahwcName: '',
   jila: '',
-  maah: 'फरवरी',
+  maah: MONTHS[new Date().getMonth()],
   varsh: String(currentYear),
   // rows: [{lakshya:'', prapti:''}] × 10
   rows: Array.from({length: 10}, () => ({lakshya:'', prapti:''})),
@@ -98,7 +98,7 @@ function renderKaryaTable() {
       <td class="karya-name">${KARYA_NAMES[i]}</td>
       <td><input type="text" inputMode="numeric" pattern="[0-9]*" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" value="${row.lakshya}" data-row="${i}" data-field="lakshya" placeholder="0"></td>
       <td><input type="text" inputMode="numeric" pattern="[0-9]*" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" value="${row.prapti}" data-row="${i}" data-field="prapti" placeholder="0"></td>
-      <td class="pct-cell">${pcts[i].toFixed(2)}%</td>
+      <td class="pct-cell${pcts[i] > 100 ? ' pct-over' : ''}">${pcts[i].toFixed(2)}%</td>
       <td class="rashi-cell">₹${rashis[i]}</td>
     </tr>`).join('');
   const tfoot = `<tr>
@@ -176,12 +176,12 @@ function renderPreview() {
   const t2rows = state.karmachari.map((row, i) => `
     <tr>
       <td style="text-align:center">${i+1}</td>
-      <td style="text-align:left">${row.naam || '________________'}</td>
-      <td style="text-align:center;font-weight:600">${row.pad || '—'}</td>
-      <td style="text-align:center">${row.bank_khataa || '____________'}</td>
-      <td style="text-align:left">${row.bank_naam || '____________'}</td>
-      <td style="text-align:center">${row.ifsc || '________'}</td>
-      <td style="text-align:center">${row.mobile || '__________'}</td>
+      <td style="text-align:left">${esc(row.naam) || '________________'}</td>
+      <td style="text-align:center;font-weight:600">${esc(row.pad) || '—'}</td>
+      <td style="text-align:center">${esc(row.bank_khataa) || '____________'}</td>
+      <td style="text-align:left">${esc(row.bank_naam) || '____________'}</td>
+      <td style="text-align:center">${esc(row.ifsc) || '________'}</td>
+      <td style="text-align:center">${esc(row.mobile) || '__________'}</td>
       <td style="text-align:center;font-weight:600">${inr(getPayment(row.pad))}</td>
     </tr>`).join('');
   const t2foot = `<tr class="doc-tbl-foot">
@@ -261,6 +261,21 @@ document.getElementById('karma-tbody').addEventListener('input', e => {
   state.karmachari[+ki][kf] = val;
   if (kf === 'ifsc') el.value = val;
   renderPreview();
+
+  // ── Real-time validation ──
+  var td = el.closest('td');
+  if (!td) return;
+  td.classList.remove('td-valid', 'td-invalid');
+
+  if (kf === 'ifsc' && val.length > 0) {
+    td.classList.add(validateIfsc(val) ? 'td-valid' : 'td-invalid');
+  }
+  if (kf === 'mobile' && val.length > 0) {
+    td.classList.add(validateMobile(val) ? 'td-valid' : 'td-invalid');
+  }
+  if (kf === 'bank_khataa' && val.length > 0) {
+    td.classList.add(validateBankAccount(val) ? 'td-valid' : 'td-invalid');
+  }
 });
 
 document.getElementById('karma-tbody').addEventListener('change', e => {
@@ -310,10 +325,11 @@ document.getElementById('add-karma-btn').addEventListener('click', () => {
    ========================================================= */
 (function initDropdowns() {
   const maahSel = document.getElementById('maah');
+  const currentMonthName = MONTHS[new Date().getMonth()];
   MONTHS.forEach(m => {
     const o = document.createElement('option');
     o.value = m; o.textContent = m;
-    if (m === 'फरवरी') o.selected = true;
+    if (m === currentMonthName) o.selected = true;
     maahSel.appendChild(o);
   });
 
@@ -390,6 +406,15 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
     if (window.soundFX) window.soundFX.success();
     var pdfBtn = document.getElementById('btn-pdf');
     if (pdfBtn) { pdfBtn.classList.add('success-pulse'); setTimeout(function(){ pdfBtn.classList.remove('success-pulse'); }, 600); }
+    
+    saveReportToHistory({
+      type: 'plp',
+      title: 'PLP रिपोर्ट',
+      subtitle: state.ahwcName + ' — ' + state.jila,
+      period: state.maah + ' ' + state.varsh,
+      snapshot: JSON.stringify({ ahwcName: state.ahwcName, jila: state.jila, maah: state.maah, varsh: state.varsh, rows: state.rows, karmachari: state.karmachari })
+    });
+    renderHistorySection();
   } finally {
     overlay.classList.remove('active');
   }
@@ -453,28 +478,23 @@ let attState = {
 
 const ATT_OPTIONS = [
   "उपस्थित",
-  "Day off",
+  "अनुपस्थित",
   "आकस्मिक अवकाश",
-  "चाइल्डकेयर लीव",
-  "उपार्जित अवकाश",
-  "परिवर्तित अवकाश",
-  "अर्धवेतन अवकाश",
-  "असाधारण अवकाश",
-  "प्रसूति अवकाश",
-  "पितृत्व अवकाश",
-  "willful absence",
-  "Onduty",
-  "अवकाश पर",
-  "कार्यमुक्त"
+  "Day Off"
 ];
 
 function getDatesArray(from, to) {
   const dates = [];
   if (!from || !to) return dates;
-  let curr = new Date(from);
-  const end = new Date(to);
+  let curr = new Date(from + 'T00:00:00');
+  const end = new Date(to + 'T00:00:00');
   if (curr > end) return dates;
+  const MAX_DAYS = 31;
   while (curr <= end) {
+    if (dates.length >= MAX_DAYS) {
+      showToast('⚠️ अधिकतम 31 दिन की अवधि चुनें', 3500);
+      break;
+    }
     dates.push(new Date(curr));
     curr.setDate(curr.getDate() + 1);
   }
@@ -548,78 +568,164 @@ function renderAttTable() {
 }
 
 function renderAttPreview(dates) {
-  document.getElementById('att-doc-office').textContent = attState.officeName || '';
-  document.getElementById('att-doc-kramank').textContent = attState.kramank || '';
-  
-  let dateStr = '';
-  if (attState.date) {
-    const d = new Date(attState.date);
-    dateStr = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
-  }
-  document.getElementById('att-doc-date').textContent = dateStr;
-  
-  let pFromStr = '', pToStr = '';
+  // ── Sync simple text fields ──
+  var pFromStr = '', pToStr = '';
+  const MONTHS = ['जनवरी','फरवरी','मार्च','अप्रैल','मई','जून','जुलाई','अगस्त','सितम्बर','अक्टूबर','नवम्बर','दिसम्बर'];
   if (attState.periodFrom) {
-    const d = new Date(attState.periodFrom);
-    pFromStr = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
+    var d = new Date(attState.periodFrom + 'T00:00:00');
+    pFromStr = d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear();
   }
   if (attState.periodTo) {
-    const d = new Date(attState.periodTo);
-    pToStr = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
+    var d2 = new Date(attState.periodTo + 'T00:00:00');
+    pToStr = d2.getDate() + ' ' + MONTHS[d2.getMonth()] + ' ' + d2.getFullYear();
   }
-  document.getElementById('att-doc-period-from').textContent = pFromStr;
-  document.getElementById('att-doc-period-to').textContent = pToStr;
-  
-  document.getElementById('att-doc-seal-office').textContent = attState.officeName || '';
-  
-  const noteSec = document.getElementById('att-doc-note-sec');
-  if (attState.note.trim()) {
-    document.getElementById('att-doc-note-text').textContent = attState.note.trim();
-    noteSec.style.display = 'block';
-  } else {
-    noteSec.style.display = 'none';
+  var elFrom = document.getElementById('att-doc-period-from');
+  var elTo   = document.getElementById('att-doc-period-to');
+  if (elFrom) elFrom.textContent = pFromStr;
+  if (elTo)   elTo.textContent   = pToStr;
+
+  var elKr   = document.getElementById('att-doc-kramank');
+  var elDate = document.getElementById('att-doc-date');
+  var elSeal = document.getElementById('att-doc-seal-office');
+  if (elKr)   elKr.textContent   = attState.kramank || '';
+  if (elDate) elDate.textContent = (function(){
+    if (!attState.date) return '';
+    var dd = new Date(attState.date + 'T00:00:00');
+    return String(dd.getDate()).padStart(2,'0') + '.' +
+           String(dd.getMonth()+1).padStart(2,'0') + '.' + dd.getFullYear();
+  })();
+  if (elSeal) elSeal.textContent = attState.officeName || '';
+
+  // ── Note section ──
+  var noteSec = document.getElementById('att-doc-note-sec');
+  if (noteSec) {
+    if (attState.note && attState.note.trim()) {
+      var elNoteText = document.getElementById('att-doc-note-text');
+      if (elNoteText) elNoteText.textContent = attState.note.trim();
+      noteSec.style.display = 'block';
+    } else {
+      noteSec.style.display = 'none';
+    }
   }
 
-  let headHtml = `
-    <th style="width:20px">क्र.सं.</th>
-    <th class="att-name-col">नाम कार्मिक मय पद</th>
-  `;
-  dates.forEach(d => {
-    headHtml += `<th class="att-day-col">${formatDateDisplay(d)}</th>`;
+  if (!dates || dates.length === 0) return;
+
+  // ── Group dates by month ──
+  var monthGroups = [];
+  var curGroup = null;
+  dates.forEach(function(d) {
+    var mk = d.getFullYear() + '-' + d.getMonth();
+    if (!curGroup || curGroup.key !== mk) {
+      curGroup = {
+        key: mk,
+        label: 'माह - ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear(),
+        count: 0
+      };
+      monthGroups.push(curGroup);
+    }
+    curGroup.count++;
   });
-  headHtml += `
-    <th class="att-count-col">उपस्थिति पत्रक अवधि में उपभोग किए गए आकस्मिक अवकाश का योग</th>
-    <th class="att-count-col">पिछले उपस्थिति पत्रक अवधि तक उपयोग किए गए कुल आकस्मिक अवकाश</th>
-    <th class="att-count-col">अब तक कुल उपभोग आकस्मिक अवकाश</th>
-  `;
-  document.getElementById('att-doc-tbl-head').innerHTML = headHtml;
 
-  let bodyHtml = '';
-  attState.staff.forEach((s, idx) => {
-    let currentPeriodCL = 0;
-    let daysCells = '';
-    dates.forEach(d => {
-      const dateStr = d.toISOString().split('T')[0];
-      const val = s.days[dateStr] || 'उपस्थित';
-      if (val === 'आकस्मिक अवकाश') currentPeriodCL++;
-      daysCells += `<td>${val}</td>`;
+  // ── Column widths ──
+  var PRINT_AVAILABLE_MM = 210; // mm available for day columns
+  var DAY_W_MM = Math.floor(PRINT_AVAILABLE_MM / dates.length);
+  var DAY_W = Math.round(DAY_W_MM * (1122 / 297)); // convert mm to px at 1122px=297mm
+  var SNO_W    = 22;
+  var NAME_W   = 90;
+  var SUM_W    = 50;
+  var DAYS_CNT = dates.length;
+
+  // ── Build <colgroup> ──
+  var colgroupHtml = '<colgroup>';
+  colgroupHtml += '<col style="width:' + SNO_W + 'px">';
+  colgroupHtml += '<col style="width:' + NAME_W + 'px">';
+  for (var ci = 0; ci < DAYS_CNT; ci++) {
+    colgroupHtml += '<col style="width:' + DAY_W + 'px">';
+  }
+  colgroupHtml += '<col style="width:' + SUM_W + 'px">';
+  colgroupHtml += '<col style="width:' + SUM_W + 'px">';
+  colgroupHtml += '<col style="width:' + SUM_W + 'px">';
+  colgroupHtml += '</colgroup>';
+
+  // ── Build <thead> — 2 header rows ──
+  var theadHtml = '<colgroup>' + colgroupHtml.replace('<colgroup>','').replace('</colgroup>','') + '</colgroup>';
+
+  // ROW 1: क्र.सं. (rowspan=2) | नाम (rowspan=2) | month group spans | 3 summary cols (rowspan=2)
+  var SUMMARY_STYLE = 'border:1.5px solid #000;background:#e8e8e8;font-size:6pt;font-weight:700;' +
+                      'text-align:center;vertical-align:middle;padding:2px 1px;line-height:1.3;';
+  theadHtml += '<tr style="background:#f0f0f0">';
+  theadHtml += '<th rowspan="2" style="border:1.5px solid #000;font-size:7.5pt;font-weight:700;' +
+               'text-align:center;vertical-align:middle;padding:2px 1px;background:#e8e8e8">क्र.सं.</th>';
+  theadHtml += '<th rowspan="2" style="border:1.5px solid #000;font-size:7.5pt;font-weight:700;' +
+               'text-align:left;vertical-align:middle;padding:3px 4px;background:#e8e8e8">नाम कार्मिक मय पद</th>';
+  monthGroups.forEach(function(g) {
+    theadHtml += '<th colspan="' + g.count + '" style="border:1.5px solid #000;background:#e0e0e0;' +
+                 'font-size:7.5pt;font-weight:700;text-align:center;padding:2px 1px">' + g.label + '</th>';
+  });
+  theadHtml += '<th rowspan="2" style="' + SUMMARY_STYLE + '">उपस्थिति पत्रक अवधि में लिए गए आकस्मिक अवकाश का योग</th>';
+  theadHtml += '<th rowspan="2" style="' + SUMMARY_STYLE + '">पूर्व उपस्थिति पत्रक तक लिए गए आकस्मिक अवकाश का योग</th>';
+  theadHtml += '<th rowspan="2" style="' + SUMMARY_STYLE + '">अब तक कुल लिए आकस्मिक अवकाश का योग</th>';
+  theadHtml += '</tr>';
+
+  // ROW 2: date numbers only
+  theadHtml += '<tr>';
+  dates.forEach(function(d) {
+    theadHtml += '<th style="border:1.5px solid #000;font-size:6.5pt;font-weight:700;' +
+                 'text-align:center;padding:2px 0;background:#e8e8e8">' + d.getDate() + '</th>';
+  });
+  theadHtml += '</tr>';
+
+  document.getElementById('att-doc-tbl-head').innerHTML = theadHtml;
+
+  // ── Build <tbody> ──
+  var DAY_CELL_STYLE = 'border:1.5px solid #000;padding:1px 0;text-align:center;' +
+                       'vertical-align:middle;font-size:6pt;';
+  var VERT_SPAN_STYLE = 'writing-mode:vertical-rl;text-orientation:mixed;' +
+                        'transform:rotate(180deg);display:inline-block;' +
+                        'font-size:5.5pt;line-height:1;max-height:40px;overflow:hidden;';
+
+  var tbodyHtml = '';
+  attState.staff.forEach(function(s, idx) {
+    // Count current-period CL
+    var currentCL = 0;
+    dates.forEach(function(d) {
+      var ds = d.toISOString().split('T')[0];
+      var val = s.days[ds] || 'उपस्थित';
+      if (val === 'आकस्मिक अवकाश') currentCL++;
     });
-    
-    const prevCL = parseInt(s.prevLeaves) || 0;
-    const totalCL = currentPeriodCL + prevCL;
-    
-    bodyHtml += `
-      <tr>
-        <td style="text-align:center">${idx + 1}</td>
-        <td>${esc(s.name)}</td>
-        ${daysCells}
-        <td style="text-align:center;font-weight:bold" id="att-doc-n1-${idx}">${currentPeriodCL}</td>
-        <td style="text-align:center" id="att-doc-n2-${idx}">${prevCL}</td>
-        <td style="text-align:center;font-weight:bold" id="att-doc-n3-${idx}">${totalCL}</td>
-      </tr>
-    `;
+    var prevCL  = parseInt(s.prevLeaves) || 0;
+    var totalCL = currentCL + prevCL;
+
+    tbodyHtml += '<tr>';
+    // Serial number
+    tbodyHtml += '<td style="border:1.5px solid #000;text-align:center;font-size:8pt;' +
+                 'font-weight:700;vertical-align:middle;padding:2px 1px">' + (idx + 1) + '</td>';
+    // Name
+    tbodyHtml += '<td style="border:1.5px solid #000;text-align:left;font-size:7pt;' +
+                 'vertical-align:middle;padding:3px 4px;line-height:1.35">' + esc(s.name) + '</td>';
+    // Day cells
+    dates.forEach(function(d) {
+      var ds  = d.toISOString().split('T')[0];
+      var val = s.days[ds] || 'उपस्थित';
+      var bgColor = '';
+      if (val === 'Day Off')          bgColor = 'background:#fff3cd;';
+      if (val === 'आकस्मिक अवकाश')   bgColor = 'background:#fde8e8;';
+      if (val === 'अनुपस्थित')        bgColor = 'background:#fde8e8;';
+      tbodyHtml += '<td style="' + DAY_CELL_STYLE + bgColor + '">';
+      tbodyHtml += '<span class="att-day-cell-span" style="' + VERT_SPAN_STYLE + '">' + esc(val) + '</span>';
+      tbodyHtml += '</td>';
+    });
+    // Summary cells
+    tbodyHtml += '<td style="border:1.5px solid #000;text-align:center;font-size:8pt;' +
+                 'font-weight:700;vertical-align:middle;background:#f0f9f0" id="att-doc-n1-' + idx + '">' + currentCL + '</td>';
+    tbodyHtml += '<td style="border:1.5px solid #000;text-align:center;font-size:8pt;' +
+                 'vertical-align:middle" id="att-doc-n2-' + idx + '">' + prevCL + '</td>';
+    tbodyHtml += '<td style="border:1.5px solid #000;text-align:center;font-size:9pt;' +
+                 'font-weight:700;vertical-align:middle;background:#e8f4e8" id="att-doc-n3-' + idx + '">' + totalCL + '</td>';
+    tbodyHtml += '</tr>';
   });
-  document.getElementById('att-doc-tbody').innerHTML = bodyHtml;
+
+  document.getElementById('att-doc-tbody').innerHTML = tbodyHtml;
 }
 
 function removeAttRow(idx) {
@@ -669,7 +775,7 @@ document.getElementById('att-date').addEventListener('change', e => {
   attState.date = e.target.value; 
   let dateStr = '';
   if (attState.date) {
-    const d = new Date(attState.date);
+    const d = new Date(attState.date + 'T00:00:00');
     dateStr = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
   }
   document.getElementById('att-doc-date').textContent = dateStr;
@@ -740,7 +846,7 @@ function validateAttForm() {
   }
   if (!attState.periodFrom || !attState.periodTo) {
     errs.push('उपस्थिति अवधि चुनना आवश्यक है।');
-  } else if (new Date(attState.periodFrom) > new Date(attState.periodTo)) {
+  } else if (new Date(attState.periodFrom + 'T00:00:00') > new Date(attState.periodTo + 'T00:00:00')) {
     errs.push('अवधि प्रारंभ तिथि समाप्ति तिथि से पहले होनी चाहिए।');
   }
   
@@ -782,17 +888,37 @@ document.getElementById('att-btn-pdf').addEventListener('click', async () => {
     await new Promise(r => setTimeout(r, 200));
     const element = document.getElementById('att-doc-page');
     const opt = {
-      margin: [5, 5, 5, 5],
-      filename: `Upasthiti_Patrak_${pFromStr}_${pToStr}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+      margin:    [6, 6, 6, 6],   // top, right, bottom, left in mm
+      filename:  'Upasthiti_Patrak_' + pFromStr + '_' + pToStr + '.pdf',
+      image:     { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
+        scale:          2.5,     // Higher scale = crisper Devanagari text
+        useCORS:        true,
+        letterRendering:true,
+        scrollY:        0,
+        width:          1122,    // Exact A4 landscape px width
+        windowWidth:    1122
+      },
+      jsPDF: {
+        unit:        'mm',
+        format:      'a4',
+        orientation: 'landscape'  // 297mm wide × 210mm tall
+      },
       pagebreak: { mode: 'avoid-all' }
     };
     await html2pdf().set(opt).from(element).save();
     if (window.soundFX) window.soundFX.success();
     var attPdfBtn = document.getElementById('att-btn-pdf');
     if (attPdfBtn) { attPdfBtn.classList.add('success-pulse'); setTimeout(function(){ attPdfBtn.classList.remove('success-pulse'); }, 600); }
+
+    saveReportToHistory({
+      type: 'att',
+      title: 'उपस्थिति पत्रक',
+      subtitle: attState.officeName,
+      period: attState.periodFrom + ' – ' + attState.periodTo,
+      snapshot: JSON.stringify({ officeName: attState.officeName, kramank: attState.kramank, date: attState.date, periodFrom: attState.periodFrom, periodTo: attState.periodTo, note: attState.note, staff: attState.staff })
+    });
+    renderHistorySection();
   } finally {
     overlay.classList.remove('active');
   }
@@ -978,7 +1104,7 @@ function exportAttToExcel() {
   // Format date strings
   function fmtDate(ds) {
     if (!ds) return '';
-    var d = new Date(ds);
+    var d = new Date(ds + 'T00:00:00');
     return String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + d.getFullYear();
   }
 
@@ -1055,7 +1181,7 @@ function updateProgressPill() {
   var dayCount = (from && to) ? getDatesArray(from, to).length : 0;
   function fmtDDMM(ds) {
     if (!ds) return '—';
-    var d = new Date(ds);
+    var d = new Date(ds + 'T00:00:00');
     return String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth()+1).padStart(2,'0');
   }
   pill.innerHTML =
@@ -1121,6 +1247,22 @@ function autoSaveAtt() {
 
 var debouncedAutoSave = debounce(autoSaveAtt, 1500);
 
+function autoSavePLP() {
+  try {
+    localStorage.setItem('plp_draft', JSON.stringify({
+      ahwcName: state.ahwcName,
+      jila: state.jila,
+      maah: state.maah,
+      varsh: state.varsh,
+      rows: state.rows,
+      karmachari: state.karmachari,
+      savedAt: new Date().toISOString()
+    }));
+    showToast('✓ PLP ड्राफ्ट सुरक्षित');
+  } catch(e) { /* storage full — fail silently */ }
+}
+var debouncedPLPSave = debounce(autoSavePLP, 1500);
+
 // Listen for input changes on the staff attendance panel
 var staffPanel = document.getElementById('staff-att-panel');
 if (staffPanel) {
@@ -1128,18 +1270,41 @@ if (staffPanel) {
   staffPanel.addEventListener('change', debouncedAutoSave);
 }
 
+// Hook into PLP panel events
+var plpPanel = document.getElementById('plp-panel');
+if (plpPanel) {
+  plpPanel.addEventListener('input', debouncedPLPSave);
+  plpPanel.addEventListener('change', debouncedPLPSave);
+}
+
 // Restore from localStorage on load
+(function restorePLPDraft() {
+  try {
+    var saved = localStorage.getItem('plp_draft');
+    if (!saved) return;
+    var data = JSON.parse(saved);
+    if (data.ahwcName) { state.ahwcName = data.ahwcName; var el = document.getElementById('ahwc-name'); if (el) el.value = data.ahwcName; }
+    if (data.jila)     { state.jila = data.jila;         var el2 = document.getElementById('jila');      if (el2) el2.value = data.jila; }
+    if (data.maah)     { state.maah = data.maah;         var el3 = document.getElementById('maah');      if (el3) el3.value = data.maah; }
+    if (data.varsh)    { state.varsh = data.varsh;       var el4 = document.getElementById('varsh');     if (el4) el4.value = data.varsh; }
+    if (data.rows && data.rows.length === 10) state.rows = data.rows;
+    if (data.karmachari && data.karmachari.length > 0) state.karmachari = data.karmachari;
+    renderAll();
+    showToast('📂 PLP ड्राफ्ट पुनः लोड किया गया');
+  } catch(e) {}
+})();
+
 (function restoreAttDraft() {
   try {
     var saved = localStorage.getItem('att_draft');
     if (!saved) return;
     var data = JSON.parse(saved);
-    if (data.officeName) { attState.officeName = data.officeName; var el = document.getElementById('att-office-name'); if (el) el.value = data.officeName; }
-    if (data.kramank) { attState.kramank = data.kramank; var el = document.getElementById('att-kramank'); if (el) el.value = data.kramank; }
-    if (data.date) { attState.date = data.date; var el = document.getElementById('att-date'); if (el) el.value = data.date; }
-    if (data.from) { attState.periodFrom = data.from; var el = document.getElementById('att-period-from'); if (el) el.value = data.from; }
-    if (data.to) { attState.periodTo = data.to; var el = document.getElementById('att-period-to'); if (el) el.value = data.to; }
-    if (data.note) { attState.note = data.note; var el = document.getElementById('att-note'); if (el) el.value = data.note; }
+    if (data.officeName) { attState.officeName = data.officeName; var el1 = document.getElementById('att-office-name'); if (el1) el1.value = data.officeName; }
+    if (data.kramank) { attState.kramank = data.kramank; var el2 = document.getElementById('att-kramank'); if (el2) el2.value = data.kramank; }
+    if (data.date) { attState.date = data.date; var el3 = document.getElementById('att-date'); if (el3) el3.value = data.date; }
+    if (data.from) { attState.periodFrom = data.from; var el4 = document.getElementById('att-period-from'); if (el4) el4.value = data.from; }
+    if (data.to) { attState.periodTo = data.to; var el5 = document.getElementById('att-period-to'); if (el5) el5.value = data.to; }
+    if (data.note) { attState.note = data.note; var el6 = document.getElementById('att-note'); if (el6) el6.value = data.note; }
     if (data.staffRows && data.staffRows.length > 0) {
       attState.staff = data.staffRows;
     }
@@ -1182,6 +1347,10 @@ window.toggleTheme = function() {
   var newTheme = isDark ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', newTheme);
   localStorage.setItem('theme', newTheme);
+  var sun = document.querySelector('.theme-icon-sun');
+  var moon = document.querySelector('.theme-icon-moon');
+  if (sun) sun.style.display = newTheme === 'dark' ? 'none' : 'block';
+  if (moon) moon.style.display = newTheme === 'dark' ? 'block' : 'none';
 };
 
 // On load — restore saved theme
@@ -1220,4 +1389,164 @@ window.addEventListener('scroll', function() {
     observer.observe(el);
   });
 })();
+
+/* === REPORT HISTORY === */
+var HISTORY_KEY = 'ss_report_history';
+var MAX_HISTORY = 20;
+
+function saveReportToHistory(entry) {
+  // entry: { id, type ('plp'|'att'), title, subtitle, period, generatedAt }
+  try {
+    var history = getReportHistory();
+    entry.id = Date.now().toString();
+    entry.generatedAt = new Date().toISOString();
+    history.unshift(entry); // newest first
+    if (history.length > MAX_HISTORY) history = history.slice(0, MAX_HISTORY);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  } catch(e) {}
+}
+
+function getReportHistory() {
+  try {
+    return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+  } catch(e) { return []; }
+}
+
+function deleteHistoryEntry(id) {
+  try {
+    var history = getReportHistory().filter(function(e) { return e.id !== id; });
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    renderHistorySection();
+  } catch(e) {}
+}
+
+function restoreFromHistory(id) {
+  var history = getReportHistory();
+  var entry = history.find(function(e) { return e.id === id; });
+  if (!entry || !entry.snapshot) return;
+  try {
+    var data = JSON.parse(entry.snapshot);
+    if (entry.type === 'plp') {
+      state.ahwcName = data.ahwcName || '';
+      state.jila     = data.jila     || '';
+      state.maah     = data.maah     || state.maah;
+      state.varsh    = data.varsh    || state.varsh;
+      if (data.rows) state.rows = data.rows;
+      if (data.karmachari) state.karmachari = data.karmachari;
+      // sync header inputs
+      ['ahwc-name','jila','maah','varsh'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.value = state[id === 'ahwc-name' ? 'ahwcName' : id];
+      });
+      renderAll();
+      showPanel('plp-panel');
+      showToast('📂 रिपोर्ट पुनः लोड की गई');
+    } else if (entry.type === 'att') {
+      attState.officeName  = data.officeName  || '';
+      attState.kramank     = data.kramank     || '';
+      attState.date        = data.date        || '';
+      attState.periodFrom  = data.periodFrom  || '';
+      attState.periodTo    = data.periodTo    || '';
+      attState.note        = data.note        || '';
+      if (data.staff) attState.staff = data.staff;
+      // sync inputs
+      var fields = { 'att-office-name': 'officeName', 'att-kramank': 'kramank', 'att-date': 'date', 'att-period-from': 'periodFrom', 'att-period-to': 'periodTo', 'att-note': 'note' };
+      Object.keys(fields).forEach(function(elId) {
+        var el = document.getElementById(elId);
+        if (el) el.value = attState[fields[elId]];
+      });
+      renderAttTable();
+      showPanel('staff-att-panel');
+      showToast('📂 उपस्थिति पत्रक पुनः लोड किया गया');
+    }
+  } catch(e) { showToast('⚠️ रिपोर्ट लोड नहीं हो सकी'); }
+}
+
+function renderHistorySection() {
+  var container = document.getElementById('history-section');
+  if (!container) return;
+  var history = getReportHistory();
+  if (history.length === 0) {
+    container.style.display = 'none';
+    return;
+  }
+  container.style.display = 'block';
+  var items = history.map(function(entry) {
+    var date = new Date(entry.generatedAt);
+    var dateStr = date.toLocaleDateString('hi-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    var icon = entry.type === 'plp' ? '📊' : '📋';
+    return [
+      '<div class="history-item">',
+      '  <div class="history-icon">' + icon + '</div>',
+      '  <div class="history-info">',
+      '    <div class="history-title">' + entry.title + ' — ' + (entry.period || '') + '</div>',
+      '    <div class="history-subtitle">' + (entry.subtitle || '') + '</div>',
+      '    <div class="history-date">' + dateStr + '</div>',
+      '  </div>',
+      '  <div class="history-actions">',
+      '    <button class="history-restore-btn" onclick="restoreFromHistory(\'' + entry.id + '\')">पुनः लोड</button>',
+      '    <button class="history-delete-btn" onclick="deleteHistoryEntry(\'' + entry.id + '\')" aria-label="Delete">✕</button>',
+      '  </div>',
+      '</div>'
+    ].join('');
+  }).join('');
+  container.innerHTML = [
+    '<div class="history-header">',
+    '  <h2 class="history-heading">हालिया रिपोर्टें</h2>',
+    '  <button class="history-clear-btn" onclick="clearAllHistory()">सभी हटाएं</button>',
+    '</div>',
+    '<div class="history-list">' + items + '</div>'
+  ].join('');
+}
+
+function clearAllHistory() {
+  if (!confirm('सभी रिपोर्ट इतिहास हटाएं?')) return;
+  localStorage.removeItem(HISTORY_KEY);
+  renderHistorySection();
+  showToast('🗑️ इतिहास साफ किया गया');
+}
+
+// Init on load
+renderHistorySection();
+
+/* === PWA INSTALL PROMPT === */
+(function() {
+  var deferredPrompt = null;
+  var installBtn = document.getElementById('pwa-install-btn');
+
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installBtn) installBtn.style.display = 'flex';
+  });
+
+  if (installBtn) {
+    installBtn.addEventListener('click', function() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function(result) {
+        if (result.outcome === 'accepted') {
+          showToast('✅ ऐप इंस्टॉल हो रहा है...');
+          if (installBtn) installBtn.style.display = 'none';
+        }
+        deferredPrompt = null;
+      });
+    });
+  }
+
+  window.addEventListener('appinstalled', function() {
+    if (installBtn) installBtn.style.display = 'none';
+    showToast('✅ Soochna Sahayak इंस्टॉल हो गया!');
+  });
+})();
+
+// Mobile button hint
+if (window.innerWidth < 768 && !sessionStorage.getItem('btn_hint_shown')) {
+  sessionStorage.setItem('btn_hint_shown', '1');
+  setTimeout(function() { showToast('👇 नीचे बटन उपलब्ध हैं', 2500); }, 800);
+}
+
+// Expose navigation functions to window for React onClick handlers
+window.showPanel = showPanel;
+window.showHomeScreen = showHomeScreen;
 

@@ -41,12 +41,24 @@
 .sig-text { font-size: .68rem; font-weight: 700; line-height: 1.5; }
 
 /* Staff Attendance Document Classes */
+/* NEW — A4 landscape: 297mm × 210mm */
 .att-doc-page {
-  width: 1122px; min-height: 794px; transform: scale(calc((100vw - 48px) / 1122px));
-  margin-bottom: calc(((100vw - 48px) / 1122px - 1) * 794px);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.12); border-radius: 2px;
+  width: 1122px;   /* 297mm at 96dpi ≈ 1122px */
+  min-height: 794px; /* 210mm at 96dpi ≈ 794px  */
+  background: #fff;
+  padding: 20px 22px;
+  font-family: 'Noto Sans Devanagari', 'Noto Serif Devanagari', serif;
+  font-size: 9pt;
+  color: #000;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  border-radius: 2px;
+  transform: scale(calc((100vw - 96px) / 1122px));
+  transform-origin: top left;
+  margin-bottom: calc((calc((100vw - 96px) / 1122px) - 1) * 794px);
 }
-@media(min-width: 1170px) { .att-doc-page { transform: scale(1); margin-bottom: 0; } }
+@media(min-width: 1218px) {
+  .att-doc-page { transform: scale(1); margin-bottom: 0; }
+}
 
 /* A4 Scaler wrapping doc-page */
 .a4-scaler {
