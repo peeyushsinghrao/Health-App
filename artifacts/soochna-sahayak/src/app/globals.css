@@ -1405,7 +1405,7 @@
   .att-data-table thead tr th:nth-child(2),
   .att-data-table tbody tr td:nth-child(2) {
     position: sticky;
-    left: 46px;
+    left: 54px;
     z-index: 2;
     background: var(--bg-elevated);
     border-right: 2px solid var(--border-strong);
@@ -1575,6 +1575,54 @@
     color: var(--text-muted);
     font-style: italic;
     flex-shrink: 0;
+  }
+
+  /* Table column header classes (set by web-portal.js) */
+  .att-name-col {
+    min-width: 160px;
+    white-space: normal;
+    line-height: 1.3;
+  }
+
+  .att-day-col {
+    min-width: 90px;
+    text-align: center;
+    white-space: nowrap;
+    padding: 6px 4px !important;
+  }
+
+  .att-count-col {
+    min-width: 80px;
+    text-align: center;
+    white-space: normal;
+    line-height: 1.25;
+    font-size: 10px !important;
+    padding: 4px 6px !important;
+  }
+
+  /* Color-coded day select backgrounds */
+  .att-day-select.val-present {
+    background: #f0fdf4;
+    border-color: #86efac;
+    color: #15803d;
+  }
+
+  .att-day-select.val-absent {
+    background: #fff1f2;
+    border-color: #fca5a5;
+    color: #b91c1c;
+  }
+
+  .att-day-select.val-cl {
+    background: #fefce8;
+    border-color: #fde047;
+    color: #a16207;
+  }
+
+  .att-day-select.val-dayoff {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #1d4ed8;
   }
 
   /* Mobile tweaks for new att UI */

@@ -545,6 +545,14 @@ export default function Home() {
               <div className="att-preview-scaler">
                 <div id="att-doc-page" className="att-doc-page doc-page">
                   <div style={{
+                    textAlign: 'center', fontWeight: 700, fontSize: '10pt',
+                    padding: '4px 8px', borderBottom: '2px solid #000', marginBottom: '2px',
+                    fontFamily: "'Noto Sans Devanagari', serif", letterSpacing: '0.01em'
+                  }}>
+                    <div id="att-doc-office" style={{ marginBottom: '1px' }}>कार्यालय राजकीय</div>
+                    <div style={{ fontSize: '8pt', fontWeight: 500 }}>कार्मिक उपस्थिति पत्रक</div>
+                  </div>
+                  <div style={{
                     border: '1.5px solid #000', padding: '4px 8px',
                     fontWeight: 700, fontSize: '9pt', marginBottom: 0,
                     background: '#f8f8f8', fontFamily: "'Noto Sans Devanagari', serif"
