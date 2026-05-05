@@ -678,11 +678,18 @@ function renderAttPreview(dates) {
   document.getElementById('att-doc-tbl-head').innerHTML = theadHtml;
 
   // ── Build <tbody> ──
-  var DAY_CELL_STYLE = 'border:1.5px solid #000;padding:1px 0;text-align:center;' +
-                       'vertical-align:middle;font-size:6pt;';
-  var VERT_SPAN_STYLE = 'writing-mode:vertical-rl;text-orientation:mixed;' +
-                        'transform:rotate(180deg);display:inline-block;' +
-                        'font-size:5.5pt;line-height:1;max-height:40px;overflow:hidden;';
+  // DAY_CELL_STYLE: position:relative + overflow:hidden + fixed height so the
+  // absolutely-positioned vertical span stays inside the cell border.
+  var DAY_CELL_STYLE = 'border:1.5px solid #000;padding:0;text-align:center;' +
+                       'vertical-align:middle;font-size:6pt;' +
+                       'position:relative;overflow:hidden;height:46px;';
+  // VERT_SPAN_STYLE: absolute-centre + rotate(-90deg) instead of writing-mode
+  // because html2canvas (used by html2pdf) does not reliably render writing-mode.
+  var VERT_SPAN_STYLE = 'position:absolute;left:50%;top:50%;' +
+                        'transform:translate(-50%,-50%) rotate(-90deg);' +
+                        'display:block;white-space:nowrap;' +
+                        'font-size:5pt;line-height:1.2;' +
+                        'overflow:visible;width:max-content;z-index:1;';
 
   var tbodyHtml = '';
   attState.staff.forEach(function(s, idx) {
