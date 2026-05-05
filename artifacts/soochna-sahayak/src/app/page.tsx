@@ -171,7 +171,7 @@ export default function Home() {
             </div>
             <h3 className="font-display text-[19px] font-semibold text-[var(--text-primary)] mb-2">Yoga Instructor</h3>
             <p className="font-body text-[13px] text-[var(--text-muted)] leading-[1.65] mb-6">
-              योग शिक्षक उपस्थिति पत्रक एवं भुगतान रिपोर्ट
+              योग प्रशिक्षक उपस्थिति पत्रक एवं भुगतान रिपोर्ट
             </p>
             <div className="flex items-center justify-between pt-4 border-t border-[var(--border)]">
               <span className="text-[11px] font-medium text-[var(--accent-primary)] uppercase tracking-wider">Generate Report</span>
@@ -277,10 +277,23 @@ export default function Home() {
 
             <button className="add-row-btn" id="add-karma-btn">+ कर्मचारी जोड़ें</button>
 
-            {/* Action Buttons (no preview button) */}
+            {/* Action Buttons */}
             <div className="flex flex-wrap gap-3 pt-4 bg-[var(--bg-surface)] md:bg-transparent p-4 md:p-0 border-t border-[var(--border)] md:border-none z-20 mt-4 btn-row no-print">
               <button className="btn btn-secondary" id="btn-plp-print">
                 <Printer size={16} /> Print
+              </button>
+              <button
+                className="btn btn-secondary"
+                onClick={() => {
+                  const body = document.querySelector('.plp-preview-body') as HTMLElement;
+                  if (body) {
+                    const isOpen = body.style.display !== 'none';
+                    body.style.display = isOpen ? 'none' : 'block';
+                    if (!isOpen) body.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }}
+              >
+                <Eye size={16} /> Preview
               </button>
               <button className="btn btn-primary" id="btn-pdf">
                 <FileDown size={16} /> Save PDF
@@ -290,26 +303,13 @@ export default function Home() {
               </button>
             </div>
 
-            {/* Collapsible Document Preview — like Staff Attendance */}
+            {/* Collapsible Document Preview */}
             <div className="no-print mt-2">
               <div className="att-preview-toggle-bar">
                 <div className="flex items-center gap-2">
                   <span className="text-[13px] font-medium text-[var(--text-secondary)]">📄 दस्तावेज़ प्रीव्यू</span>
                   <span className="badge badge-secondary text-[10px]">A4 Portrait</span>
                 </div>
-                <button
-                  className="att-preview-toggle-btn"
-                  onClick={(e) => {
-                    const wrap = (e.currentTarget as HTMLElement).closest('.no-print')?.querySelector('.plp-preview-body') as HTMLElement;
-                    if (wrap) {
-                      const isOpen = wrap.style.display !== 'none';
-                      wrap.style.display = isOpen ? 'none' : 'block';
-                      (e.currentTarget as HTMLElement).textContent = isOpen ? '▼ दिखाएँ' : '▲ छुपाएँ';
-                    }
-                  }}
-                >
-                  ▼ दिखाएँ
-                </button>
               </div>
 
               <div className="plp-preview-body" style={{ display: 'none' }}>
@@ -495,14 +495,6 @@ export default function Home() {
             <span>कार्मिक एवं उपस्थिति विवरण</span>
           </div>
 
-          {/* Legend */}
-          <div className="att-legend">
-            <span className="att-legend-title">स्थिति संकेत:</span>
-            <span className="att-legend-item att-status-present">उपस्थित</span>
-            <span className="att-legend-item att-status-absent">अनुपस्थित</span>
-            <span className="att-legend-item att-status-cl">आकस्मिक अवकाश</span>
-            <span className="att-legend-item att-status-dayoff">Day Off</span>
-          </div>
 
           {/* Scroll hint + Table */}
           <div className="att-table-outer">
@@ -552,19 +544,6 @@ export default function Home() {
                 <span className="text-[13px] font-medium text-[var(--text-secondary)]">📄 दस्तावेज़ प्रीव्यू</span>
                 <span className="badge badge-secondary text-[10px]">A4 Landscape</span>
               </div>
-              <button
-                className="att-preview-toggle-btn"
-                onClick={(e) => {
-                  const wrap = (e.currentTarget as HTMLElement).closest('.att-step-card')?.querySelector('.att-preview-body') as HTMLElement;
-                  if (wrap) {
-                    const isOpen = wrap.style.display !== 'none';
-                    wrap.style.display = isOpen ? 'none' : 'block';
-                    (e.currentTarget as HTMLElement).textContent = isOpen ? '▼ दिखाएँ' : '▲ छुपाएँ';
-                  }
-                }}
-              >
-                ▼ दिखाएँ
-              </button>
             </div>
 
             <div className="att-preview-body" style={{ display: 'none' }}>
@@ -623,12 +602,15 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Action Buttons — no preview button */}
+          {/* Action Buttons */}
           <div className="att-action-bar">
             <div className="att-action-hint">तैयार हो जाने पर PDF/Excel में सहेजें</div>
             <div className="flex flex-wrap gap-3">
               <button className="btn btn-secondary" id="att-btn-print">
                 <Printer size={16} /> Print
+              </button>
+              <button className="btn btn-secondary" id="att-btn-preview">
+                <Eye size={16} /> Preview
               </button>
               <button className="btn btn-excel" id="att-btn-excel">
                 <Table size={16} /> Excel
@@ -661,7 +643,7 @@ export default function Home() {
         <div className="form-panel flex-1 no-print">
           <div className="page-title-area">
             <h2 className="font-display text-[26px] font-semibold text-[var(--text-primary)] mb-1">
-              योग शिक्षक उपस्थिति पत्रक
+              योग प्रशिक्षक उपस्थिति पत्रक
             </h2>
             <p className="text-[var(--text-muted)] text-sm">डेटा दर्ज करें</p>
           </div>
@@ -699,7 +681,7 @@ export default function Home() {
                 <thead>
                   <tr className="bg-[var(--bg-elevated)] text-[var(--text-secondary)] text-[10px] uppercase tracking-[0.03em] [&>th]:p-2 [&>th]:border-b [&>th]:border-[var(--border)] [&>th]:text-center [&>th]:leading-snug">
                     <th style={{ width: '32px' }}>1<br/>क्र.सं.</th>
-                    <th style={{ minWidth: '130px' }}>2<br/>नाम योग शिक्षक</th>
+                    <th style={{ minWidth: '130px' }}>2<br/>नाम योग प्रशिक्षक</th>
                     <th style={{ width: '110px' }}>3<br/>महिला / पुरुष</th>
                     <th style={{ width: '78px' }}>4<br/>दिवस संख्या</th>
                     <th style={{ width: '90px' }}>5<br/>जन सामान्य योग घंटे<br/><span className="text-[9px] font-normal normal-case text-[var(--text-muted)]">(पुरुष: max 31)</span></th>
@@ -717,12 +699,15 @@ export default function Home() {
               </table>
             </div>
 
-            <button className="add-row-btn" id="yog-add-row-btn">+ योग शिक्षक जोड़ें</button>
+            <button className="add-row-btn" id="yog-add-row-btn">+ योग प्रशिक्षक जोड़ें</button>
 
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-3 pt-4 bg-[var(--bg-surface)] md:bg-transparent p-4 md:p-0 border-t border-[var(--border)] md:border-none z-20 mt-4 btn-row no-print">
               <button className="btn btn-secondary" id="yog-btn-print">
                 <Printer size={16} /> Print
+              </button>
+              <button className="btn btn-secondary" id="yog-btn-preview">
+                <Eye size={16} /> Preview
               </button>
               <button className="btn btn-excel" id="yog-btn-excel">
                 <Table size={16} /> Excel
@@ -739,17 +724,6 @@ export default function Home() {
                   <span className="text-[13px] font-medium text-[var(--text-secondary)]">📄 दस्तावेज़ प्रीव्यू</span>
                   <span className="badge badge-secondary text-[10px]">A4 Portrait</span>
                 </div>
-                <button
-                  className="att-preview-toggle-btn"
-                  onClick={(e) => {
-                    const wrap = (e.currentTarget as HTMLElement).closest('.no-print')?.querySelector('.yog-preview-body') as HTMLElement;
-                    if (wrap) {
-                      const isOpen = wrap.style.display !== 'none';
-                      wrap.style.display = isOpen ? 'none' : 'block';
-                      (e.currentTarget as HTMLElement).textContent = isOpen ? '▼ दिखाएँ' : '▲ छुपाएँ';
-                    }
-                  }}
-                >▼ दिखाएँ</button>
               </div>
 
               <div className="yog-preview-body" style={{ display: 'none' }}>
@@ -777,7 +751,7 @@ export default function Home() {
 
                     {/* Title */}
                     <div style={{ textAlign: 'center', fontWeight: 700, fontSize: '10pt', margin: '6px 0 2px', textDecoration: 'underline', letterSpacing: '0.03em' }}>
-                      योग शिक्षक उपस्थिति पत्रक
+                      योग प्रशिक्षक उपस्थिति पत्रक
                     </div>
                     <div style={{ textAlign: 'center', fontSize: '8pt', marginBottom: '8px' }}>
                       माह - <span id="yog-doc-month" style={{ fontWeight: 600 }}>__________</span>
@@ -788,7 +762,7 @@ export default function Home() {
                       <thead>
                         <tr style={{ background: '#f0ece4' }}>
                           <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', width: '20px' }}>क्र.<br/>सं.</th>
-                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', minWidth: '70px' }}>नाम योग शिक्षक</th>
+                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', minWidth: '70px' }}>नाम योग प्रशिक्षक</th>
                           <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', width: '52px' }}>महिला /<br/>पुरुष</th>
                           <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', width: '44px' }}>माह के दौरान दिवस की संख्या जिसमें योग करवाया गया</th>
                           <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', width: '50px' }}>जन सामान्य को कराए गए योग शिक्षण के कुल घंटे</th>
@@ -808,7 +782,7 @@ export default function Home() {
 
                     {/* Certification */}
                     <div style={{ marginTop: '10px', fontSize: '7pt', lineHeight: 1.7, textAlign: 'justify' }}>
-                      प्रमाणित किया जाता है कि उपर्युक्त टेबल के कॉलम संख्या 4 में उल्लेखित दिवस में योग शिक्षक द्वारा प्रतिदिन एक घंटे से अधिक कार्य संपादित किया गया एवं में उनके कार्य से संतुष्ट हूँ। कॉलम संख्या 9 में अंकित राशि के भुगतान की अनुशंसा की जाती है।
+                      प्रमाणित किया जाता है कि उपर्युक्त टेबल के कॉलम संख्या 4 में उल्लेखित दिवस में योग प्रशिक्षक द्वारा प्रतिदिन एक घंटे से अधिक कार्य संपादित किया गया एवं में उनके कार्य से संतुष्ट हूँ। कॉलम संख्या 9 में अंकित राशि के भुगतान की अनुशंसा की जाती है।
                     </div>
 
                     {/* Signature */}
