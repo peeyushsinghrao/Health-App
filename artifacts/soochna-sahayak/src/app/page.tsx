@@ -6,7 +6,7 @@ export default function Home() {
     <div className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)] font-body antialiased relative overflow-x-hidden selection:bg-[var(--accent-primary)] selection:text-[var(--bg-base)]">
 
       {/* ========== LOADING OVERLAY ========== */}
-      <div className="loading-overlay opacity-0 pointer-events-none" id="overlay">
+      <div className="loading-overlay" id="overlay">
         <div className="loading-dots">
           <div className="loading-dot"></div>
           <div className="loading-dot"></div>
