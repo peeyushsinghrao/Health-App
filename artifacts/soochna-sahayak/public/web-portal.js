@@ -1740,8 +1740,24 @@ window.showHomeScreen = showHomeScreen;
 
     tbody.querySelectorAll('.yog-inp').forEach(function (inp) {
       inp.addEventListener('input', function () {
-        yogState.rows[parseInt(this.dataset.idx, 10)][this.dataset.field] = this.value;
-        renderYogTable();
+        var idx = parseInt(this.dataset.idx, 10);
+        yogState.rows[idx][this.dataset.field] = this.value;
+        // Update calculated cells in-place — avoids re-render which would destroy focus
+        var calc = calcYogRow(yogState.rows[idx]);
+        var trs = tbody.querySelectorAll('tr');
+        if (trs[idx]) {
+          var tds = trs[idx].querySelectorAll('td');
+          // For male: td[6] = col 7 (auto total) — update its text
+          if (!calc.isFemale && tds[6]) {
+            tds[6].textContent = calc.totalHours;
+          }
+          // col 9 = td[8] for both genders
+          if (tds[8]) {
+            tds[8].textContent = calc.payment ? '₹' + calc.payment.toLocaleString('en-IN') + '/-' : '—';
+            tds[8].style.fontWeight = '700';
+            tds[8].style.color = 'var(--accent-primary)';
+          }
+        }
         renderYogDoc();
         debouncedYogSave();
       });
