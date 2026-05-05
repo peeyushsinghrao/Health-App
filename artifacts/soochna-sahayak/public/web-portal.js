@@ -430,6 +430,7 @@ function showPanel(panelId) {
   document.getElementById('home-screen').style.display = 'none';
   document.getElementById('plp-panel').style.display = 'none';
   document.getElementById('staff-att-panel').style.display = 'none';
+  document.getElementById('yog-panel').style.display = 'none';
   
   const target = document.getElementById(panelId);
   if (target) {
@@ -452,6 +453,7 @@ function showHomeScreen() {
   document.getElementById('home-screen').style.display = 'flex';
   document.getElementById('plp-panel').style.display = 'none';
   document.getElementById('staff-att-panel').style.display = 'none';
+  document.getElementById('yog-panel').style.display = 'none';
   document.body.classList.remove('is-staff-att');
   
   // Add animation to home screen
@@ -1465,6 +1467,22 @@ function restoreFromHistory(id) {
       renderAttTable();
       showPanel('staff-att-panel');
       showToast('📂 उपस्थिति पत्रक पुनः लोड किया गया');
+    } else if (entry.type === 'yog') {
+      localStorage.setItem('yog_draft', entry.snapshot);
+      showPanel('yog-panel');
+      setTimeout(function () {
+        if (window._yogState && window._renderYogTable && window._renderYogDoc) {
+          var d = data;
+          if (d.centerName) { window._yogState.centerName = d.centerName; var el = document.getElementById('yog-center-name'); if (el) el.value = d.centerName; }
+          if (d.kramank)    { window._yogState.kramank    = d.kramank;    var el2 = document.getElementById('yog-kramank');     if (el2) el2.value = d.kramank; }
+          if (d.date)       { window._yogState.date       = d.date;       var el3 = document.getElementById('yog-date');        if (el3) el3.value = d.date; }
+          if (d.monthVal)   { window._yogState.monthVal   = d.monthVal;   var el4 = document.getElementById('yog-month');       if (el4) el4.value = d.monthVal; }
+          if (d.rows && d.rows.length > 0) window._yogState.rows = d.rows;
+          window._renderYogTable();
+          window._renderYogDoc();
+          showToast('📂 योग रिपोर्ट पुनः लोड की गई');
+        }
+      }, 100);
     }
   } catch(e) { showToast('⚠️ रिपोर्ट लोड नहीं हो सकी'); }
 }
@@ -1481,7 +1499,7 @@ function renderHistorySection() {
   var items = history.map(function(entry) {
     var date = new Date(entry.generatedAt);
     var dateStr = date.toLocaleDateString('hi-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-    var icon = entry.type === 'plp' ? '📊' : '📋';
+    var icon = entry.type === 'plp' ? '📊' : entry.type === 'yog' ? '🧘' : '📋';
     return [
       '<div class="history-item">',
       '  <div class="history-icon">' + icon + '</div>',
@@ -1556,4 +1574,405 @@ if (window.innerWidth < 768 && !sessionStorage.getItem('btn_hint_shown')) {
 // Expose navigation functions to window for React onClick handlers
 window.showPanel = showPanel;
 window.showHomeScreen = showHomeScreen;
+
+/* =========================================================
+   YOGA INSTRUCTOR MODULE
+   ========================================================= */
+(function () {
+  'use strict';
+
+  var YOG_MONTHS = [
+    'जनवरी','फरवरी','मार्च','अप्रैल','मई','जून',
+    'जुलाई','अगस्त','सितंबर','अक्टूबर','नवंबर','दिसंबर'
+  ];
+  var YOG_MONTH_DAYS = [31,28,31,30,31,30,31,31,30,31,30,31];
+
+  function getDaysInMonth(monthIdx, year) {
+    if (monthIdx === 1) {
+      return ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) ? 29 : 28;
+    }
+    return YOG_MONTH_DAYS[monthIdx];
+  }
+
+  function getSelectedMonthMeta() {
+    var sel = document.getElementById('yog-month');
+    if (!sel || !sel.value) return { idx: 0, year: new Date().getFullYear(), label: '', days: 31 };
+    var val = parseInt(sel.value, 10);
+    var monthIdx = Math.floor(val / 10000);
+    var year = val % 10000;
+    return {
+      idx: monthIdx,
+      year: year,
+      label: YOG_MONTHS[monthIdx] + ' ' + year,
+      days: getDaysInMonth(monthIdx, year)
+    };
+  }
+
+  var yogState = {
+    centerName: '',
+    kramank: '',
+    date: '',
+    monthVal: 0,
+    rows: [
+      { naam: '', gender: 'पुरुष', days: '', hoursYog: '', hoursIEC: '' }
+    ]
+  };
+
+  function populateYogMonthSelect() {
+    var sel = document.getElementById('yog-month');
+    if (!sel) return;
+    var now = new Date();
+    var curMonth = now.getMonth();
+    var curYear  = now.getFullYear();
+    sel.innerHTML = '';
+    for (var offset = -6; offset <= 5; offset++) {
+      var m = curMonth + offset;
+      var y = curYear;
+      while (m < 0)  { m += 12; y--; }
+      while (m > 11) { m -= 12; y++; }
+      var opt = document.createElement('option');
+      opt.value = m * 10000 + y;
+      opt.textContent = YOG_MONTHS[m] + ' ' + y;
+      if (offset === 0) opt.selected = true;
+      sel.appendChild(opt);
+    }
+    yogState.monthVal = parseInt(sel.value, 10);
+  }
+
+  function calcYogRow(row) {
+    var isFemale = row.gender === 'महिला';
+    var meta = getSelectedMonthMeta();
+    var days = Math.min(parseInt(row.days, 10) || 0, meta.days);
+    var maxYog  = isFemale ? 20 : 31;
+    var hoursYog = Math.min(parseFloat(row.hoursYog) || 0, maxYog);
+    var hoursIEC = 0;
+    if (!isFemale) {
+      hoursIEC = Math.min(parseFloat(row.hoursIEC) || 0, 2);
+    }
+    var maxTotal   = isFemale ? 20 : 33;
+    var totalHours = Math.min(hoursYog + hoursIEC, maxTotal);
+    var maxPayment = isFemale ? 5000 : 8000;
+    var payment    = Math.min(totalHours * 250, maxPayment);
+    return { days: days, hoursYog: hoursYog, hoursIEC: hoursIEC, totalHours: totalHours, rate: 250, payment: payment, isFemale: isFemale };
+  }
+
+  function renderYogTable() {
+    var tbody = document.getElementById('yog-tbody');
+    if (!tbody) return;
+    var meta = getSelectedMonthMeta();
+    var html = '';
+
+    yogState.rows.forEach(function (row, idx) {
+      var calc = calcYogRow(row);
+      html += '<tr>';
+      html += '<td style="font-weight:600">' + (idx + 1) + '</td>';
+      html += '<td><input class="form-input-base yog-inp" style="min-width:120px;font-size:12px" '
+            + 'type="text" data-idx="' + idx + '" data-field="naam" '
+            + 'value="' + esc(row.naam) + '" placeholder="नाम दर्ज करें"></td>';
+      html += '<td><select class="form-input-base yog-sel" style="font-size:12px" '
+            + 'data-idx="' + idx + '" data-field="gender">'
+            + '<option value="पुरुष"' + (row.gender === 'पुरुष' ? ' selected' : '') + '>पुरुष</option>'
+            + '<option value="महिला"' + (row.gender === 'महिला' ? ' selected' : '') + '>महिला</option>'
+            + '</select></td>';
+      html += '<td><input class="form-input-base yog-inp" style="font-size:12px;text-align:center" '
+            + 'type="number" min="0" max="' + meta.days + '" '
+            + 'data-idx="' + idx + '" data-field="days" '
+            + 'value="' + (row.days || '') + '" placeholder="0"></td>';
+      html += '<td><input class="form-input-base yog-inp" style="font-size:12px;text-align:center" '
+            + 'type="number" min="0" max="' + (calc.isFemale ? 20 : 31) + '" step="0.5" '
+            + 'data-idx="' + idx + '" data-field="hoursYog" '
+            + 'value="' + (row.hoursYog || '') + '" placeholder="0"></td>';
+      if (calc.isFemale) {
+        html += '<td style="color:var(--text-muted);font-style:italic;font-size:12px">NA</td>';
+      } else {
+        html += '<td><input class="form-input-base yog-inp" style="font-size:12px;text-align:center" '
+              + 'type="number" min="0" max="2" step="0.5" '
+              + 'data-idx="' + idx + '" data-field="hoursIEC" '
+              + 'value="' + (row.hoursIEC || '') + '" placeholder="0"></td>';
+      }
+      html += '<td style="font-weight:600;color:var(--accent-primary)">' + calc.totalHours + '</td>';
+      html += '<td style="color:var(--text-secondary);font-size:11px">₹250/घंटे</td>';
+      html += '<td style="font-weight:700;color:var(--accent-primary)">₹' + calc.payment.toLocaleString('en-IN') + '</td>';
+      html += '<td class="no-print"><button class="rm-btn" '
+            + 'onclick="window._yogRemoveRow(' + idx + ')" '
+            + (yogState.rows.length <= 1 ? 'disabled' : '') + '>✕</button></td>';
+      html += '</tr>';
+    });
+
+    tbody.innerHTML = html;
+
+    var addBtn = document.getElementById('yog-add-row-btn');
+    if (addBtn) addBtn.style.display = yogState.rows.length >= 2 ? 'none' : '';
+
+    tbody.querySelectorAll('.yog-inp').forEach(function (inp) {
+      inp.addEventListener('input', function () {
+        yogState.rows[parseInt(this.dataset.idx, 10)][this.dataset.field] = this.value;
+        renderYogDoc();
+        debouncedYogSave();
+      });
+    });
+
+    tbody.querySelectorAll('.yog-sel').forEach(function (sel) {
+      sel.addEventListener('change', function () {
+        var i = parseInt(this.dataset.idx, 10);
+        yogState.rows[i][this.dataset.field] = this.value;
+        if (this.dataset.field === 'gender' && this.value === 'महिला') {
+          yogState.rows[i].hoursIEC = '';
+        }
+        renderYogTable();
+        renderYogDoc();
+        debouncedYogSave();
+      });
+    });
+  }
+
+  window._yogRemoveRow = function (idx) {
+    if (yogState.rows.length <= 1) return;
+    yogState.rows.splice(idx, 1);
+    renderYogTable();
+    renderYogDoc();
+  };
+
+  function renderYogDoc() {
+    var elCenter = document.getElementById('yog-doc-center');
+    if (elCenter) elCenter.textContent = yogState.centerName || '____________________';
+
+    var elKr = document.getElementById('yog-doc-kramank');
+    if (elKr) elKr.textContent = yogState.kramank || '______';
+
+    var elDate = document.getElementById('yog-doc-date');
+    if (elDate) {
+      if (yogState.date) {
+        var d = new Date(yogState.date + 'T00:00:00');
+        elDate.textContent = d.toLocaleDateString('hi-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+      } else {
+        elDate.textContent = '______';
+      }
+    }
+
+    var elMonth = document.getElementById('yog-doc-month');
+    if (elMonth) elMonth.textContent = getSelectedMonthMeta().label || '______';
+
+    var elSeal = document.getElementById('yog-doc-seal');
+    if (elSeal) elSeal.textContent = yogState.centerName || '';
+
+    var docTbody = document.getElementById('yog-doc-tbody');
+    if (!docTbody) return;
+
+    var C = 'border:1px solid #000;padding:2px 3px;text-align:center;vertical-align:middle;';
+    var rows = yogState.rows.map(function (row, idx) {
+      var calc = calcYogRow(row);
+      return '<tr>'
+        + '<td style="' + C + '">' + (idx + 1) + '</td>'
+        + '<td style="' + C + 'text-align:left;">' + esc(row.naam || '') + '</td>'
+        + '<td style="' + C + '">' + row.gender + ' योग शिक्षक</td>'
+        + '<td style="' + C + '">' + (row.days || '') + '</td>'
+        + '<td style="' + C + '">' + (row.hoursYog || '') + '</td>'
+        + '<td style="' + C + '">' + (calc.isFemale ? 'NA' : (row.hoursIEC || '')) + '</td>'
+        + '<td style="' + C + 'font-weight:700">' + calc.totalHours + '</td>'
+        + '<td style="' + C + '">₹250/-</td>'
+        + '<td style="' + C + 'font-weight:700">' + (calc.payment ? '₹' + calc.payment.toLocaleString('en-IN') + '/-' : '') + '</td>'
+        + '</tr>';
+    }).join('');
+    docTbody.innerHTML = rows;
+  }
+
+  function attachYogHeaderListeners() {
+    var centerEl = document.getElementById('yog-center-name');
+    if (centerEl) centerEl.addEventListener('input', function () {
+      yogState.centerName = this.value;
+      renderYogDoc();
+      debouncedYogSave();
+    });
+
+    var krEl = document.getElementById('yog-kramank');
+    if (krEl) krEl.addEventListener('input', function () {
+      yogState.kramank = this.value;
+      renderYogDoc();
+      debouncedYogSave();
+    });
+
+    var dateEl = document.getElementById('yog-date');
+    if (dateEl) {
+      var today = new Date().toISOString().slice(0, 10);
+      dateEl.value = today;
+      yogState.date = today;
+      dateEl.addEventListener('change', function () {
+        yogState.date = this.value;
+        renderYogDoc();
+        debouncedYogSave();
+      });
+    }
+
+    var monthEl = document.getElementById('yog-month');
+    if (monthEl) monthEl.addEventListener('change', function () {
+      yogState.monthVal = parseInt(this.value, 10);
+      renderYogTable();
+      renderYogDoc();
+      debouncedYogSave();
+    });
+  }
+
+  function attachYogAddRow() {
+    var btn = document.getElementById('yog-add-row-btn');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      if (yogState.rows.length >= 2) return;
+      yogState.rows.push({ naam: '', gender: 'पुरुष', days: '', hoursYog: '', hoursIEC: '' });
+      renderYogTable();
+      renderYogDoc();
+    });
+  }
+
+  function exportYogPDF() {
+    if (typeof window.html2pdf === 'undefined') { showToast('⚠️ PDF लाइब्रेरी लोड नहीं हुई'); return; }
+    var meta = getSelectedMonthMeta();
+    var overlay = document.getElementById('overlay');
+    if (overlay) { overlay.style.opacity = '1'; overlay.style.pointerEvents = 'auto'; }
+    window.html2pdf().set({
+      margin: [8, 8, 8, 8],
+      filename: 'Yog_Shikshak_' + meta.label.replace(' ', '_') + '.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }).from(document.getElementById('yog-doc-page')).save().then(function () {
+      if (overlay) { overlay.style.opacity = '0'; overlay.style.pointerEvents = 'none'; }
+      if (window.soundFX) window.soundFX.success();
+      showToast('✅ PDF सहेजा गया');
+      saveReportToHistory({
+        type: 'yog',
+        title: 'योग शिक्षक',
+        subtitle: yogState.centerName || 'केंद्र',
+        period: meta.label,
+        snapshot: JSON.stringify({
+          centerName: yogState.centerName,
+          kramank: yogState.kramank,
+          date: yogState.date,
+          monthVal: yogState.monthVal,
+          rows: yogState.rows
+        })
+      });
+      renderHistorySection();
+    });
+  }
+
+  function printYogDoc() {
+    var el = document.getElementById('yog-doc-page');
+    if (!el) return;
+    var win = window.open('', '_blank');
+    win.document.write('<html><head><title>योग शिक्षक उपस्थिति पत्रक</title>');
+    win.document.write('<style>'
+      + 'body{font-family:"Noto Sans Devanagari",serif;margin:10mm;}'
+      + 'table{border-collapse:collapse;width:100%;}'
+      + 'th,td{border:1px solid #000;padding:3px 4px;font-size:7.5pt;}'
+      + 'th{background:#f0f0f0;font-weight:700;}'
+      + '</style>');
+    win.document.write('</head><body>');
+    win.document.write(el.outerHTML);
+    win.document.write('</body></html>');
+    win.document.close();
+    win.focus();
+    setTimeout(function () { win.print(); win.close(); }, 400);
+  }
+
+  function exportYogExcel() {
+    if (typeof XLSX === 'undefined') { showToast('⚠️ Excel लाइब्रेरी लोड नहीं हुई'); return; }
+    var meta = getSelectedMonthMeta();
+    var wb = XLSX.utils.book_new();
+    var wsData = [
+      ['आयुर्वेद विभाग राजस्थान सरकार'],
+      ['कार्यालय आयुष्मान आरोग्य मंदिर राजकीय - ' + (yogState.centerName || '')],
+      ['योग शिक्षक उपस्थिति पत्रक', '', '', '', '', '', '', '', 'माह: ' + meta.label],
+      [],
+      ['क्र.सं.','नाम योग शिक्षक','महिला / पुरुष','दिवस संख्या',
+       'जन सामान्य योग घंटे','IEC कार्यक्रम घंटे','कुल निष्पादित घंटे',
+       'निर्धारित दर/घंटे','कुल भुगतान राशि']
+    ];
+    yogState.rows.forEach(function (row, idx) {
+      var calc = calcYogRow(row);
+      wsData.push([
+        idx + 1, row.naam || '', row.gender + ' योग शिक्षक',
+        row.days || '', row.hoursYog || '',
+        calc.isFemale ? 'NA' : (row.hoursIEC || ''),
+        calc.totalHours, '₹250/-',
+        calc.payment ? '₹' + calc.payment + '/-' : ''
+      ]);
+    });
+    wsData.push([]);
+    wsData.push(['प्रमाणित किया जाता है कि उपर्युक्त टेबल के कॉलम संख्या 4 में उल्लेखित दिवसों में योग शिक्षक द्वारा प्रतिदिन एक घंटे से अधिक कार्य सम्पादित किया गया।']);
+    var ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws['!cols'] = [{wch:6},{wch:28},{wch:20},{wch:14},{wch:18},{wch:18},{wch:20},{wch:18},{wch:20}];
+    XLSX.utils.book_append_sheet(wb, ws, 'योग शिक्षक');
+    XLSX.writeFile(wb, 'Yog_Shikshak_' + meta.label.replace(' ', '_') + '.xlsx');
+    if (window.soundFX) window.soundFX.success();
+    showToast('✅ Excel सहेजा गया');
+  }
+
+  function attachYogButtons() {
+    var pdfBtn = document.getElementById('yog-btn-pdf');
+    if (pdfBtn) pdfBtn.addEventListener('click', exportYogPDF);
+    var printBtn = document.getElementById('yog-btn-print');
+    if (printBtn) printBtn.addEventListener('click', printYogDoc);
+    var excelBtn = document.getElementById('yog-btn-excel');
+    if (excelBtn) excelBtn.addEventListener('click', exportYogExcel);
+    var previewBtn = document.getElementById('yog-btn-preview');
+    if (previewBtn) previewBtn.addEventListener('click', function () {
+      var docPage = document.getElementById('yog-doc-page');
+      if (docPage) { docPage.scrollIntoView({ behavior: 'smooth', block: 'start' }); showToast('👁️ प्रीव्यू देखें →'); }
+    });
+  }
+
+  function autoSaveYog() {
+    try {
+      localStorage.setItem('yog_draft', JSON.stringify({
+        centerName: yogState.centerName,
+        kramank:    yogState.kramank,
+        date:       yogState.date,
+        monthVal:   yogState.monthVal,
+        rows:       yogState.rows,
+        savedAt:    new Date().toISOString()
+      }));
+      showToast('✓ ड्राफ्ट सुरक्षित');
+    } catch (e) { /* storage full — fail silently */ }
+  }
+
+  var debouncedYogSave = debounce(autoSaveYog, 1500);
+
+  var yogPanel = document.getElementById('yog-panel');
+  if (yogPanel) {
+    yogPanel.addEventListener('input', debouncedYogSave);
+    yogPanel.addEventListener('change', debouncedYogSave);
+  }
+
+  function restoreYogDraft() {
+    try {
+      var saved = localStorage.getItem('yog_draft');
+      if (!saved) return;
+      var data = JSON.parse(saved);
+      if (data.centerName) { yogState.centerName = data.centerName; var el = document.getElementById('yog-center-name'); if (el) el.value = data.centerName; }
+      if (data.kramank)    { yogState.kramank    = data.kramank;    var el2 = document.getElementById('yog-kramank');    if (el2) el2.value = data.kramank; }
+      if (data.date)       { yogState.date       = data.date;       var el3 = document.getElementById('yog-date');       if (el3) el3.value = data.date; }
+      if (data.monthVal)   { yogState.monthVal   = data.monthVal;   var el4 = document.getElementById('yog-month');      if (el4) el4.value = data.monthVal; }
+      if (data.rows && data.rows.length > 0) yogState.rows = data.rows;
+      renderYogTable();
+      renderYogDoc();
+      showToast('📂 योग ड्राफ्ट पुनः लोड किया गया');
+    } catch (e) { /* ignore */ }
+  }
+
+  // Expose to window for restoreFromHistory
+  window._yogState       = yogState;
+  window._renderYogTable = renderYogTable;
+  window._renderYogDoc   = renderYogDoc;
+
+  // ── INIT ──
+  populateYogMonthSelect();
+  attachYogHeaderListeners();
+  attachYogAddRow();
+  attachYogButtons();
+  renderYogTable();
+  renderYogDoc();
+  restoreYogDraft();
+
+})(); /* end Yoga Module IIFE */
 
