@@ -2078,6 +2078,37 @@ body.scrolled::after {
 .inner-page-wrap > *:nth-child(4) { animation: riseUp 450ms ease both; animation-delay: 180ms; }
 
 /* =========================================================
+   STAFF ATTENDANCE — PDF / PREVIEW DOC STYLES
+   (Applied during normal rendering so html2canvas picks them up)
+   ========================================================= */
+
+/* Ensure the doc table uses fixed layout and clips overflow */
+#att-doc-table {
+  table-layout: fixed !important;
+}
+
+#att-doc-table td,
+#att-doc-table th {
+  overflow: hidden !important;
+  word-break: break-word;
+}
+
+/* Vertical day-cell text — must work in html2canvas (not just @media print) */
+.att-day-cell-span {
+  writing-mode: vertical-rl !important;
+  -webkit-writing-mode: vertical-rl !important;
+  text-orientation: mixed !important;
+  transform: rotate(180deg) !important;
+  display: inline-block !important;
+  white-space: nowrap !important;
+  font-size: 5pt !important;
+  line-height: 1 !important;
+  max-height: 44px !important;
+  overflow: hidden !important;
+  vertical-align: middle !important;
+}
+
+/* =========================================================
    PRINT STYLES
    ========================================================= */
 @media print {
