@@ -192,176 +192,198 @@ export default function Home() {
 
       {/* ========== PLP PANEL ========== */}
       <div id="plp-panel" className="page inner-page-wrap flex flex-col px-4 sm:px-6 py-8 sm:py-12 md:px-12 max-w-[1400px] mx-auto w-full gap-8 min-h-screen safe-bottom-mobile" style={{ display: 'none' }}>
-        <button
-          className="back-btn no-print"
-          onClick={() => { (window as any).showHomeScreen?.(); }}
-        >
-          <ChevronLeft size={16} strokeWidth={2} /> होम
-        </button>
 
-        <div className="flex flex-col xl:flex-row gap-6 xl:gap-8 w-full">
-          {/* Form Panel */}
-          <div className="form-panel flex-1 no-print">
-            <div className="page-title-area">
-              <h2 className="font-display text-[26px] font-semibold text-[var(--text-primary)] mb-1">AHWC मासिक प्रदर्शन PLP रिपोर्ट</h2>
-              <p className="text-[var(--text-muted)] text-sm">डेटा दर्ज करें</p>
-            </div>
+        {/* Top Bar — matches Staff Att style */}
+        <div className="flex items-center justify-between mb-2 no-print flex-wrap gap-3">
+          <button
+            className="back-btn no-print"
+            onClick={() => { (window as any).showHomeScreen?.(); }}
+          >
+            <ChevronLeft size={16} strokeWidth={2} /> होम
+          </button>
+        </div>
 
-            <div className="flex flex-col gap-6">
-              <div className="err-box bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg text-sm mb-4" id="err-box" style={{ display: 'none' }} />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex flex-col gap-2">
-                  <label className="text-[13px] font-medium text-[var(--text-secondary)] tracking-[0.02em] uppercase">AHWC का नाम *</label>
-                  <input className="form-input-base" type="text" id="ahwc-name" placeholder="जैसे: AHWC खजूरी बाजार" />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-[13px] font-medium text-[var(--text-secondary)] tracking-[0.02em] uppercase">जिला *</label>
-                  <input className="form-input-base" type="text" id="jila" placeholder="जैसे: रायपुर" />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-[13px] font-medium text-[var(--text-secondary)] tracking-[0.02em] uppercase">माह</label>
-                  <select className="form-input-base" id="maah" />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-[13px] font-medium text-[var(--text-secondary)] tracking-[0.02em] uppercase">वर्ष</label>
-                  <select className="form-input-base" id="varsh" />
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 text-[var(--text-primary)] font-semibold text-[15px] mt-4 mb-2">
-                <BarChart3 size={18} className="text-[var(--accent-primary)]" /> तालिका 1 — लक्ष्य एवं प्राप्ति
-              </div>
-              <div className="overflow-x-auto rounded-xl border border-[var(--border)]">
-                <table className="w-full text-left min-w-[600px] border-collapse">
-                  <thead>
-                    <tr className="bg-[var(--bg-elevated)] text-[var(--text-secondary)] text-[12px] uppercase tracking-[0.05em]">
-                      <th className="p-3 border-b border-[var(--border)]" style={{ width: '40px' }}>क्र.</th>
-                      <th className="p-3 border-b border-[var(--border)]" style={{ minWidth: '200px' }}>कार्य का नाम</th>
-                      <th className="p-3 border-b border-[var(--border)]" style={{ width: '80px' }}>लक्ष्य</th>
-                      <th className="p-3 border-b border-[var(--border)]" style={{ width: '80px' }}>प्राप्ति</th>
-                      <th className="p-3 border-b border-[var(--border)]" style={{ width: '90px' }}>प्रतिशत</th>
-                      <th className="p-3 border-b border-[var(--border)]" style={{ width: '80px' }}>राशि (₹)</th>
-                    </tr>
-                  </thead>
-                  <tbody id="karya-tbody" className="[&>*:nth-child(even)]:bg-[var(--bg-elevated)] [&>*:nth-child(odd)]:bg-[var(--bg-surface)] [&>*:hover]:bg-[var(--accent-primary)]/5 transition-colors" />
-                  <tfoot id="karya-tfoot" className="bg-[var(--bg-elevated)] border-t border-[var(--border)] font-semibold" />
-                </table>
-              </div>
-
-              <div className="flex items-center gap-2 text-[var(--text-primary)] font-semibold text-[15px] mt-6 mb-2">
-                <Users size={18} className="text-[var(--accent-primary)]" /> तालिका 2 — कर्मचारी भुगतान विवरण
-              </div>
-              <div className="overflow-x-auto rounded-xl border border-[var(--border)]">
-                <table className="w-full text-left min-w-[800px] border-collapse">
-                  <thead>
-                    <tr className="bg-[var(--bg-elevated)] text-[var(--text-secondary)] text-[12px] uppercase tracking-[0.05em]">
-                      <th className="p-3 border-b border-[var(--border)]" style={{ width: '40px' }}>क्र.</th>
-                      <th className="p-3 border-b border-[var(--border)]" style={{ minWidth: '130px' }}>नाम</th>
-                      <th className="p-3 border-b border-[var(--border)]" style={{ width: '110px' }}>पद</th>
-                      <th className="p-3 border-b border-[var(--border)]" style={{ minWidth: '130px' }}>बैंक खाता</th>
-                      <th className="p-3 border-b border-[var(--border)]" style={{ minWidth: '110px' }}>बैंक नाम</th>
-                      <th className="p-3 border-b border-[var(--border)]" style={{ width: '100px' }}>IFSC</th>
-                      <th className="p-3 border-b border-[var(--border)]" style={{ width: '100px' }}>मोबाइल</th>
-                      <th className="p-3 border-b border-[var(--border)]" style={{ width: '100px' }}>भुगतान (₹)</th>
-                      <th className="p-3 border-b border-[var(--border)]" style={{ width: '40px' }}>—</th>
-                    </tr>
-                  </thead>
-                  <tbody id="karma-tbody" className="[&>*:nth-child(even)]:bg-[var(--bg-elevated)] [&>*:nth-child(odd)]:bg-[var(--bg-surface)] [&>*:hover]:bg-[var(--accent-primary)]/5 transition-colors" />
-                  <tfoot id="karma-tfoot" className="bg-[var(--bg-elevated)] border-t border-[var(--border)] font-semibold" />
-                </table>
-              </div>
-
-              <button className="add-row-btn" id="add-karma-btn">+ कर्मचारी जोड़ें</button>
-
-              <div className="flex flex-wrap gap-3 pt-4 bg-[var(--bg-surface)] md:bg-transparent p-4 md:p-0 border-t border-[var(--border)] md:border-none z-20 mt-4 btn-row no-print">
-                <button className="btn btn-ghost" id="btn-plp-preview">
-                  <Eye size={16} /> Preview
-                </button>
-                <button className="btn btn-secondary" id="btn-plp-print">
-                  <Printer size={16} /> Print
-                </button>
-                <button className="btn btn-primary" id="btn-pdf">
-                  <FileDown size={16} /> Save PDF
-                </button>
-                <button className="btn btn-secondary" id="btn-excel">
-                  <Table size={16} /> Export Excel
-                </button>
-              </div>
-            </div>
+        {/* Form Panel — full width, no side preview */}
+        <div className="form-panel flex-1 no-print">
+          <div className="page-title-area">
+            <h2 className="font-display text-[26px] font-semibold text-[var(--text-primary)] mb-1">AHWC मासिक प्रदर्शन PLP रिपोर्ट</h2>
+            <p className="text-[var(--text-muted)] text-sm">डेटा दर्ज करें</p>
           </div>
 
-          {/* Document Preview */}
-          <div className="flex-1 xl:max-w-[400px] 2xl:max-w-[500px]">
-            <div className="text-[var(--text-secondary)] font-medium text-sm mb-4 flex items-center gap-2 no-print">📄 दस्तावेज़ प्रीव्यू (A4)</div>
-            <div className="a4-scaler bg-[var(--bg-surface)] border border-[var(--border)] rounded-xl overflow-hidden p-6 shadow-[var(--shadow-card-rest)]">
-              <div id="doc-page" className="doc-page">
-                <div className="doc-header">
-                  <div className="doc-title-top">आयुष्मान आरोग्य मंदिर (AHWC)</div>
-                  <div className="doc-title-main">मासिक प्रदर्शन आधारित प्रोत्साहन रिपोर्ट(PLP)</div>
+          <div className="flex flex-col gap-6">
+            <div className="err-box bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg text-sm mb-4" id="err-box" style={{ display: 'none' }} />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex flex-col gap-2">
+                <label className="text-[13px] font-medium text-[var(--text-secondary)] tracking-[0.02em] uppercase">AHWC का नाम *</label>
+                <input className="form-input-base" type="text" id="ahwc-name" placeholder="जैसे: AHWC खजूरी बाजार" />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-[13px] font-medium text-[var(--text-secondary)] tracking-[0.02em] uppercase">जिला *</label>
+                <input className="form-input-base" type="text" id="jila" placeholder="जैसे: रायपुर" />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-[13px] font-medium text-[var(--text-secondary)] tracking-[0.02em] uppercase">माह</label>
+                <select className="form-input-base" id="maah" />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-[13px] font-medium text-[var(--text-secondary)] tracking-[0.02em] uppercase">वर्ष</label>
+                <select className="form-input-base" id="varsh" />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 text-[var(--text-primary)] font-semibold text-[15px] mt-4 mb-2">
+              <BarChart3 size={18} className="text-[var(--accent-primary)]" /> तालिका 1 — लक्ष्य एवं प्राप्ति
+            </div>
+            <div className="overflow-x-auto rounded-xl border border-[var(--border)]">
+              <table className="w-full text-left min-w-[600px] border-collapse">
+                <thead>
+                  <tr className="bg-[var(--bg-elevated)] text-[var(--text-secondary)] text-[12px] uppercase tracking-[0.05em]">
+                    <th className="p-3 border-b border-[var(--border)]" style={{ width: '40px' }}>क्र.</th>
+                    <th className="p-3 border-b border-[var(--border)]" style={{ minWidth: '200px' }}>कार्य का नाम</th>
+                    <th className="p-3 border-b border-[var(--border)]" style={{ width: '80px' }}>लक्ष्य</th>
+                    <th className="p-3 border-b border-[var(--border)]" style={{ width: '80px' }}>प्राप्ति</th>
+                    <th className="p-3 border-b border-[var(--border)]" style={{ width: '90px' }}>प्रतिशत</th>
+                    <th className="p-3 border-b border-[var(--border)]" style={{ width: '80px' }}>राशि (₹)</th>
+                  </tr>
+                </thead>
+                <tbody id="karya-tbody" className="[&>*:nth-child(even)]:bg-[var(--bg-elevated)] [&>*:nth-child(odd)]:bg-[var(--bg-surface)] [&>*:hover]:bg-[var(--accent-primary)]/5 transition-colors" />
+                <tfoot id="karya-tfoot" className="bg-[var(--bg-elevated)] border-t border-[var(--border)] font-semibold" />
+              </table>
+            </div>
+
+            <div className="flex items-center gap-2 text-[var(--text-primary)] font-semibold text-[15px] mt-6 mb-2">
+              <Users size={18} className="text-[var(--accent-primary)]" /> तालिका 2 — कर्मचारी भुगतान विवरण
+            </div>
+            <div className="overflow-x-auto rounded-xl border border-[var(--border)]">
+              <table className="w-full text-left min-w-[800px] border-collapse">
+                <thead>
+                  <tr className="bg-[var(--bg-elevated)] text-[var(--text-secondary)] text-[12px] uppercase tracking-[0.05em]">
+                    <th className="p-3 border-b border-[var(--border)]" style={{ width: '40px' }}>क्र.</th>
+                    <th className="p-3 border-b border-[var(--border)]" style={{ minWidth: '130px' }}>नाम</th>
+                    <th className="p-3 border-b border-[var(--border)]" style={{ width: '110px' }}>पद</th>
+                    <th className="p-3 border-b border-[var(--border)]" style={{ minWidth: '130px' }}>बैंक खाता</th>
+                    <th className="p-3 border-b border-[var(--border)]" style={{ minWidth: '110px' }}>बैंक नाम</th>
+                    <th className="p-3 border-b border-[var(--border)]" style={{ width: '100px' }}>IFSC</th>
+                    <th className="p-3 border-b border-[var(--border)]" style={{ width: '100px' }}>मोबाइल</th>
+                    <th className="p-3 border-b border-[var(--border)]" style={{ width: '100px' }}>भुगतान (₹)</th>
+                    <th className="p-3 border-b border-[var(--border)]" style={{ width: '40px' }}>—</th>
+                  </tr>
+                </thead>
+                <tbody id="karma-tbody" className="[&>*:nth-child(even)]:bg-[var(--bg-elevated)] [&>*:nth-child(odd)]:bg-[var(--bg-surface)] [&>*:hover]:bg-[var(--accent-primary)]/5 transition-colors" />
+                <tfoot id="karma-tfoot" className="bg-[var(--bg-elevated)] border-t border-[var(--border)] font-semibold" />
+              </table>
+            </div>
+
+            <button className="add-row-btn" id="add-karma-btn">+ कर्मचारी जोड़ें</button>
+
+            {/* Action Buttons (no preview button) */}
+            <div className="flex flex-wrap gap-3 pt-4 bg-[var(--bg-surface)] md:bg-transparent p-4 md:p-0 border-t border-[var(--border)] md:border-none z-20 mt-4 btn-row no-print">
+              <button className="btn btn-secondary" id="btn-plp-print">
+                <Printer size={16} /> Print
+              </button>
+              <button className="btn btn-primary" id="btn-pdf">
+                <FileDown size={16} /> Save PDF
+              </button>
+              <button className="btn btn-secondary" id="btn-excel">
+                <Table size={16} /> Export Excel
+              </button>
+            </div>
+
+            {/* Collapsible Document Preview — like Staff Attendance */}
+            <div className="no-print mt-2">
+              <div className="att-preview-toggle-bar">
+                <div className="flex items-center gap-2">
+                  <span className="text-[13px] font-medium text-[var(--text-secondary)]">📄 दस्तावेज़ प्रीव्यू</span>
+                  <span className="badge badge-secondary text-[10px]">A4 Portrait</span>
                 </div>
-                <div className="doc-info-row">
-                  <div className="doc-info-item">
-                    <span className="dil">AHWC नाम:</span>
-                    <span className="div" id="doc-ahwc">________________________</span>
-                  </div>
-                  <div className="doc-info-item">
-                    <span className="dil">जिला:</span>
-                    <span className="div" id="doc-jila">____________</span>
-                  </div>
-                  <div className="doc-info-item">
-                    <span className="dil">माह एवं वर्ष:</span>
-                    <span className="div" id="doc-maah">फरवरी 2026</span>
-                  </div>
-                </div>
-                <div className="doc-tbl-title">तालिका 1 — कार्य विवरण एवं प्रदर्शन</div>
-                <table className="doc-tbl">
-                  <thead>
-                    <tr>
-                      <th style={{ width: '28px' }}>क्र.</th>
-                      <th>कार्य का नाम</th>
-                      <th style={{ width: '48px' }}>लक्ष्य</th>
-                      <th style={{ width: '48px' }}>प्राप्ति</th>
-                      <th style={{ width: '58px' }}>प्रतिशत</th>
-                      <th style={{ width: '52px' }}>राशि (₹)</th>
-                    </tr>
-                  </thead>
-                  <tbody id="doc-t1-body" />
-                  <tfoot id="doc-t1-foot" />
-                </table>
-                <div className="doc-tbl-title">तालिका 2 — कर्मचारी भुगतान विवरण</div>
-                <table className="doc-tbl doc-tbl-sm">
-                  <thead>
-                    <tr>
-                      <th style={{ width: '22px' }}>क्र.</th>
-                      <th style={{ minWidth: '80px' }}>नाम</th>
-                      <th style={{ width: '60px' }}>पद</th>
-                      <th style={{ width: '90px' }}>बैंक खाता</th>
-                      <th style={{ width: '70px' }}>बैंक नाम</th>
-                      <th style={{ width: '60px' }}>IFSC</th>
-                      <th style={{ width: '68px' }}>मोबाइल</th>
-                      <th style={{ width: '58px' }}>भुगतान (₹)</th>
-                    </tr>
-                  </thead>
-                  <tbody id="doc-t2-body" />
-                  <tfoot id="doc-t2-foot" />
-                </table>
-                <div className="doc-certify">
-                  प्रमाणित किया जाता है कि उपर्युक्त सूची में अंकित AMO , नर्स- कंपाउंडर , ए.एन.एम. व आशा कार्मिको द्वारा माह{' '}
-                  <span id="doc-certify-maah">फरवरी 2026</span>{' '}
-                  में मूल्यांकन सूचकों के अनुसार कार्य संपादित किया गया है एवं इससे सम्बन्धित रिकॉर्ड सुरक्षित रख लिया गया है। अतः संबंधित को निर्धारित मासिक दर से पी.एल.पी. का भुगतान किए जाने की अनुशंसा की जाती है।
-                </div>
-                <div className="doc-sig">
-                  <div className="sig-block">
-                    <div className="sig-line-area" />
-                    <div className="sig-text">
-                      हस्ताक्षर प्रभारी अधिकारी<br />
-                      AHWC - <span id="doc-sig-ahwc">______________</span>
+                <button
+                  className="att-preview-toggle-btn"
+                  onClick={(e) => {
+                    const wrap = (e.currentTarget as HTMLElement).closest('.no-print')?.querySelector('.plp-preview-body') as HTMLElement;
+                    if (wrap) {
+                      const isOpen = wrap.style.display !== 'none';
+                      wrap.style.display = isOpen ? 'none' : 'block';
+                      (e.currentTarget as HTMLElement).textContent = isOpen ? '▼ दिखाएँ' : '▲ छुपाएँ';
+                    }
+                  }}
+                >
+                  ▼ दिखाएँ
+                </button>
+              </div>
+
+              <div className="plp-preview-body" style={{ display: 'none' }}>
+                <div className="att-preview-scaler" style={{ marginTop: '12px' }}>
+                  <div id="doc-page" className="doc-page">
+                    <div className="doc-header">
+                      <div className="doc-title-top">आयुष्मान आरोग्य मंदिर (AHWC)</div>
+                      <div className="doc-title-main">मासिक प्रदर्शन आधारित प्रोत्साहन रिपोर्ट(PLP)</div>
+                    </div>
+                    <div className="doc-info-row">
+                      <div className="doc-info-item">
+                        <span className="dil">AHWC नाम:</span>
+                        <span className="div" id="doc-ahwc">________________________</span>
+                      </div>
+                      <div className="doc-info-item">
+                        <span className="dil">जिला:</span>
+                        <span className="div" id="doc-jila">____________</span>
+                      </div>
+                      <div className="doc-info-item">
+                        <span className="dil">माह एवं वर्ष:</span>
+                        <span className="div" id="doc-maah">फरवरी 2026</span>
+                      </div>
+                    </div>
+                    <div className="doc-tbl-title">तालिका 1 — कार्य विवरण एवं प्रदर्शन</div>
+                    <table className="doc-tbl">
+                      <thead>
+                        <tr>
+                          <th style={{ width: '28px' }}>क्र.</th>
+                          <th>कार्य का नाम</th>
+                          <th style={{ width: '48px' }}>लक्ष्य</th>
+                          <th style={{ width: '48px' }}>प्राप्ति</th>
+                          <th style={{ width: '58px' }}>प्रतिशत</th>
+                          <th style={{ width: '52px' }}>राशि (₹)</th>
+                        </tr>
+                      </thead>
+                      <tbody id="doc-t1-body" />
+                      <tfoot id="doc-t1-foot" />
+                    </table>
+                    <div className="doc-tbl-title">तालिका 2 — कर्मचारी भुगतान विवरण</div>
+                    <table className="doc-tbl doc-tbl-sm">
+                      <thead>
+                        <tr>
+                          <th style={{ width: '22px' }}>क्र.</th>
+                          <th style={{ minWidth: '80px' }}>नाम</th>
+                          <th style={{ width: '60px' }}>पद</th>
+                          <th style={{ width: '90px' }}>बैंक खाता</th>
+                          <th style={{ width: '70px' }}>बैंक नाम</th>
+                          <th style={{ width: '60px' }}>IFSC</th>
+                          <th style={{ width: '68px' }}>मोबाइल</th>
+                          <th style={{ width: '58px' }}>भुगतान (₹)</th>
+                        </tr>
+                      </thead>
+                      <tbody id="doc-t2-body" />
+                      <tfoot id="doc-t2-foot" />
+                    </table>
+                    <div className="doc-certify">
+                      प्रमाणित किया जाता है कि उपर्युक्त सूची में अंकित AMO , नर्स- कंपाउंडर , ए.एन.एम. व आशा कार्मिको द्वारा माह{' '}
+                      <span id="doc-certify-maah">फरवरी 2026</span>{' '}
+                      में मूल्यांकन सूचकों के अनुसार कार्य संपादित किया गया है एवं इससे सम्बन्धित रिकॉर्ड सुरक्षित रख लिया गया है। अतः संबंधित को निर्धारित मासिक दर से पी.एल.पी. का भुगतान किए जाने की अनुशंसा की जाती है।
+                    </div>
+                    <div className="doc-sig">
+                      <div className="sig-block">
+                        <div className="sig-line-area" />
+                        <div className="sig-text">
+                          हस्ताक्षर प्रभारी अधिकारी<br />
+                          AHWC - <span id="doc-sig-ahwc">______________</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+
           </div>
         </div>
 
@@ -376,7 +398,7 @@ export default function Home() {
         {/* Top Bar */}
         <div className="flex items-center justify-between mb-8 no-print flex-wrap gap-3">
           <button
-            className="back-btn"
+            className="back-btn no-print"
             onClick={() => { (window as any).showHomeScreen?.(); }}
           >
             <ChevronLeft size={16} strokeWidth={2} /> होम
@@ -601,13 +623,10 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {/* Action Buttons — no preview button */}
           <div className="att-action-bar">
             <div className="att-action-hint">तैयार हो जाने पर PDF/Excel में सहेजें</div>
             <div className="flex flex-wrap gap-3">
-              <button className="btn btn-ghost" id="att-btn-preview">
-                <Eye size={16} /> Preview
-              </button>
               <button className="btn btn-secondary" id="att-btn-print">
                 <Printer size={16} /> Print
               </button>
@@ -734,9 +753,6 @@ export default function Home() {
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-3 pt-4 bg-[var(--bg-surface)] md:bg-transparent p-4 md:p-0 border-t border-[var(--border)] md:border-none z-20 mt-4 btn-row no-print">
-                  <button className="btn btn-ghost" id="yog-btn-preview">
-                    <Eye size={16} /> Preview
-                  </button>
                   <button className="btn btn-secondary" id="yog-btn-print">
                     <Printer size={16} /> Print
                   </button>

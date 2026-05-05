@@ -388,6 +388,11 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
   }
   errBox.style.display = 'none';
 
+  if (typeof html2pdf === 'undefined') {
+    showToast('⚠️ PDF लाइब्रेरी लोड हो रही है, कृपया 2 सेकंड बाद पुनः प्रयास करें');
+    return;
+  }
+
   const overlay = document.getElementById('overlay');
   overlay.classList.add('active');
 
@@ -395,10 +400,10 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
     await new Promise(r => setTimeout(r, 200));
     const element = document.getElementById('doc-page');
     const opt = {
-      margin: [4, 4, 4, 4],
+      margin: [3, 3, 3, 3],
       filename: `AHWC_PLP_Report_${state.maah}_${state.varsh}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2.5, useCORS: true, letterRendering: true, scrollY: 0 },
+      html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0, windowWidth: 794 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: { mode: 'avoid-all' },
     };
@@ -480,9 +485,19 @@ let attState = {
 
 const ATT_OPTIONS = [
   "उपस्थित",
-  "अनुपस्थित",
+  "Day Off",
   "आकस्मिक अवकाश",
-  "Day Off"
+  "चाइल्डकेयर लीव",
+  "उपार्जित अवकाश",
+  "परिवर्तित अवकाश",
+  "अर्धवेतन अवकाश",
+  "असाधारण अवकाश",
+  "प्रसूति अवकाश",
+  "पितृत्व अवकाश",
+  "Willful Absence",
+  "Onduty",
+  "अवकाश पर",
+  "कार्यमुक्त"
 ];
 
 function getDatesArray(from, to) {
@@ -653,8 +668,8 @@ function renderAttPreview(dates) {
   var theadHtml = '<colgroup>' + colgroupHtml.replace('<colgroup>','').replace('</colgroup>','') + '</colgroup>';
 
   // ROW 1: क्र.सं. (rowspan=2) | नाम (rowspan=2) | month group spans | 3 summary cols (rowspan=2)
-  var SUMMARY_STYLE = 'border:1.5px solid #000;background:#e8e8e8;font-size:6pt;font-weight:700;' +
-                      'text-align:center;vertical-align:middle;padding:2px 1px;line-height:1.3;';
+  var SUMMARY_STYLE = 'border:1.5px solid #000;background:#e8e8e8;font-size:4.5pt;font-weight:700;' +
+                      'text-align:center;vertical-align:middle;padding:2px 1px;line-height:1.2;word-break:break-word;';
   theadHtml += '<tr style="background:#f0f0f0">';
   theadHtml += '<th rowspan="2" style="border:1.5px solid #000;font-size:7.5pt;font-weight:700;' +
                'text-align:center;vertical-align:middle;padding:2px 1px;background:#e8e8e8">क्र.सं.</th>';
@@ -874,10 +889,7 @@ function validateAttForm() {
   return true;
 }
 
-document.getElementById('att-btn-preview').addEventListener('click', () => {
-  if (!validateAttForm()) return;
-  document.getElementById('att-doc-page').scrollIntoView({ behavior: 'smooth' });
-});
+// Preview button removed per user request
 
 document.getElementById('att-btn-print').addEventListener('click', () => {
   if (!validateAttForm()) return;
@@ -886,7 +898,12 @@ document.getElementById('att-btn-print').addEventListener('click', () => {
 
 document.getElementById('att-btn-pdf').addEventListener('click', async () => {
   if (!validateAttForm()) return;
-  
+
+  if (typeof html2pdf === 'undefined') {
+    showToast('⚠️ PDF लाइब्रेरी लोड हो रही है, कृपया 2 सेकंड बाद पुनः प्रयास करें');
+    return;
+  }
+
   const overlay = document.getElementById('overlay');
   overlay.classList.add('active');
 

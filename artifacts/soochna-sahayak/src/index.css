@@ -1555,6 +1555,10 @@
     margin-top: 12px;
   }
 
+  .plp-preview-body {
+    margin-top: 12px;
+  }
+
   /* Preview Scaler */
   .att-preview-scaler {
     background: var(--bg-elevated);
