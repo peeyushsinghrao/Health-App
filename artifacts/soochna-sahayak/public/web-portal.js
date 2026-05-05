@@ -1682,34 +1682,51 @@ window.showHomeScreen = showHomeScreen;
     yogState.rows.forEach(function (row, idx) {
       var calc = calcYogRow(row);
       html += '<tr>';
+      // Col 1: क्र.सं.
       html += '<td style="font-weight:600">' + (idx + 1) + '</td>';
+      // Col 2: नाम
       html += '<td><input class="form-input-base yog-inp" style="min-width:120px;font-size:12px" '
             + 'type="text" data-idx="' + idx + '" data-field="naam" '
             + 'value="' + esc(row.naam) + '" placeholder="नाम दर्ज करें"></td>';
+      // Col 3: Gender dropdown
       html += '<td><select class="form-input-base yog-sel" style="font-size:12px" '
             + 'data-idx="' + idx + '" data-field="gender">'
             + '<option value="पुरुष"' + (row.gender === 'पुरुष' ? ' selected' : '') + '>पुरुष</option>'
             + '<option value="महिला"' + (row.gender === 'महिला' ? ' selected' : '') + '>महिला</option>'
             + '</select></td>';
+      // Col 4: Days (max = total days in selected month)
       html += '<td><input class="form-input-base yog-inp" style="font-size:12px;text-align:center" '
             + 'type="number" min="0" max="' + meta.days + '" '
             + 'data-idx="' + idx + '" data-field="days" '
             + 'value="' + (row.days || '') + '" placeholder="0"></td>';
-      html += '<td><input class="form-input-base yog-inp" style="font-size:12px;text-align:center" '
-            + 'type="number" min="0" max="' + (calc.isFemale ? 20 : 31) + '" step="0.5" '
-            + 'data-idx="' + idx + '" data-field="hoursYog" '
-            + 'value="' + (row.hoursYog || '') + '" placeholder="0"></td>';
       if (calc.isFemale) {
-        html += '<td style="color:var(--text-muted);font-style:italic;font-size:12px">NA</td>';
+        // Col 5: NA for female
+        html += '<td style="color:var(--text-muted);font-style:italic;font-size:12px;background:var(--bg-elevated)">NA</td>';
+        // Col 6: NA for female
+        html += '<td style="color:var(--text-muted);font-style:italic;font-size:12px;background:var(--bg-elevated)">NA</td>';
+        // Col 7: directly editable total hours for female (max 20)
+        html += '<td><input class="form-input-base yog-inp" style="font-size:12px;text-align:center;font-weight:600" '
+              + 'type="number" min="0" max="20" step="0.5" '
+              + 'data-idx="' + idx + '" data-field="hoursYog" '
+              + 'value="' + (row.hoursYog || '') + '" placeholder="0" title="महिला: अधिकतम 20 घंटे"></td>';
       } else {
+        // Col 5: yoga hours editable for male (max 31)
+        html += '<td><input class="form-input-base yog-inp" style="font-size:12px;text-align:center" '
+              + 'type="number" min="0" max="31" step="0.5" '
+              + 'data-idx="' + idx + '" data-field="hoursYog" '
+              + 'value="' + (row.hoursYog || '') + '" placeholder="0"></td>';
+        // Col 6: IEC hours editable for male (max 2)
         html += '<td><input class="form-input-base yog-inp" style="font-size:12px;text-align:center" '
               + 'type="number" min="0" max="2" step="0.5" '
               + 'data-idx="' + idx + '" data-field="hoursIEC" '
               + 'value="' + (row.hoursIEC || '') + '" placeholder="0"></td>';
+        // Col 7: auto-calculated total for male (col5+col6)
+        html += '<td style="font-weight:600;color:var(--accent-primary)">' + calc.totalHours + '</td>';
       }
-      html += '<td style="font-weight:600;color:var(--accent-primary)">' + calc.totalHours + '</td>';
-      html += '<td style="color:var(--text-secondary);font-size:11px">₹250/घंटे</td>';
-      html += '<td style="font-weight:700;color:var(--accent-primary)">₹' + calc.payment.toLocaleString('en-IN') + '</td>';
+      // Col 8: fixed rate
+      html += '<td style="color:var(--text-secondary);font-size:11px">₹250/-</td>';
+      // Col 9: payment
+      html += '<td style="font-weight:700;color:var(--accent-primary)">₹' + calc.payment.toLocaleString('en-IN') + '/-</td>';
       html += '<td class="no-print"><button class="rm-btn" '
             + 'onclick="window._yogRemoveRow(' + idx + ')" '
             + (yogState.rows.length <= 1 ? 'disabled' : '') + '>✕</button></td>';
@@ -1724,6 +1741,7 @@ window.showHomeScreen = showHomeScreen;
     tbody.querySelectorAll('.yog-inp').forEach(function (inp) {
       inp.addEventListener('input', function () {
         yogState.rows[parseInt(this.dataset.idx, 10)][this.dataset.field] = this.value;
+        renderYogTable();
         renderYogDoc();
         debouncedYogSave();
       });
@@ -1755,7 +1773,7 @@ window.showHomeScreen = showHomeScreen;
     if (elCenter) elCenter.textContent = yogState.centerName || '____________________';
 
     var elKr = document.getElementById('yog-doc-kramank');
-    if (elKr) elKr.textContent = yogState.kramank || '______';
+    if (elKr) elKr.textContent = yogState.kramank || '__________';
 
     var elDate = document.getElementById('yog-doc-date');
     if (elDate) {
@@ -1763,32 +1781,37 @@ window.showHomeScreen = showHomeScreen;
         var d = new Date(yogState.date + 'T00:00:00');
         elDate.textContent = d.toLocaleDateString('hi-IN', { day: '2-digit', month: 'long', year: 'numeric' });
       } else {
-        elDate.textContent = '______';
+        elDate.textContent = '__________';
       }
     }
 
     var elMonth = document.getElementById('yog-doc-month');
-    if (elMonth) elMonth.textContent = getSelectedMonthMeta().label || '______';
+    if (elMonth) elMonth.textContent = getSelectedMonthMeta().label || '__________';
 
     var elSeal = document.getElementById('yog-doc-seal');
-    if (elSeal) elSeal.textContent = yogState.centerName || '';
+    if (elSeal) elSeal.textContent = yogState.centerName ? yogState.centerName : '';
 
     var docTbody = document.getElementById('yog-doc-tbody');
     if (!docTbody) return;
 
-    var C = 'border:1px solid #000;padding:2px 3px;text-align:center;vertical-align:middle;';
+    var C  = 'border:1px solid #000;padding:3px 2px;text-align:center;vertical-align:middle;font-size:6.5pt;';
+    var CL = 'border:1px solid #000;padding:3px 3px;text-align:left;vertical-align:middle;font-size:6.5pt;';
+    var CN = 'border:1px solid #000;padding:3px 2px;text-align:center;vertical-align:middle;font-size:6.5pt;color:#888;font-style:italic;';
+
     var rows = yogState.rows.map(function (row, idx) {
       var calc = calcYogRow(row);
+      // col 5 & 6: NA for female; col 7: totalHours (directly entered for female)
+      var col5 = calc.isFemale ? '<td style="' + CN + '">NA</td>' : '<td style="' + C + '">' + (row.hoursYog || '—') + '</td>';
+      var col6 = calc.isFemale ? '<td style="' + CN + '">NA</td>' : '<td style="' + C + '">' + (row.hoursIEC || '—') + '</td>';
+      var col7 = '<td style="' + C + 'font-weight:700;">' + (calc.totalHours || '—') + '</td>';
       return '<tr>'
         + '<td style="' + C + '">' + (idx + 1) + '</td>'
-        + '<td style="' + C + 'text-align:left;">' + esc(row.naam || '') + '</td>'
+        + '<td style="' + CL + '">' + esc(row.naam || '') + '</td>'
         + '<td style="' + C + '">' + row.gender + ' योग शिक्षक</td>'
-        + '<td style="' + C + '">' + (row.days || '') + '</td>'
-        + '<td style="' + C + '">' + (row.hoursYog || '') + '</td>'
-        + '<td style="' + C + '">' + (calc.isFemale ? 'NA' : (row.hoursIEC || '')) + '</td>'
-        + '<td style="' + C + 'font-weight:700">' + calc.totalHours + '</td>'
+        + '<td style="' + C + '">' + (row.days || '—') + '</td>'
+        + col5 + col6 + col7
         + '<td style="' + C + '">₹250/-</td>'
-        + '<td style="' + C + 'font-weight:700">' + (calc.payment ? '₹' + calc.payment.toLocaleString('en-IN') + '/-' : '') + '</td>'
+        + '<td style="' + C + 'font-weight:700;">' + (calc.payment ? '₹' + calc.payment.toLocaleString('en-IN') + '/-' : '—') + '</td>'
         + '</tr>';
     }).join('');
     docTbody.innerHTML = rows;

@@ -639,199 +639,188 @@ export default function Home() {
             </div>
           </div>
         </div>
+      </div>{/* ← closes staff-att-panel */}
 
-        {/* ========== YOGA INSTRUCTOR PANEL ========== */}
-        <div
-          id="yog-panel"
-          className="page inner-page-wrap flex flex-col px-4 sm:px-6 py-8 sm:py-12 md:px-12 max-w-[1400px] mx-auto w-full gap-8 min-h-screen safe-bottom-mobile"
-          style={{ display: 'none' }}
-        >
-          {/* Back Button */}
+      {/* ========== YOGA INSTRUCTOR PANEL ========== */}
+      <div
+        id="yog-panel"
+        className="page inner-page-wrap flex flex-col px-4 sm:px-6 py-8 sm:py-12 md:px-12 max-w-[1400px] mx-auto w-full gap-8 min-h-screen safe-bottom-mobile"
+        style={{ display: 'none' }}
+      >
+        {/* Top Bar */}
+        <div className="flex items-center justify-between mb-2 no-print flex-wrap gap-3">
           <button
             className="back-btn no-print"
             onClick={() => { (window as any).showHomeScreen?.(); }}
           >
             <ChevronLeft size={16} strokeWidth={2} /> होम
           </button>
+        </div>
 
-          <div className="flex flex-col xl:flex-row gap-8 w-full">
+        {/* Form Panel — full width */}
+        <div className="form-panel flex-1 no-print">
+          <div className="page-title-area">
+            <h2 className="font-display text-[26px] font-semibold text-[var(--text-primary)] mb-1">
+              योग शिक्षक उपस्थिति पत्रक
+            </h2>
+            <p className="text-[var(--text-muted)] text-sm">डेटा दर्ज करें</p>
+          </div>
 
-            {/* ── FORM SIDE ── */}
-            <div className="form-panel flex-1 no-print">
-              <div className="page-title-area">
-                <h2 className="font-display text-[26px] font-semibold text-[var(--text-primary)] mb-1">
-                  योग शिक्षक उपस्थिति पत्रक
-                </h2>
-                <p className="text-[var(--text-muted)] text-sm">डेटा दर्ज करें</p>
+          <div className="flex flex-col gap-6">
+            <div className="err-box bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg text-sm mb-4" id="yog-err-box" style={{ display: 'none' }} />
+
+            {/* Header fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex flex-col gap-2 md:col-span-2">
+                <label className="text-[13px] font-medium text-[var(--text-secondary)] tracking-[0.02em] uppercase">
+                  केंद्र का नाम <span className="text-[var(--text-muted)] font-normal normal-case text-[11px]">(कार्यालय आयुष्मान आरोग्य मंदिर राजकीय)</span>
+                </label>
+                <input className="form-input-base" type="text" id="yog-center-name" placeholder="केंद्र का पूरा नाम दर्ज करें" />
               </div>
-
-              <div className="flex flex-col gap-6">
-
-                {/* Error box */}
-                <div
-                  className="err-box bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg text-sm mb-4"
-                  id="yog-err-box"
-                  style={{ display: 'none' }}
-                />
-
-                {/* Header fields */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                  {/* Center Name — full width */}
-                  <div className="flex flex-col gap-2 md:col-span-2">
-                    <label className="text-[13px] font-medium text-[var(--text-secondary)] tracking-[0.02em] uppercase">
-                      कार्यालय आयुष्मान आरोग्य मंदिर राजकीय (केंद्र का नाम)
-                    </label>
-                    <input
-                      className="form-input-base"
-                      type="text"
-                      id="yog-center-name"
-                      placeholder="केंद्र का पूरा नाम दर्ज करें"
-                    />
-                  </div>
-
-                  {/* Kramank */}
-                  <div className="flex flex-col gap-2">
-                    <label className="text-[13px] font-medium text-[var(--text-secondary)] tracking-[0.02em] uppercase">
-                      क्रमांक{' '}
-                      <span style={{ fontSize: '10px', fontWeight: 400, textTransform: 'none' }}>
-                        (वैकल्पिक)
-                      </span>
-                    </label>
-                    <input className="form-input-base" type="text" id="yog-kramank" placeholder="क्रमांक" />
-                  </div>
-
-                  {/* Date */}
-                  <div className="flex flex-col gap-2">
-                    <label className="text-[13px] font-medium text-[var(--text-secondary)] tracking-[0.02em] uppercase">
-                      दिनांक
-                    </label>
-                    <input className="form-input-base" type="date" id="yog-date" />
-                  </div>
-
-                  {/* Month selector — full width */}
-                  <div className="flex flex-col gap-2 md:col-span-2">
-                    <label className="text-[13px] font-medium text-[var(--text-secondary)] tracking-[0.02em] uppercase">
-                      माह
-                    </label>
-                    <select
-                      className="form-input-base"
-                      id="yog-month"
-                      style={{ maxWidth: '280px' }}
-                    />
-                  </div>
-
-                </div>
-
-                {/* Instructor Table */}
-                <div className="overflow-x-auto rounded-xl border border-[var(--border)] mt-2">
-                  <table className="w-full text-left border-collapse" style={{ minWidth: '900px' }}>
-                    <thead>
-                      <tr className="bg-[var(--bg-elevated)] text-[var(--text-secondary)] text-[11px] uppercase tracking-[0.04em] [&>th]:p-2 [&>th]:border-b [&>th]:border-[var(--border)] [&>th]:text-center">
-                        <th style={{ width: '36px' }}>क्र.</th>
-                        <th style={{ minWidth: '140px' }}>नाम योग शिक्षक</th>
-                        <th style={{ width: '120px' }}>महिला / पुरुष</th>
-                        <th style={{ width: '80px' }}>दिवस संख्या</th>
-                        <th style={{ width: '100px' }}>जन सामान्य को योग घंटे</th>
-                        <th style={{ width: '90px' }}>IEC कार्यक्रम घंटे</th>
-                        <th style={{ width: '90px' }}>कुल निष्पादित घंटे</th>
-                        <th style={{ width: '100px' }}>निर्धारित दर/घंटे</th>
-                        <th style={{ width: '100px' }}>कुल भुगतान योग राशि</th>
-                        <th style={{ width: '36px' }} className="no-print">—</th>
-                      </tr>
-                    </thead>
-                    <tbody
-                      id="yog-tbody"
-                      className="[&>tr:nth-child(even)]:bg-[var(--bg-elevated)] [&>tr:nth-child(odd)]:bg-[var(--bg-surface)] [&>tr>td]:p-2 [&>tr>td]:border-b [&>tr>td]:border-[var(--border)] [&>tr>td]:text-center"
-                    />
-                  </table>
-                </div>
-
-                <button className="add-row-btn" id="yog-add-row-btn">
-                  + योग शिक्षक जोड़ें
-                </button>
-
-                {/* Action Buttons */}
-                <div className="flex flex-wrap gap-3 pt-4 bg-[var(--bg-surface)] md:bg-transparent p-4 md:p-0 border-t border-[var(--border)] md:border-none z-20 mt-4 btn-row no-print">
-                  <button className="btn btn-secondary" id="yog-btn-print">
-                    <Printer size={16} /> Print
-                  </button>
-                  <button className="btn btn-excel" id="yog-btn-excel">
-                    <Table size={16} /> Excel
-                  </button>
-                  <button className="btn btn-primary" id="yog-btn-pdf">
-                    <Download size={16} /> Save PDF
-                  </button>
-                </div>
-
+              <div className="flex flex-col gap-2">
+                <label className="text-[13px] font-medium text-[var(--text-secondary)] tracking-[0.02em] uppercase">
+                  क्रमांक <span className="text-[var(--text-muted)] font-normal normal-case text-[11px]">(वैकल्पिक)</span>
+                </label>
+                <input className="form-input-base" type="text" id="yog-kramank" placeholder="क्रमांक" />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-[13px] font-medium text-[var(--text-secondary)] tracking-[0.02em] uppercase">दिनांक</label>
+                <input className="form-input-base" type="date" id="yog-date" />
+              </div>
+              <div className="flex flex-col gap-2 md:col-span-2">
+                <label className="text-[13px] font-medium text-[var(--text-secondary)] tracking-[0.02em] uppercase">माह</label>
+                <select className="form-input-base" id="yog-month" style={{ maxWidth: '280px' }} />
               </div>
             </div>
 
-            {/* ── A4 PREVIEW SIDE ── */}
-            <div className="flex-1 xl:max-w-[420px] 2xl:max-w-[500px]">
-              <div className="text-[var(--text-secondary)] font-medium text-sm mb-4 flex items-center gap-2 no-print">
-                📄 दस्तावेज़ प्रीव्यू (A4)
-              </div>
-              <div className="a4-scaler bg-[var(--bg-surface)] border border-[var(--border)] rounded-xl overflow-hidden p-6 shadow-[var(--shadow-card-rest)]">
-                <div
-                  id="yog-doc-page"
-                  className="doc-page"
-                  style={{ fontFamily: "'Noto Sans Devanagari', serif", fontSize: '8pt' }}
-                >
+            {/* Instructor Table — 9 columns matching PDF */}
+            <div className="overflow-x-auto rounded-xl border border-[var(--border)] mt-2">
+              <table className="w-full text-left border-collapse" style={{ minWidth: '980px' }}>
+                <thead>
+                  <tr className="bg-[var(--bg-elevated)] text-[var(--text-secondary)] text-[10px] uppercase tracking-[0.03em] [&>th]:p-2 [&>th]:border-b [&>th]:border-[var(--border)] [&>th]:text-center [&>th]:leading-snug">
+                    <th style={{ width: '32px' }}>1<br/>क्र.सं.</th>
+                    <th style={{ minWidth: '130px' }}>2<br/>नाम योग शिक्षक</th>
+                    <th style={{ width: '110px' }}>3<br/>महिला / पुरुष</th>
+                    <th style={{ width: '78px' }}>4<br/>दिवस संख्या</th>
+                    <th style={{ width: '90px' }}>5<br/>जन सामान्य योग घंटे<br/><span className="text-[9px] font-normal normal-case text-[var(--text-muted)]">(पुरुष: max 31)</span></th>
+                    <th style={{ width: '85px' }}>6<br/>IEC घंटे<br/><span className="text-[9px] font-normal normal-case text-[var(--text-muted)]">(max 2)</span></th>
+                    <th style={{ width: '85px' }}>7<br/>कुल निष्पादित घंटे</th>
+                    <th style={{ width: '85px' }}>8<br/>दर/घंटे</th>
+                    <th style={{ width: '90px' }}>9<br/>कुल भुगतान राशि</th>
+                    <th style={{ width: '32px' }} className="no-print">—</th>
+                  </tr>
+                </thead>
+                <tbody
+                  id="yog-tbody"
+                  className="[&>tr:nth-child(even)]:bg-[var(--bg-elevated)] [&>tr:nth-child(odd)]:bg-[var(--bg-surface)] [&>tr>td]:p-2 [&>tr>td]:border-b [&>tr>td]:border-[var(--border)] [&>tr>td]:text-center"
+                />
+              </table>
+            </div>
 
-                  {/* Doc: Fixed dept header */}
-                  <div style={{ textAlign: 'center', marginBottom: '6px' }}>
-                    <div style={{ fontWeight: 700, fontSize: '9pt' }}>
-                      आयुर्वेद विभाग राजस्थान सरकार
+            <button className="add-row-btn" id="yog-add-row-btn">+ योग शिक्षक जोड़ें</button>
+
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-3 pt-4 bg-[var(--bg-surface)] md:bg-transparent p-4 md:p-0 border-t border-[var(--border)] md:border-none z-20 mt-4 btn-row no-print">
+              <button className="btn btn-secondary" id="yog-btn-print">
+                <Printer size={16} /> Print
+              </button>
+              <button className="btn btn-excel" id="yog-btn-excel">
+                <Table size={16} /> Excel
+              </button>
+              <button className="btn btn-primary" id="yog-btn-pdf">
+                <Download size={16} /> Save PDF
+              </button>
+            </div>
+
+            {/* Collapsible Document Preview */}
+            <div className="no-print mt-2">
+              <div className="att-preview-toggle-bar">
+                <div className="flex items-center gap-2">
+                  <span className="text-[13px] font-medium text-[var(--text-secondary)]">📄 दस्तावेज़ प्रीव्यू</span>
+                  <span className="badge badge-secondary text-[10px]">A4 Portrait</span>
+                </div>
+                <button
+                  className="att-preview-toggle-btn"
+                  onClick={(e) => {
+                    const wrap = (e.currentTarget as HTMLElement).closest('.no-print')?.querySelector('.yog-preview-body') as HTMLElement;
+                    if (wrap) {
+                      const isOpen = wrap.style.display !== 'none';
+                      wrap.style.display = isOpen ? 'none' : 'block';
+                      (e.currentTarget as HTMLElement).textContent = isOpen ? '▼ दिखाएँ' : '▲ छुपाएँ';
+                    }
+                  }}
+                >▼ दिखाएँ</button>
+              </div>
+
+              <div className="yog-preview-body" style={{ display: 'none' }}>
+                <div className="att-preview-scaler" style={{ marginTop: '12px' }}>
+
+                  {/* ── YOGA DOC PAGE ── */}
+                  <div id="yog-doc-page" className="doc-page" style={{ fontFamily: "'Noto Sans Devanagari', serif", fontSize: '8pt' }}>
+
+                    {/* Fixed dept header */}
+                    <div style={{ textAlign: 'center', marginBottom: '4px' }}>
+                      <div style={{ fontWeight: 700, fontSize: '9.5pt', letterSpacing: '0.02em' }}>
+                        आयुर्वेद विभाग राजस्थान सरकार
+                      </div>
                     </div>
-                    <div style={{ fontSize: '8pt', marginTop: '2px' }}>
+                    <div style={{ textAlign: 'center', fontSize: '8pt', marginBottom: '6px', borderBottom: '1px solid #000', paddingBottom: '4px' }}>
                       कार्यालय आयुष्मान आरोग्य मंदिर राजकीय{' '}
                       <span id="yog-doc-center" style={{ fontWeight: 700 }}>____________________</span>
                     </div>
+
+                    {/* Kramank & Date */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '7.5pt', marginBottom: '6px' }}>
+                      <span>क्रमांक - <span id="yog-doc-kramank">__________</span></span>
+                      <span>दिनांक - <span id="yog-doc-date">__________</span></span>
+                    </div>
+
+                    {/* Title */}
+                    <div style={{ textAlign: 'center', fontWeight: 700, fontSize: '10pt', margin: '6px 0 2px', textDecoration: 'underline', letterSpacing: '0.03em' }}>
+                      योग शिक्षक उपस्थिति पत्रक
+                    </div>
+                    <div style={{ textAlign: 'center', fontSize: '8pt', marginBottom: '8px' }}>
+                      माह - <span id="yog-doc-month" style={{ fontWeight: 600 }}>__________</span>
+                    </div>
+
+                    {/* Table matching PDF column structure */}
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '6.5pt', marginTop: '4px' }}>
+                      <thead>
+                        <tr style={{ background: '#f0ece4' }}>
+                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', width: '20px' }}>क्र.<br/>सं.</th>
+                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', minWidth: '70px' }}>नाम योग शिक्षक</th>
+                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', width: '52px' }}>महिला /<br/>पुरुष</th>
+                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', width: '44px' }}>माह के दौरान दिवस की संख्या जिसमें योग करवाया गया</th>
+                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', width: '50px' }}>जन सामान्य को कराए गए योग शिक्षण के कुल घंटे</th>
+                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', width: '50px' }}>आईईसी प्रोग्राम हेतु कुल निष्पादित कार्य संपादित घंटे</th>
+                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', width: '44px' }}>कुल निष्पादित घंटे</th>
+                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', width: '46px' }}>निर्धारित दर प्रति घंटे</th>
+                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', width: '52px' }}>कुल भुगतान योग राशि जिसकी अनुशंसा की जाती है</th>
+                        </tr>
+                        <tr style={{ background: '#f8f6f2' }}>
+                          {[1,2,3,4,5,6,7,8,9].map(n => (
+                            <td key={n} style={{ border: '1px solid #000', padding: '1px 2px', textAlign: 'center', fontWeight: 600, fontSize: '6pt' }}>{n}</td>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody id="yog-doc-tbody" />
+                    </table>
+
+                    {/* Certification */}
+                    <div style={{ marginTop: '10px', fontSize: '7pt', lineHeight: 1.7, textAlign: 'justify' }}>
+                      प्रमाणित किया जाता है कि उपर्युक्त टेबल के कॉलम संख्या 4 में उल्लेखित दिवस में योग शिक्षक द्वारा प्रतिदिन एक घंटे से अधिक कार्य संपादित किया गया एवं में उनके कार्य से संतुष्ट हूँ। कॉलम संख्या 9 में अंकित राशि के भुगतान की अनुशंसा की जाती है।
+                    </div>
+
+                    {/* Signature */}
+                    <div style={{ marginTop: '28px', textAlign: 'right', fontSize: '7.5pt' }}>
+                      <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '160px' }}>
+                        <div style={{ height: '40px', borderBottom: '1.5px solid #000', marginBottom: '4px' }} />
+                        <div style={{ fontWeight: 700 }}>प्रभारी</div>
+                        <div id="yog-doc-seal" style={{ fontSize: '7pt', marginTop: '2px', fontStyle: 'italic' }} />
+                      </div>
+                    </div>
+
                   </div>
-
-                  {/* Doc: Kramank & Date row */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '7.5pt', marginBottom: '4px' }}>
-                    <span>क्रमांक: <span id="yog-doc-kramank">______</span></span>
-                    <span>दिनांक: <span id="yog-doc-date">______</span></span>
-                  </div>
-
-                  {/* Doc: Title */}
-                  <div style={{ textAlign: 'center', fontWeight: 700, fontSize: '9pt', margin: '6px 0', textDecoration: 'underline' }}>
-                    योग शिक्षक उपस्थिति पत्रक माह{' '}
-                    <span id="yog-doc-month">______</span>
-                  </div>
-
-                  {/* Doc: Table */}
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '7pt', marginTop: '4px' }}>
-                    <thead>
-                      <tr style={{ background: '#f5f0e8' }}>
-                        <th style={{ border: '1px solid #000', padding: '2px 3px', textAlign: 'center' }}>क्र.</th>
-                        <th style={{ border: '1px solid #000', padding: '2px 3px' }}>नाम</th>
-                        <th style={{ border: '1px solid #000', padding: '2px 3px', textAlign: 'center' }}>पद</th>
-                        <th style={{ border: '1px solid #000', padding: '2px 3px', textAlign: 'center' }}>दिवस</th>
-                        <th style={{ border: '1px solid #000', padding: '2px 3px', textAlign: 'center' }}>योग घंटे</th>
-                        <th style={{ border: '1px solid #000', padding: '2px 3px', textAlign: 'center' }}>IEC घंटे</th>
-                        <th style={{ border: '1px solid #000', padding: '2px 3px', textAlign: 'center' }}>कुल घंटे</th>
-                        <th style={{ border: '1px solid #000', padding: '2px 3px', textAlign: 'center' }}>दर/घंटे</th>
-                        <th style={{ border: '1px solid #000', padding: '2px 3px', textAlign: 'center' }}>भुगतान</th>
-                      </tr>
-                    </thead>
-                    <tbody id="yog-doc-tbody" />
-                  </table>
-
-                  {/* Doc: Certificate */}
-                  <div style={{ marginTop: '8px', fontSize: '7pt', lineHeight: 1.6 }}>
-                    प्रमाणित किया जाता है कि उपर्युक्त टेबल के कॉलम संख्या 4 में उल्लेखित दिवसों में
-                    योग शिक्षक द्वारा प्रतिदिन एक घंटे से अधिक कार्य सम्पादित किया गया।
-                  </div>
-
-                  {/* Doc: Seal */}
-                  <div style={{ marginTop: '20px', textAlign: 'right', fontSize: '7.5pt' }}>
-                    <div style={{ fontWeight: 700 }}>हस्ताक्षर प्रभारी</div>
-                    <div id="yog-doc-seal" style={{ fontSize: '7pt', marginTop: '2px' }} />
-                  </div>
-
                 </div>
               </div>
             </div>

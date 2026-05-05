@@ -1559,6 +1559,10 @@
     margin-top: 12px;
   }
 
+  .yog-preview-body {
+    margin-top: 12px;
+  }
+
   /* Preview Scaler */
   .att-preview-scaler {
     background: var(--bg-elevated);
