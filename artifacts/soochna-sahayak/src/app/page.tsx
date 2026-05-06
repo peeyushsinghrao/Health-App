@@ -438,6 +438,19 @@ export default function Home() {
             <span className="att-step-num">1</span>
             <span>हेडर जानकारी</span>
           </div>
+          <div className="flex flex-col gap-2 mb-4">
+            <label className="att-field-label">
+              <span className="att-field-icon">🏛️</span>
+              विभाग का नाम
+            </label>
+            <input
+              className="form-input-base"
+              type="text"
+              id="att-vibhag"
+              defaultValue="आयुर्वेद विभाग"
+              placeholder="जैसे: आयुर्वेद विभाग"
+            />
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="lg:col-span-2 flex flex-col gap-2">
               <label className="att-field-label">
@@ -549,54 +562,10 @@ export default function Home() {
             <div className="att-preview-body" style={{ display: 'none' }}>
               <div className="att-preview-scaler">
                 <div id="att-doc-page" className="att-doc-page doc-page">
-                  <div style={{
-                    textAlign: 'center', fontWeight: 700, fontSize: '10pt',
-                    padding: '4px 8px', borderBottom: '2px solid #000', marginBottom: '2px',
-                    fontFamily: "'Noto Sans Devanagari', serif", letterSpacing: '0.01em'
-                  }}>
-                    <div id="att-doc-office" style={{ marginBottom: '1px' }}>कार्यालय राजकीय</div>
-                    <div style={{ fontSize: '8pt', fontWeight: 500 }}>कार्मिक उपस्थिति पत्रक</div>
-                  </div>
-                  <div style={{
-                    border: '1.5px solid #000', padding: '4px 8px',
-                    fontWeight: 700, fontSize: '9pt', marginBottom: 0,
-                    background: '#f8f8f8', fontFamily: "'Noto Sans Devanagari', serif"
-                  }}>
-                    अवधि - <span id="att-doc-period-from" /> से <span id="att-doc-period-to" /> तक
-                  </div>
-
                   <table id="att-doc-table" style={{
                     width: '100%', borderCollapse: 'collapse',
                     tableLayout: 'fixed', fontFamily: "'Noto Sans Devanagari', serif"
-                  }}>
-                    <thead id="att-doc-tbl-head" />
-                    <tbody id="att-doc-tbody" />
-                  </table>
-
-                  <div id="att-doc-note-sec" style={{ marginTop: '8px', display: 'none' }}>
-                    <strong>नोट :</strong> <span id="att-doc-note-text" />
-                  </div>
-
-                  <div style={{
-                    marginTop: '8px', fontSize: '7pt', lineHeight: 1.5,
-                    border: '1px solid #999', padding: '5px 8px', background: '#fafafa'
-                  }}>
-                    प्रमाणित किया जाता है कि उपस्थिति पत्रक का मिलान उपस्थिति पंजिका से कर लिया गया है,
-                    साथ ही कोई भी कार्मिक बिना सक्षम स्तर से अवकाश स्वीकृत कराए उपस्थिति पत्रक में
-                    उल्लिखित अवधि के दौरान अनुपस्थित नहीं रहा है।
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px' }}>
-                    <div style={{ fontSize: '7.5pt' }}>
-                      क्रमांक - उपस्थिति / <span id="att-doc-kramank" />
-                      &nbsp;&nbsp;&nbsp; दिनांक <span id="att-doc-date" />
-                    </div>
-                    <div style={{ textAlign: 'center', minWidth: '150px' }}>
-                      <div style={{ height: '36px', borderBottom: '1.5px solid #000', marginBottom: '4px' }} />
-                      <div style={{ fontWeight: 700, fontSize: '7.5pt' }}>हस्ताक्षर प्रभारी</div>
-                      <div id="att-doc-seal-office" style={{ fontSize: '7pt', marginTop: '2px' }} />
-                    </div>
-                  </div>
+                  }} />
                 </div>
               </div>
             </div>
