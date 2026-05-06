@@ -673,7 +673,7 @@ function renderAttPreview(dates) {
       curGroup.count++;
     });
 
-    var SUM_HDR = B + CENTER + VMID + 'font-size:5pt;font-weight:700;padding:2px 1px;line-height:1.2;word-break:break-word;';
+    var SUM_HDR = B + CENTER + VMID + 'font-size:3.5pt;font-weight:700;padding:1px;line-height:1.15;word-break:break-word;overflow:hidden;';
 
     // Row 6: अवधि (colspan=2) | month groups | 3 summary headers (rowspan=2)
     html += '<tr style="background:#e8e8e8">';
@@ -1209,8 +1209,8 @@ function exportAttToExcel() {
   ];
 
   var cols = [{wch:6},{wch:30}];
-  dateHeaders.forEach(function(){ cols.push({wch:8}); });
-  cols.push({wch:20},{wch:20},{wch:16});
+  dateHeaders.forEach(function(){ cols.push({wch:4}); });
+  cols.push({wch:10},{wch:10},{wch:8});
   ws['!cols'] = cols;
 
   XLSX.utils.book_append_sheet(wb, ws, 'उपस्थिति पत्रक');

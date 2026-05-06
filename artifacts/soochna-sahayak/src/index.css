@@ -1431,12 +1431,12 @@
 
   /* Day-select dropdowns — color-coded & tap-friendly */
   .att-day-select {
-    min-width: 92px;
-    min-height: 40px;
-    padding: 4px 6px;
-    border-radius: 6px;
+    min-width: 46px;
+    min-height: 34px;
+    padding: 2px 3px;
+    border-radius: 5px;
     border: 1.5px solid var(--border);
-    font-size: 11.5px;
+    font-size: 10px;
     font-family: var(--font-body);
     color: var(--text-primary);
     background: var(--bg-surface);
@@ -1601,10 +1601,10 @@
   }
 
   .att-day-col {
-    min-width: 90px;
+    min-width: 45px;
     text-align: center;
     white-space: nowrap;
-    padding: 6px 4px !important;
+    padding: 4px 2px !important;
   }
 
   .att-count-col {
