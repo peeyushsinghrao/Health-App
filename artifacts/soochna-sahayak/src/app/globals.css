@@ -2092,7 +2092,7 @@ body.scrolled::after {
 #att-doc-table td {
   position: relative !important;
   overflow: hidden !important;
-  height: 46px !important;
+  height: 80px !important;
   vertical-align: middle !important;
 }
 
@@ -2230,7 +2230,7 @@ body.scrolled::after {
   #att-doc-table td {
     position: relative !important;
     overflow: hidden !important;
-    height: 46px !important;
+    height: 80px !important;
   }
 
   /* Table fits the page */

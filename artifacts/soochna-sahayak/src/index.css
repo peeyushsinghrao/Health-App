@@ -2105,10 +2105,11 @@ body.scrolled::after {
 }
 
 /* Day cells: fixed height + relative so the span can be absolutely centered */
+/* 80px gives rotated "आकस्मिक अवकाश" (longest val, ~75px at 5pt) room to display */
 #att-doc-table td {
   position: relative !important;
   overflow: hidden !important;
-  height: 46px !important;
+  height: 80px !important;
   vertical-align: middle !important;
 }
 
@@ -2246,7 +2247,7 @@ body.scrolled::after {
   #att-doc-table td {
     position: relative !important;
     overflow: hidden !important;
-    height: 46px !important;
+    height: 80px !important;
   }
 
   /* Table fits the page */

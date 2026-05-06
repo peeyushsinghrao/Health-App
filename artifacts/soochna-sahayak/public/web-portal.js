@@ -702,9 +702,12 @@ function renderAttPreview(dates) {
   html += '</thead>';
 
   // ── TBODY: data rows + certification + signature ──
-  var DAY_CELL_STYLE = B + 'padding:0;' + CENTER + VMID + 'font-size:6pt;position:relative;overflow:hidden;height:46px;';
+  // Cell height 80px: at 5pt (~5.3px/char for Noto Sans Devanagari), longest text
+  // "आकस्मिक अवकाश" (14 chars ≈ 75px rotated) fits within 80px with room to spare.
+  var DAY_CELL_STYLE = B + 'padding:0;' + CENTER + VMID + 'font-size:6pt;position:relative;overflow:hidden;height:80px;';
   var VERT_SPAN = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-90deg);' +
-                  'display:block;white-space:nowrap;font-size:5pt;line-height:1.2;overflow:visible;width:max-content;z-index:1;';
+                  '-webkit-transform:translate(-50%,-50%) rotate(-90deg);' +
+                  'display:block;white-space:nowrap;font-size:5pt;line-height:1.15;overflow:visible;width:max-content;z-index:1;';
 
   html += '<tbody>';
 
