@@ -606,14 +606,14 @@ function renderAttPreview(dates) {
   var TOTAL_COLS  = 2 + DAYS_CNT + 3;
 
   // ── Exact proportional column widths from Excel measurements (mm) ──
-  // Col A=5.4 | Col B=24.5 | Day cols=7.0 each | Sum1=16.6 | Sum2=16.6 | Sum3=13.4
-  var TOTAL_MM = 5.4 + 24.5 + 7.0 * DAYS_CNT + 16.6 + 16.6 + 13.4;
+  // Col A=5.4 | Col B=24.5 | Day cols=4.5 each (narrow rotated text) | Sum1=18 | Sum2=18 | Sum3=15
+  var TOTAL_MM = 5.4 + 24.5 + 4.5 * DAYS_CNT + 18.0 + 18.0 + 15.0;
   var pSNO  = (5.4  / TOTAL_MM * 100).toFixed(3) + '%';
   var pNAME = (24.5 / TOTAL_MM * 100).toFixed(3) + '%';
-  var pDAY  = (7.0  / TOTAL_MM * 100).toFixed(3) + '%';
-  var pSUM1 = (16.6 / TOTAL_MM * 100).toFixed(3) + '%';
-  var pSUM2 = (16.6 / TOTAL_MM * 100).toFixed(3) + '%';
-  var pSUM3 = (13.4 / TOTAL_MM * 100).toFixed(3) + '%';
+  var pDAY  = (4.5  / TOTAL_MM * 100).toFixed(3) + '%';
+  var pSUM1 = (18.0 / TOTAL_MM * 100).toFixed(3) + '%';
+  var pSUM2 = (18.0 / TOTAL_MM * 100).toFixed(3) + '%';
+  var pSUM3 = (15.0 / TOTAL_MM * 100).toFixed(3) + '%';
 
   var B = 'border:1.5px solid #000;';
   var CENTER = 'text-align:center;';
@@ -673,7 +673,7 @@ function renderAttPreview(dates) {
       curGroup.count++;
     });
 
-    var SUM_HDR = B + CENTER + VMID + 'font-size:3.5pt;font-weight:700;padding:1px;line-height:1.15;word-break:break-word;overflow:hidden;';
+    var SUM_HDR = B + CENTER + VMID + 'font-size:4pt;font-weight:700;padding:2px 1px;line-height:1.2;word-break:break-word;overflow-wrap:break-word;white-space:normal;';
 
     // Row 6: अवधि (colspan=2) | month groups | 3 summary headers (rowspan=2)
     html += '<tr style="background:#e8e8e8">';
