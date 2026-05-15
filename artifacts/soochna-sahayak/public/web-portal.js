@@ -612,7 +612,7 @@ function showHomeScreen() {
           '<div class="att4-name-wrap">' +
             '<input class="att4-ninp no-print" data-idx="' + idx + '" data-field="name" value="' + esc(s.name) + '" placeholder="नाम" />' +
             '<input class="att4-dinp no-print" data-idx="' + idx + '" data-field="desig" value="' + esc(s.desig) + '" placeholder="पदनाम" />' +
-            '<div class="att4-name-print print-only"><div class="att4-np">' + esc(s.name) + '</div><div class="att4-dp">' + esc(s.desig) + '</div></div>' +
+            '<div class="att4-name-print print-only"><div class="att4-np">' + esc(s.name) + '</div>' + (s.desig ? '<div class="att4-dp">(' + esc(s.desig) + ')</div>' : '') + '</div>' +
           '</div></td>';
         html += dayCells;
         html += '<td class="att4-td att4-td-sum" id="att4-cl1-' + idx + '">' + currCL + '</td>';
@@ -676,7 +676,10 @@ function showHomeScreen() {
         if (wrap) {
           var np = wrap.querySelector('.att4-np'), dp = wrap.querySelector('.att4-dp');
           if (np) np.textContent = state.staff[idx].name;
-          if (dp) dp.textContent = state.staff[idx].desig;
+          if (dp) {
+            var dv = state.staff[idx].desig;
+            dp.textContent = dv ? '(' + dv + ')' : '';
+          }
         }
       });
     });
@@ -796,19 +799,19 @@ function showHomeScreen() {
         html2canvas: {
           scale: 3,
           useCORS: true,
+          allowTaint: true,
           letterRendering: true,
           scrollY: 0,
           width: 1122,
           windowWidth: 1122,
           logging: false,
-          allowTaint: false,
-          foreignObjectRendering: false,
+          foreignObjectRendering: true,
           imageTimeout: 0,
           onclone: function(clonedDoc) {
-            var link = clonedDoc.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = 'https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;900&family=Noto+Serif+Devanagari:wght@400;500;600;700;900&display=block';
-            clonedDoc.head.appendChild(link);
+            var style = clonedDoc.createElement('style');
+            style.textContent = "@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;900&family=Noto+Serif+Devanagari:wght@400;500;600;700;900&display=block');";
+            clonedDoc.head.insertBefore(style, clonedDoc.head.firstChild);
+            return new Promise(function(resolve) { setTimeout(resolve, 800); });
           }
         },
         jsPDF:       { unit: 'mm', format: 'a4', orientation: 'landscape' },
