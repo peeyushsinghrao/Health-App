@@ -41,55 +41,150 @@
 .sig-text { font-size: .68rem; font-weight: 700; line-height: 1.5; }
 
 /* =========================================================
-   STAFF ATTENDANCE v3 — A4 LANDSCAPE DOCUMENT
+   STAFF ATTENDANCE v4 — REBUILT FROM SCRATCH
    ========================================================= */
 
-/* The A4 Landscape document container */
-.att-doc-page {
-  width: 1122px;     /* 297mm at 96dpi */
-  min-height: 794px; /* 210mm at 96dpi */
+/* ── Top control bar ── */
+.att4-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-surface);
+  position: sticky; top: 0; z-index: 10;
+  flex-wrap: wrap; flex-shrink: 0;
+}
+.att4-topbar-left { display: flex; align-items: center; gap: 14px; }
+.att4-topbar-heading {
+  font-family: var(--font-display, 'Lora', serif);
+  font-size: 16px; font-weight: 600; color: var(--text-primary);
+}
+.att4-topbar-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.att4-topbar-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* ── Form section ── */
+.att4-form-wrap {
+  padding: 18px 22px 16px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 14px;
+}
+.att4-form-row3 {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;
+}
+.att4-field-group { display: flex; flex-direction: column; gap: 5px; }
+.att4-label {
+  font-size: 11px; font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.att4-req { color: #ef4444; }
+.att4-label-hint {
+  font-weight: 400; text-transform: none;
+  font-size: 10px; margin-left: 5px; color: var(--text-muted);
+}
+.att4-input {
+  border: 1px solid var(--border);
+  border-radius: 7px; padding: 8px 12px;
+  font-size: 13px; color: var(--text-primary);
+  background: var(--bg-base); outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%; box-sizing: border-box;
+}
+.att4-input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(26,92,56,0.10);
+}
+.att4-textarea { resize: vertical; min-height: 58px; }
+.att4-period-row {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.att4-input-date { flex: 1; min-width: 130px; }
+.att4-period-sep { font-weight: 700; color: var(--text-muted); font-size: 13px; white-space: nowrap; }
+
+/* ── Document outer area ── */
+.att4-doc-area {
+  background: linear-gradient(180deg, #E2E4E8, #CDD0D8);
+  padding: 24px 24px 36px;
+  flex: 1; overflow-x: auto;
+  display: flex; justify-content: flex-start;
+}
+
+/* ── A4 Landscape document ── */
+.att4-doc-page {
+  width: 1122px; min-height: 794px;
   background: #fff;
-  padding: 10px 14px 12px;
-  font-family: 'Noto Sans Devanagari', 'Noto Serif Devanagari', Arial, sans-serif;
-  font-size: 8pt;
-  color: #000;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  padding: 11px 15px 13px;
+  font-family: 'Noto Sans Devanagari', 'Noto Serif Devanagari', 'Arial Narrow', Arial, sans-serif;
+  font-size: 8pt; color: #000;
+  box-shadow: 0 6px 32px rgba(0,0,0,0.22);
   transform: scale(calc((100vw - 96px) / 1122px));
   transform-origin: top left;
   margin-bottom: calc((calc((100vw - 96px) / 1122px) - 1) * 794px);
+  box-sizing: border-box; flex-shrink: 0;
 }
-@media(min-width: 1218px) {
-  .att-doc-page { transform: scale(1); margin-bottom: 0; }
+@media (min-width: 1218px) {
+  .att4-doc-page { transform: scale(1); margin-bottom: 0; }
 }
 
 /* ── Document header ── */
-.att3-hdr { text-align: center; border-bottom: 2.5px double #000; padding-bottom: 5px; margin-bottom: 4px; }
-.att3-dept { font-size: 13pt; font-weight: 900; letter-spacing: 0.04em; line-height: 1.2; }
-.att3-office { font-size: 9.5pt; font-weight: 700; margin-top: 3px; }
-.att3-meta { display: flex; justify-content: space-between; align-items: center; font-size: 8pt; border-top: 1px solid #000; margin-top: 4px; padding: 3px 0; }
-.att3-meta span { flex: 1; }
-.att3-meta span:nth-child(2) { text-align: center; }
-.att3-meta span:last-child { text-align: right; }
-.att3-title { font-size: 16pt; font-weight: 900; letter-spacing: 0.14em; padding: 10px 0 7px; text-align: center; text-decoration: underline; text-underline-offset: 3px; }
+.att4-hdr {
+  text-align: center;
+  border-bottom: 2.5px double #000;
+  padding-bottom: 5px; margin-bottom: 4px;
+}
+.att4-dept { font-size: 13pt; font-weight: 900; letter-spacing: 0.04em; line-height: 1.2; }
+.att4-office { font-size: 10pt; font-weight: 700; margin-top: 3px; }
+.att4-meta {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 8pt; border-top: 1px solid #000; margin-top: 4px; padding: 3px 0;
+}
+.att4-meta span { flex: 1; }
+.att4-meta span:nth-child(2) { text-align: center; }
+.att4-meta span:last-child { text-align: right; }
+.att4-title {
+  font-size: 16pt; font-weight: 900; letter-spacing: 0.14em;
+  padding: 9px 0 6px; text-align: center;
+  text-decoration: underline; text-underline-offset: 3px;
+}
 
 /* ── Period line ── */
-.att3-period { font-size: 8pt; padding: 2px 0 4px; border-bottom: 1px solid #000; margin-bottom: 3px; }
+.att4-period {
+  font-size: 8pt; padding: 2px 0 4px;
+  border-bottom: 1px solid #000; margin-bottom: 3px;
+}
 
 /* ── Attendance Table ── */
-.att3-tbl { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 7pt; }
-.att3-th { border: 1px solid #000; padding: 2px 1px; text-align: center; font-size: 6.5pt; font-weight: 700; background: #efefef; vertical-align: middle; line-height: 1.2; }
-.att3-th-name { width: 110px; text-align: left; padding-left: 3px; }
-.att3-th-day { width: 15px; min-width: 14px; max-width: 16px; font-size: 6pt; padding: 1px 0; }
-.att3-th-month { background: #ddd; font-size: 7pt; }
-.att3-th-sum { width: 52px; font-size: 5.5pt; writing-mode: vertical-rl; transform: rotate(180deg); height: 72px; padding: 2px 1px; line-height: 1.2; white-space: normal; }
-.att3-td { border: 1px solid #000; padding: 0 1px; vertical-align: middle; font-size: 7pt; }
-.att3-td-name { width: 110px; padding: 2px 3px; vertical-align: top; }
-.att3-td-day { width: 15px; min-width: 14px; max-width: 16px; padding: 0; text-align: center; height: 52px; position: relative; overflow: hidden; }
-.att3-td-sum { text-align: center; font-weight: 700; font-size: 7.5pt; }
-.att3-total { font-size: 8pt; }
+.att4-tbl { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 7pt; }
+.att4-th {
+  border: 1px solid #000; padding: 2px 1px; text-align: center;
+  font-size: 6.5pt; font-weight: 700; background: #e8e4dc;
+  vertical-align: middle; line-height: 1.2;
+}
+.att4-th-no  { width: 20px; min-width: 20px; }
+.att4-th-name { width: 110px; text-align: left; padding-left: 3px; }
+.att4-th-day  { width: 15px; min-width: 13px; max-width: 16px; font-size: 6pt; padding: 1px 0; }
+.att4-th-month { background: #d0cbbf; font-size: 7pt; }
+.att4-th-sum {
+  width: 50px; font-size: 5.5pt;
+  writing-mode: vertical-rl; transform: rotate(180deg);
+  height: 72px; padding: 2px 1px; line-height: 1.2; white-space: normal;
+}
+.att4-th-del { width: 24px; padding: 0; border: 1px solid #000; }
 
-/* Select inside day cell */
-.att3-sel {
+.att4-td { border: 1px solid #000; padding: 0 1px; vertical-align: middle; font-size: 7pt; }
+.att4-td-no   { text-align: center; vertical-align: middle; font-weight: 700; }
+.att4-td-name { width: 110px; padding: 2px 3px; vertical-align: top; }
+.att4-td-day  {
+  width: 15px; min-width: 13px; max-width: 16px;
+  padding: 0; text-align: center;
+  height: 54px; position: relative; overflow: hidden;
+}
+.att4-td-sum { text-align: center; font-weight: 700; font-size: 7.5pt; }
+.att4-td-del  { text-align: center; padding: 0; border: 1px solid #000; }
+
+/* Day cell select — vertical writing-mode */
+.att4-sel {
   position: absolute; top: 0; left: 0;
   width: 100%; height: 100%;
   font-size: 5pt; padding: 0; border: none;
@@ -99,52 +194,72 @@
   text-align: center; color: #000;
 }
 
-/* Vertical span for print */
-.att3-vspan {
+/* Vertical text span for print */
+.att4-vspan {
   display: none;
   position: absolute; left: 50%; top: 50%;
   transform: translate(-50%,-50%) rotate(-90deg);
-  white-space: nowrap; font-size: 5.5pt;
-  pointer-events: none;
+  white-space: nowrap; font-size: 5.5pt; pointer-events: none;
 }
 
-/* Name/desig inputs */
-.att3-name-wrap { display: flex; flex-direction: column; gap: 2px; }
-.att3-ninp { width: 100%; border: none; border-bottom: 1px solid #ccc; font-size: 7.5pt; padding: 1px 2px; background: transparent; outline: none; font-family: inherit; color: inherit; font-weight: 600; }
-.att3-dinp { width: 100%; border: none; border-bottom: 1px solid #ddd; font-size: 6.5pt; padding: 1px 2px; background: transparent; outline: none; font-family: inherit; color: #555; }
-.att3-name-print { display: none; }
-.att3-np { font-size: 7.5pt; font-weight: 700; line-height: 1.3; }
-.att3-dp { font-size: 6.5pt; color: #333; line-height: 1.3; }
+/* Name / designation inputs */
+.att4-name-wrap { display: flex; flex-direction: column; gap: 2px; }
+.att4-ninp {
+  width: 100%; border: none; border-bottom: 1px solid #ccc;
+  font-size: 7.5pt; padding: 1px 2px; background: transparent;
+  outline: none; font-family: inherit; color: inherit; font-weight: 600;
+}
+.att4-dinp {
+  width: 100%; border: none; border-bottom: 1px solid #ddd;
+  font-size: 6.5pt; padding: 1px 2px; background: transparent;
+  outline: none; font-family: inherit; color: #444;
+}
+.att4-name-print { display: none; }
+.att4-np { font-size: 7.5pt; font-weight: 700; line-height: 1.3; }
+.att4-dp { font-size: 6.5pt; color: #333; line-height: 1.3; }
 
-/* PrevCL input */
-.att3-pinp { width: 100%; border: none; text-align: center; font-size: 7pt; background: transparent; outline: none; font-family: inherit; color: inherit; padding: 2px 0; }
-.att3-pspan { display: none; }
+/* Prev CL input */
+.att4-pinp {
+  width: 100%; border: none; text-align: center;
+  font-size: 7pt; background: transparent;
+  outline: none; font-family: inherit; color: inherit; padding: 2px 0;
+}
+.att4-pspan { display: none; }
 
 /* Delete row button */
-.att3-delbtn { width: 22px; height: 22px; border: 1px solid #ccc; background: #fee; border-radius: 3px; cursor: pointer; font-size: 10px; padding: 0; line-height: 1; vertical-align: middle; }
-.att3-delbtn:disabled { opacity: 0.3; cursor: not-allowed; }
+.att4-delbtn {
+  width: 20px; height: 20px; border: 1px solid #ccc;
+  background: #fff0f0; border-radius: 2px; cursor: pointer;
+  font-size: 9px; padding: 0; line-height: 1;
+}
+.att4-delbtn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-/* Note */
-.att3-note { font-size: 7.5pt; border: 1px solid #aaa; padding: 3px 6px; margin-top: 3px; }
+/* Note box */
+.att4-note {
+  font-size: 7.5pt; border: 1px solid #aaa;
+  padding: 4px 6px; margin-top: 4px;
+}
 
-/* Certification */
-.att3-certify { font-size: 8pt; font-weight: 700; text-align: center; border: 1px solid #000; padding: 6px 10px; margin-top: 3px; line-height: 1.6; }
+/* Certification block */
+.att4-certify {
+  font-size: 8pt; font-weight: 700; text-align: center;
+  border: 1px solid #000; padding: 6px 10px;
+  margin-top: 4px; line-height: 1.65;
+}
 
-/* Signature */
-.att3-sig { display: flex; justify-content: flex-end; padding: 8px 12px 0; }
-.att3-sig-block { text-align: center; min-width: 200px; }
-.att3-sig-gap { height: 30px; }
-.att3-sig-line { border-top: 1px solid #000; padding-top: 3px; }
-.att3-sig-label { font-size: 8pt; font-weight: 700; }
-.att3-sig-office { font-size: 7pt; margin-top: 2px; }
+/* Signature block */
+.att4-sig { display: flex; justify-content: flex-end; padding: 10px 12px 0; }
+.att4-sig-block { text-align: center; min-width: 210px; }
+.att4-sig-gap { height: 32px; }
+.att4-sig-line { border-top: 1.5px solid #000; padding-top: 4px; }
+.att4-sig-label { font-size: 8pt; font-weight: 700; }
+.att4-sig-office { font-size: 7pt; margin-top: 2px; color: #222; }
 
-/* ── A4 Scaler wrapper ── */
-.a4-scaler {
-  width: 100%; overflow: hidden;
-  background: linear-gradient(180deg, #E8EAEE, #D5D9E0);
-  display: flex; justify-content: center; padding: 24px;
-  border-radius: 0 0 16px 16px;
-  box-shadow: inset 0 2px 16px rgba(0,0,0,0.06);
+/* Empty state */
+.att4-empty {
+  padding: 28px; text-align: center; color: #888;
+  font-size: 10pt; border: 2px dashed #ccc;
+  margin-top: 8px; border-radius: 4px;
 }
 
 /* ── print-only elements hidden by default ── */
@@ -170,30 +285,40 @@
 .rashi-cell { font-weight:700; color:#0a6e6e; font-size:0.8125rem; }
 
 /* =========================================================
-   PRINT STYLES — Staff Attendance v3
+   RESPONSIVE — Mobile
+   ========================================================= */
+@media (max-width: 640px) {
+  .att4-form-row3 { grid-template-columns: 1fr; }
+  .att4-topbar { flex-direction: column; align-items: flex-start; }
+  .att4-topbar-actions { width: 100%; justify-content: flex-end; }
+  .att4-period-row { flex-direction: column; align-items: flex-start; }
+  .att4-input-date { width: 100%; }
+}
+
+/* =========================================================
+   PRINT STYLES
    ========================================================= */
 @media print {
   .no-print { display: none !important; }
   .print-only { display: block !important; }
 
-  /* Show vertical spans, hide selects */
-  .att3-sel { display: none !important; }
-  .att3-vspan { display: block !important; }
+  /* Staff Attendance v4 print */
+  .att4-sel { display: none !important; }
+  .att4-vspan { display: block !important; }
+  .att4-ninp, .att4-dinp { display: none !important; }
+  .att4-pinp { display: none !important; }
+  .att4-name-print { display: block !important; }
+  .att4-pspan { display: inline !important; }
+  .att4-delbtn { display: none !important; }
+  .att4-th-del, .att4-td-del { display: none !important; }
 
-  /* Show name print divs, hide inputs */
-  .att3-ninp, .att3-dinp { display: none !important; }
-  .att3-pinp { display: none !important; }
-  .att3-name-print { display: block !important; }
-  .att3-pspan { display: inline !important; }
-
-  /* Reset document scaling for print */
-  .att-doc-page {
+  .att4-doc-page {
     transform: none !important;
     margin: 0 !important;
     width: 100% !important;
     min-height: auto !important;
     box-shadow: none !important;
-    padding: 0 !important;
+    padding: 6mm !important;
   }
 
   /* PLP/Yoga doc pages */
@@ -203,10 +328,9 @@
     box-shadow: none !important; border: none !important; background: white !important;
   }
 
-  @page { size: A4 landscape; margin: 8mm; }
+  @page { size: A4 landscape; margin: 6mm; }
 
   tr { break-inside: avoid; }
 
-  /* Prevent nav/overlays from printing */
   .nav-bar, .loading-overlay, #sound-toggle, .toast { display: none !important; }
 }

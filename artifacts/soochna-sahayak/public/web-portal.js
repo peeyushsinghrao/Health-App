@@ -463,7 +463,7 @@ function showHomeScreen() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/* === STAFF ATTENDANCE v3 === */
+/* === STAFF ATTENDANCE v4 — REBUILT FROM SCRATCH === */
 (function() {
   'use strict';
 
@@ -472,13 +472,13 @@ function showHomeScreen() {
     'जुलाई','अगस्त','सितम्बर','अक्टूबर','नवम्बर','दिसम्बर'
   ];
 
-  var ATT3_OPTIONS = [
+  var ATT_OPTIONS = [
     'उपस्थित','Day off','CL','चाइल्डकेयरलीव','PL',
     'परिवर्तित अवकाश','असाधारण अवकाश','प्रसूति अवकाश',
     'पितृत्व अवकाश','willful absence','Onduty','अवकाश पर','कार्यमुक्त'
   ];
 
-  var attState = {
+  var state = {
     officeName: '',
     kramank: '',
     codeNo: '',
@@ -496,9 +496,9 @@ function showHomeScreen() {
   }
 
   function getDates() {
-    if (!attState.from || !attState.to) return [];
-    var arr = [], curr = new Date(attState.from + 'T00:00:00');
-    var end  = new Date(attState.to   + 'T00:00:00');
+    if (!state.from || !state.to) return [];
+    var arr = [], curr = new Date(state.from + 'T00:00:00');
+    var end  = new Date(state.to + 'T00:00:00');
     while (curr <= end && arr.length < 31) {
       arr.push(new Date(curr));
       curr.setDate(curr.getDate() + 1);
@@ -535,152 +535,152 @@ function showHomeScreen() {
     if (!doc) return;
     var dates  = getDates();
     var groups = groupByMonth(dates);
-    var C = 'text-align:center;', M = 'vertical-align:middle;';
-    var html = '';
+    var html   = '';
 
-    /* Header */
-    html += '<div class="att3-hdr">';
-    html += '<div class="att3-dept">आयुर्वेद विभाग राजस्थान सरकार</div>';
-    html += '<div class="att3-office">कार्यालय राजकीय <span>' + esc(attState.officeName) + '</span></div>';
-    html += '<div class="att3-meta">';
-    html += '<span>क्रमांक - उपस्थिति / ' + esc(attState.kramank) + '</span>';
-    html += '<span>CODE No. ' + esc(attState.codeNo) + '</span>';
-    html += '<span>दिनांक: ' + fmtD(attState.date) + '</span>';
+    /* ── Document header ── */
+    html += '<div class="att4-hdr">';
+    html += '<div class="att4-dept">आयुर्वेद विभाग राजस्थान सरकार</div>';
+    html += '<div class="att4-office">कार्यालय राजकीय <strong>' + esc(state.officeName) + '</strong></div>';
+    html += '<div class="att4-meta">';
+    html += '<span>क्रमांक - उपस्थिति / ' + esc(state.kramank) + '</span>';
+    html += '<span>CODE No. <strong>' + esc(state.codeNo) + '</strong></span>';
+    html += '<span>दिनांक: ' + fmtD(state.date) + '</span>';
     html += '</div>';
-    html += '<div class="att3-title">उपस्थिति पत्रक</div>';
+    html += '<div class="att4-title">उपस्थिति पत्रक</div>';
     html += '</div>';
 
-    /* Period line */
+    /* ── Period line ── */
     if (dates.length > 0) {
-      html += '<div class="att3-period">उपस्थिति अवधि ' + fmtD(attState.from) + ' से ' + fmtD(attState.to) + ' तक</div>';
+      html += '<div class="att4-period">उपस्थिति अवधि <strong>' + fmtD(state.from) + '</strong> से <strong>' + fmtD(state.to) + '</strong> तक</div>';
     }
 
-    /* Table */
+    /* ── Table ── */
     if (dates.length > 0) {
-      html += '<div style="overflow-x:hidden"><table class="att3-tbl" cellpadding="0" cellspacing="0">';
+      html += '<div style="overflow-x:hidden"><table class="att4-tbl" cellpadding="0" cellspacing="0">';
 
       /* Month header row */
       html += '<thead><tr>';
-      html += '<th rowspan="2" class="att3-th" style="width:20px;min-width:20px">क्र.सं.</th>';
-      html += '<th rowspan="2" class="att3-th att3-th-name">नाम कार्मिक<br>मय पद</th>';
+      html += '<th rowspan="2" class="att4-th att4-th-no">क्र.सं.</th>';
+      html += '<th rowspan="2" class="att4-th att4-th-name">नाम कार्मिक<br>मय पद</th>';
       groups.forEach(function(g) {
-        html += '<th colspan="' + g.dates.length + '" class="att3-th att3-th-month">' + esc(g.label) + '</th>';
+        html += '<th colspan="' + g.dates.length + '" class="att4-th att4-th-month">' + esc(g.label) + '</th>';
       });
-      html += '<th rowspan="2" class="att3-th att3-th-sum">उपस्थिति पत्रक अवधि में लिए गए CL का योग</th>';
-      html += '<th rowspan="2" class="att3-th att3-th-sum">पूर्व उपस्थिति पत्रक अवधि में लिए गए CL का योग</th>';
-      html += '<th rowspan="2" class="att3-th att3-th-sum">अब तक कुल ली गई CL का योग</th>';
-      html += '<th rowspan="2" class="att3-th no-print" style="width:26px;padding:0;border:1px solid #000"></th>';
+      html += '<th rowspan="2" class="att4-th att4-th-sum">उपस्थिति पत्रक अवधि में लिए गए CL का योग</th>';
+      html += '<th rowspan="2" class="att4-th att4-th-sum">पूर्व उपस्थिति पत्रक अवधि में लिए गए CL का योग</th>';
+      html += '<th rowspan="2" class="att4-th att4-th-sum">अब तक कुल ली गई CL का योग</th>';
+      html += '<th rowspan="2" class="att4-th att4-th-del no-print"></th>';
       html += '</tr>';
 
       /* Date numbers row */
       html += '<tr>';
       dates.forEach(function(d) {
-        html += '<th class="att3-th att3-th-day">' + d.getDate() + '</th>';
+        html += '<th class="att4-th att4-th-day">' + d.getDate() + '</th>';
       });
       html += '</tr></thead>';
 
       /* Staff rows */
       html += '<tbody>';
-      attState.staff.forEach(function(s, idx) {
+      state.staff.forEach(function(s, idx) {
         var currCL = 0;
         var dayCells = '';
         dates.forEach(function(d) {
           var ds  = d.toISOString().split('T')[0];
           var val = s.days[ds] || 'उपस्थित';
           if (val === 'CL') currCL++;
-          var opts = ATT3_OPTIONS.map(function(o) {
+          var opts = ATT_OPTIONS.map(function(o) {
             return '<option value="' + esc(o) + '"' + (o === val ? ' selected' : '') + '>' + esc(o) + '</option>';
           }).join('');
           dayCells +=
-            '<td class="att3-td att3-td-day">' +
-              '<select class="att3-sel no-print" data-idx="' + idx + '" data-ds="' + ds + '">' + opts + '</select>' +
-              '<span class="att3-vspan print-only">' + esc(val) + '</span>' +
+            '<td class="att4-td att4-td-day">' +
+              '<select class="att4-sel no-print" data-idx="' + idx + '" data-ds="' + ds + '">' + opts + '</select>' +
+              '<span class="att4-vspan print-only">' + esc(val) + '</span>' +
             '</td>';
         });
         var prevCL  = parseInt(s.prevCL) || 0;
         var totalCL = currCL + prevCL;
         html += '<tr>';
-        html += '<td class="att3-td" style="' + C + M + 'font-weight:700">' + (idx + 1) + '</td>';
-        html += '<td class="att3-td att3-td-name">' +
-          '<div class="att3-name-wrap">' +
-            '<input class="att3-ninp no-print" data-idx="' + idx + '" data-field="name" value="' + esc(s.name) + '" placeholder="नाम" />' +
-            '<input class="att3-dinp no-print" data-idx="' + idx + '" data-field="desig" value="' + esc(s.desig) + '" placeholder="पदनाम" />' +
-            '<div class="att3-name-print print-only"><div class="att3-np">' + esc(s.name) + '</div><div class="att3-dp">' + esc(s.desig) + '</div></div>' +
+        html += '<td class="att4-td att4-td-no">' + (idx + 1) + '</td>';
+        html += '<td class="att4-td att4-td-name">' +
+          '<div class="att4-name-wrap">' +
+            '<input class="att4-ninp no-print" data-idx="' + idx + '" data-field="name" value="' + esc(s.name) + '" placeholder="नाम" />' +
+            '<input class="att4-dinp no-print" data-idx="' + idx + '" data-field="desig" value="' + esc(s.desig) + '" placeholder="पदनाम" />' +
+            '<div class="att4-name-print print-only"><div class="att4-np">' + esc(s.name) + '</div><div class="att4-dp">' + esc(s.desig) + '</div></div>' +
           '</div></td>';
         html += dayCells;
-        html += '<td class="att3-td att3-td-sum" id="att3-cl1-' + idx + '">' + currCL + '</td>';
-        html += '<td class="att3-td att3-td-sum">' +
-          '<input class="att3-pinp no-print" type="number" min="0" max="15" data-idx="' + idx + '" value="' + prevCL + '" />' +
-          '<span class="att3-pspan print-only">' + prevCL + '</span>' +
+        html += '<td class="att4-td att4-td-sum" id="att4-cl1-' + idx + '">' + currCL + '</td>';
+        html += '<td class="att4-td att4-td-sum">' +
+          '<input class="att4-pinp no-print" type="number" min="0" max="15" data-idx="' + idx + '" value="' + prevCL + '" />' +
+          '<span class="att4-pspan print-only">' + prevCL + '</span>' +
         '</td>';
-        html += '<td class="att3-td att3-td-sum att3-total" id="att3-cl3-' + idx + '">' + totalCL + '</td>';
-        html += '<td class="att3-td no-print" style="padding:0;text-align:center;width:26px">' +
-          '<button class="att3-delbtn" data-idx="' + idx + '"' + (attState.staff.length <= 1 ? ' disabled' : '') + '>\u2715</button>' +
+        html += '<td class="att4-td att4-td-sum" id="att4-cl3-' + idx + '">' + totalCL + '</td>';
+        html += '<td class="att4-td att4-td-del no-print">' +
+          '<button class="att4-delbtn" data-idx="' + idx + '"' + (state.staff.length <= 1 ? ' disabled' : '') + '>\u2715</button>' +
         '</td>';
         html += '</tr>';
       });
       html += '</tbody></table></div>';
     } else {
-      html += '<div style="padding:28px;text-align:center;color:#999;font-size:10pt;border:2px dashed #ccc;margin-top:8px;border-radius:4px">उपस्थिति अवधि चुनें — तालिका स्वतः बनेगी</div>';
+      html += '<div class="att4-empty">उपस्थिति अवधि चुनें — तालिका स्वतः बनेगी</div>';
     }
 
-    /* Note */
-    if (attState.note && attState.note.trim()) {
-      html += '<div class="att3-note"><strong>नोट:</strong> ' + esc(attState.note.trim()) + '</div>';
+    /* ── Note ── */
+    if (state.note && state.note.trim()) {
+      html += '<div class="att4-note"><strong>नोट:</strong> ' + esc(state.note.trim()) + '</div>';
     }
 
-    /* Certification */
-    html += '<div class="att3-certify">प्रमाणित किया जाता है कि उपस्थिति पत्रक का मिलान उपस्थिति पंजिका से कर लिया गया है, साथ ही कोई भी कार्मिक बिना सक्षम स्तर से अवकाश स्वीकृत कराए उपस्थिति पत्रक में उल्लिखित अवधि के दौरान अनुपस्थित नहीं रहा है।</div>';
+    /* ── Certification ── */
+    html += '<div class="att4-certify">प्रमाणित किया जाता है कि उपस्थिति पत्रक का मिलान उपस्थिति पंजिका से कर लिया गया है, साथ ही कोई भी कार्मिक बिना सक्षम स्तर से अवकाश स्वीकृत कराए उपस्थिति पत्रक में उल्लिखित अवधि के दौरान अनुपस्थित नहीं रहा है।</div>';
 
-    /* Signature */
-    html += '<div class="att3-sig">' +
-      '<div class="att3-sig-block">' +
-        '<div class="att3-sig-gap"></div>' +
-        '<div class="att3-sig-line"></div>' +
-        '<div class="att3-sig-label">हस्ताक्षर प्रभारी</div>' +
-        '<div class="att3-sig-office">' + esc(attState.officeName) + '</div>' +
+    /* ── Signature ── */
+    html += '<div class="att4-sig">' +
+      '<div class="att4-sig-block">' +
+        '<div class="att4-sig-gap"></div>' +
+        '<div class="att4-sig-line">' +
+          '<div class="att4-sig-label">हस्ताक्षर प्रभारी</div>' +
+          '<div class="att4-sig-office">' + esc(state.officeName || 'कार्यालय') + '</div>' +
+        '</div>' +
       '</div>' +
     '</div>';
 
     doc.innerHTML = html;
-    hookDocEvents();
+    hookEvents();
   }
 
-  /* ── Hook events on dynamically rendered elements ── */
-  function hookDocEvents() {
+  /* ── Wire up events on dynamically-rendered elements ── */
+  function hookEvents() {
     /* Day select changes */
-    document.querySelectorAll('.att3-sel').forEach(function(sel) {
+    document.querySelectorAll('.att4-sel').forEach(function(sel) {
       sel.addEventListener('change', function() {
         var idx = +this.dataset.idx, ds = this.dataset.ds;
-        attState.staff[idx].days[ds] = this.value;
+        state.staff[idx].days[ds] = this.value;
         var span = this.nextElementSibling;
         if (span) span.textContent = this.value;
         refreshCL(idx);
       });
     });
 
-    /* Name / desig inputs */
-    document.querySelectorAll('.att3-ninp, .att3-dinp').forEach(function(inp) {
+    /* Name / designation inputs */
+    document.querySelectorAll('.att4-ninp, .att4-dinp').forEach(function(inp) {
       inp.addEventListener('input', function() {
         var idx = +this.dataset.idx, field = this.dataset.field;
-        attState.staff[idx][field] = this.value;
-        var wrap = this.closest('.att3-name-wrap');
+        state.staff[idx][field] = this.value;
+        var wrap = this.closest('.att4-name-wrap');
         if (wrap) {
-          var np = wrap.querySelector('.att3-np'), dp = wrap.querySelector('.att3-dp');
-          if (np) np.textContent = attState.staff[idx].name;
-          if (dp) dp.textContent = attState.staff[idx].desig;
+          var np = wrap.querySelector('.att4-np'), dp = wrap.querySelector('.att4-dp');
+          if (np) np.textContent = state.staff[idx].name;
+          if (dp) dp.textContent = state.staff[idx].desig;
         }
       });
     });
 
     /* Prev CL inputs */
-    document.querySelectorAll('.att3-pinp').forEach(function(inp) {
+    document.querySelectorAll('.att4-pinp').forEach(function(inp) {
       inp.addEventListener('change', function() {
         var idx = +this.dataset.idx;
         var v = parseInt(this.value) || 0;
-        if (v > 15) { v = 15; this.value = 15; showToast('\u26a0\ufe0f पूर्व CL अधिकतम 15 है', 2500); }
+        if (v > 15) { v = 15; this.value = 15; if (typeof showToast === 'function') showToast('\u26a0\ufe0f पूर्व CL अधिकतम 15 है', 2500); }
         if (v < 0)  { v = 0;  this.value = 0; }
-        attState.staff[idx].prevCL = v;
+        state.staff[idx].prevCL = v;
         var span = this.nextElementSibling;
         if (span) span.textContent = v;
         refreshCL(idx);
@@ -688,110 +688,121 @@ function showHomeScreen() {
     });
 
     /* Delete row buttons */
-    document.querySelectorAll('.att3-delbtn').forEach(function(btn) {
+    document.querySelectorAll('.att4-delbtn').forEach(function(btn) {
       btn.addEventListener('click', function() {
         var idx = +this.dataset.idx;
-        if (attState.staff.length <= 1) return;
-        attState.staff.splice(idx, 1);
+        if (state.staff.length <= 1) return;
+        state.staff.splice(idx, 1);
         renderDoc();
       });
     });
   }
 
-  /* ── Recalculate CL counts for one row ── */
+  /* ── Recalculate CL totals for one staff row ── */
   function refreshCL(idx) {
     var dates = getDates();
     var currCL = 0;
     dates.forEach(function(d) {
       var ds = d.toISOString().split('T')[0];
-      if ((attState.staff[idx].days[ds] || 'उपस्थित') === 'CL') currCL++;
+      if ((state.staff[idx].days[ds] || 'उपस्थित') === 'CL') currCL++;
     });
-    var prevCL  = parseInt(attState.staff[idx].prevCL) || 0;
+    var prevCL  = parseInt(state.staff[idx].prevCL) || 0;
     var totalCL = currCL + prevCL;
-    var el1 = document.getElementById('att3-cl1-' + idx);
+    var el1 = document.getElementById('att4-cl1-' + idx);
     if (el1) el1.textContent = currCL;
-    var el3 = document.getElementById('att3-cl3-' + idx);
+    var el3 = document.getElementById('att4-cl3-' + idx);
     if (el3) el3.textContent = totalCL;
   }
 
-  /* ── Validate period (max 31 days) ── */
+  /* ── Validate period (max 31 days, end >= start) ── */
   function validatePeriod(from, to) {
     if (!from || !to) return true;
     var f = new Date(from + 'T00:00:00'), t = new Date(to + 'T00:00:00');
     var diff = Math.round((t - f) / 86400000) + 1;
-    if (diff < 1) { showToast('\u26a0\ufe0f समाप्ति तिथि प्रारंभ से पहले नहीं हो सकती', 3000); return false; }
-    if (diff > 31) { showToast('\u26a0\ufe0f अधिकतम 31 दिन की अवधि चुनें', 3000); return false; }
+    if (diff < 1)  { if (typeof showToast === 'function') showToast('\u26a0\ufe0f समाप्ति तिथि प्रारंभ से पहले नहीं हो सकती', 3000); return false; }
+    if (diff > 31) { if (typeof showToast === 'function') showToast('\u26a0\ufe0f अधिकतम 31 दिन की अवधि चुनें', 3000); return false; }
     return true;
   }
 
-  /* ── Helper: attach event listener ── */
   function bind(id, evt, fn) {
     var el = document.getElementById(id);
     if (el) el.addEventListener(evt, fn);
   }
 
-  /* ── Form listeners ── */
-  bind('att-office',  'input',  function() { attState.officeName = this.value; renderDoc(); });
-  bind('att-kramank', 'input',  function() { attState.kramank    = this.value; renderDoc(); });
-  bind('att-codeno',  'input',  function() { attState.codeNo     = this.value; renderDoc(); });
-  bind('att-date',    'change', function() { attState.date       = this.value; renderDoc(); });
-  bind('att-note',    'input',  function() { attState.note       = this.value; renderDoc(); });
+  /* ── Form field listeners ── */
+  bind('att-office',  'input',  function() { state.officeName = this.value; renderDoc(); });
+  bind('att-kramank', 'input',  function() { state.kramank    = this.value; renderDoc(); });
+  bind('att-codeno',  'input',  function() { state.codeNo     = this.value; renderDoc(); });
+  bind('att-date',    'change', function() { state.date       = this.value; renderDoc(); });
+  bind('att-note',    'input',  function() { state.note       = this.value; renderDoc(); });
 
   bind('att-from', 'change', function() {
-    if (!validatePeriod(this.value, attState.to)) { this.value = attState.from; return; }
-    attState.from = this.value;
+    if (!validatePeriod(this.value, state.to)) { this.value = state.from; return; }
+    state.from = this.value;
     renderDoc();
   });
   bind('att-to', 'change', function() {
-    if (!validatePeriod(attState.from, this.value)) { this.value = attState.to; return; }
-    attState.to = this.value;
+    if (!validatePeriod(state.from, this.value)) { this.value = state.to; return; }
+    state.to = this.value;
     renderDoc();
   });
 
   bind('att-add-row', 'click', function() {
-    attState.staff.push({ name: '', desig: '', prevCL: 0, days: {} });
+    state.staff.push({ name: '', desig: '', prevCL: 0, days: {} });
     renderDoc();
     var doc = document.getElementById('att-doc');
-    if (doc) setTimeout(function() { doc.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 120);
+    if (doc) setTimeout(function() { doc.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 100);
+  });
+
+  bind('att-btn-preview', 'click', function() {
+    var doc = document.getElementById('att-doc');
+    if (doc) doc.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
   bind('att-btn-print', 'click', function() { window.print(); });
 
   bind('att-btn-pdf', 'click', function() {
-    if (!attState.officeName.trim()) { showToast('\u26a0\ufe0f कार्यालय नाम आवश्यक है', 3000); return; }
-    if (!attState.from || !attState.to) { showToast('\u26a0\ufe0f उपस्थिति अवधि आवश्यक है', 3000); return; }
-    if (typeof html2pdf === 'undefined') { showToast('\u26a0\ufe0f PDF लाइब्रेरी लोड हो रही है', 3000); return; }
+    if (!state.officeName.trim()) {
+      if (typeof showToast === 'function') showToast('\u26a0\ufe0f कार्यालय नाम आवश्यक है', 3000);
+      return;
+    }
+    if (!state.from || !state.to) {
+      if (typeof showToast === 'function') showToast('\u26a0\ufe0f उपस्थिति अवधि आवश्यक है', 3000);
+      return;
+    }
+    if (typeof html2pdf === 'undefined') {
+      if (typeof showToast === 'function') showToast('\u26a0\ufe0f PDF लाइब्रेरी लोड हो रही है...', 3000);
+      return;
+    }
     var overlay = document.getElementById('overlay');
     if (overlay) overlay.classList.add('active');
     var el = document.getElementById('att-doc');
     var opt = {
-      margin:   [8, 8, 8, 8],
-      filename: 'Upasthiti_Patrak_' + fmtD(attState.from) + '_to_' + fmtD(attState.to) + '.pdf',
-      image:    { type: 'jpeg', quality: 0.98 },
+      margin:      [6, 6, 6, 6],
+      filename:    'Upasthiti_Patrak_' + fmtD(state.from) + '_to_' + fmtD(state.to) + '.pdf',
+      image:       { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2.5, useCORS: true, letterRendering: true, scrollY: 0, width: 1122, windowWidth: 1122 },
-      jsPDF:    { unit: 'mm', format: 'a4', orientation: 'landscape' },
-      pagebreak: { mode: 'avoid-all' }
+      jsPDF:       { unit: 'mm', format: 'a4', orientation: 'landscape' },
+      pagebreak:   { mode: 'avoid-all' }
     };
     html2pdf().set(opt).from(el).save().then(function() {
       if (window.soundFX) window.soundFX.success();
       try {
-        saveReportToHistory({
-          type:     'att',
-          title:    'उपस्थिति पत्रक',
-          subtitle: attState.officeName,
-          period:   fmtD(attState.from) + ' \u2013 ' + fmtD(attState.to),
-          snapshot: JSON.stringify({
-            officeName: attState.officeName,
-            kramank:    attState.kramank,
-            codeNo:     attState.codeNo,
-            date:       attState.date,
-            from:       attState.from,
-            to:         attState.to,
-            note:       attState.note,
-            staff:      attState.staff
-          })
-        });
-        renderHistorySection();
+        if (typeof saveReportToHistory === 'function') {
+          saveReportToHistory({
+            type:     'att',
+            title:    'उपस्थिति पत्रक',
+            subtitle: state.officeName,
+            period:   fmtD(state.from) + ' \u2013 ' + fmtD(state.to),
+            snapshot: JSON.stringify({
+              officeName: state.officeName, kramank: state.kramank,
+              codeNo: state.codeNo, date: state.date,
+              from: state.from, to: state.to,
+              note: state.note, staff: state.staff
+            })
+          });
+          if (typeof renderHistorySection === 'function') renderHistorySection();
+        }
       } catch(e) { /* ignore */ }
       if (overlay) overlay.classList.remove('active');
     }).catch(function() {
@@ -803,7 +814,7 @@ function showHomeScreen() {
   renderDoc();
 
 })();
-/* === END STAFF ATTENDANCE v3 === */
+/* === END STAFF ATTENDANCE v4 === */
 
 /* =========================================================
    SOUND SYSTEM — Web Audio API (lightweight, no external files)

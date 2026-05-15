@@ -392,91 +392,88 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ========== STAFF ATTENDANCE PANEL (v3) ========== */}
+      {/* ========== STAFF ATTENDANCE PANEL (v4 — REBUILT) ========== */}
       <div id="staff-att-panel" className="page" style={{ display: 'none', flexDirection: 'column', minHeight: '100vh' }}>
 
-        {/* Top bar — no-print */}
-        <div className="no-print" style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '13px 20px', borderBottom: '1px solid var(--border)', background: 'var(--bg-surface)', position: 'sticky', top: 0, zIndex: 10, flexShrink: 0 }}>
-          <button className="back-btn" onClick={() => { (window as any).showHomeScreen?.(); }}>
-            <ChevronLeft size={16} strokeWidth={2} /> होम
-          </button>
-          <div>
-            <div className="font-display font-semibold text-[17px] text-[var(--text-primary)]">कार्मिक उपस्थिति पत्रक</div>
-            <div className="text-[11px] text-[var(--text-muted)] mt-[1px]">Staff Attendance Sheet — A4 Landscape PDF</div>
+        {/* ── Sticky top control bar ── */}
+        <div className="no-print att4-topbar">
+          <div className="att4-topbar-left">
+            <button className="back-btn" onClick={() => { (window as any).showHomeScreen?.(); }}>
+              <ChevronLeft size={16} strokeWidth={2} /> होम
+            </button>
+            <div>
+              <div className="att4-topbar-heading">कार्मिक उपस्थिति पत्रक</div>
+              <div className="att4-topbar-sub">Staff Attendance Sheet — A4 Landscape PDF</div>
+            </div>
           </div>
-          <div className="ml-auto">
-            <span className="badge badge-primary text-[10px]">सक्रिय</span>
+          <div className="att4-topbar-actions">
+            <button id="att-btn-preview" className="btn btn-secondary">
+              <Eye size={15} /> Preview
+            </button>
+            <button id="att-btn-print" className="btn btn-secondary">
+              <Printer size={15} /> Print
+            </button>
+            <button id="att-btn-pdf" className="btn btn-primary">
+              <Download size={15} /> PDF सहेजें
+            </button>
           </div>
         </div>
 
-        {/* Error box */}
-        <div id="att-err" className="no-print" style={{ display: 'none', background: '#fef2f2', border: '1px solid #fca5a5', color: '#dc2626', padding: '10px 20px', fontSize: '13px' }} />
+        {/* ── Form section ── */}
+        <div className="no-print att4-form-wrap">
 
-        {/* Form section */}
-        <div className="no-print" style={{ padding: '16px 20px 14px', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
-
-          {/* Office name */}
-          <div style={{ marginBottom: '11px' }}>
-            <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>
-              कार्यालय राजकीय <span style={{ color: '#ef4444' }}>*</span>
-            </label>
-            <input id="att-office" className="form-input-base" type="text" style={{ width: '100%' }} placeholder="जैसे: राजकीय आयुर्वेद चिकित्सालय, जयपुर" />
+          {/* Office name — full row */}
+          <div className="att4-field-group">
+            <label className="att4-label">कार्यालय राजकीय <span className="att4-req">*</span></label>
+            <input id="att-office" className="att4-input" type="text" placeholder="जैसे: राजकीय आयुर्वेद चिकित्सालय, जयपुर" />
           </div>
 
           {/* 3-col: Kramank | Code No | Date */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '11px' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>क्रमांक</label>
-              <input id="att-kramank" className="form-input-base" type="text" placeholder="जैसे: 123/2026" style={{ width: '100%' }} />
+          <div className="att4-form-row3">
+            <div className="att4-field-group">
+              <label className="att4-label">क्रमांक - उपस्थिति /</label>
+              <input id="att-kramank" className="att4-input" type="text" placeholder="जैसे: 123/2026" />
             </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>CODE No.</label>
-              <input id="att-codeno" className="form-input-base" type="number" placeholder="जैसे: 4521" inputMode="numeric" style={{ width: '100%' }} />
+            <div className="att4-field-group">
+              <label className="att4-label">CODE No.</label>
+              <input id="att-codeno" className="att4-input" type="number" placeholder="जैसे: 4521" inputMode="numeric" />
             </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>दिनांक</label>
-              <input id="att-date" className="form-input-base" type="date" style={{ width: '100%' }} />
+            <div className="att4-field-group">
+              <label className="att4-label">दिनांक</label>
+              <input id="att-date" className="att4-input" type="date" />
             </div>
           </div>
 
-          {/* Period row */}
-          <div style={{ marginBottom: '11px' }}>
-            <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>
-              उपस्थिति अवधि <span style={{ color: '#ef4444' }}>*</span>
-              <span style={{ fontWeight: 400, textTransform: 'none', fontSize: '10px', marginLeft: '6px', color: 'var(--text-muted)' }}>(अधिकतम 31 दिन — चुनते ही तालिका बनेगी)</span>
+          {/* Period */}
+          <div className="att4-field-group">
+            <label className="att4-label">
+              उपस्थिति अवधि <span className="att4-req">*</span>
+              <span className="att4-label-hint">(अधिकतम 31 दिन — चुनते ही तालिका बनेगी)</span>
             </label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <input id="att-from" className="form-input-base" type="date" style={{ flex: 1, minWidth: '130px' }} />
-              <span style={{ color: 'var(--text-muted)', fontWeight: 700, fontSize: '13px' }}>से</span>
-              <input id="att-to" className="form-input-base" type="date" style={{ flex: 1, minWidth: '130px' }} />
-              <span style={{ color: 'var(--text-muted)', fontWeight: 700, fontSize: '13px' }}>तक</span>
+            <div className="att4-period-row">
+              <input id="att-from" className="att4-input att4-input-date" type="date" />
+              <span className="att4-period-sep">से</span>
+              <input id="att-to" className="att4-input att4-input-date" type="date" />
+              <span className="att4-period-sep">तक</span>
             </div>
           </div>
 
           {/* Note */}
-          <div style={{ marginBottom: '13px' }}>
-            <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>नोट / टिप्पणी</label>
-            <textarea id="att-note" className="form-input-base field-textarea" rows={2} style={{ width: '100%' }} placeholder="विशेष टिप्पणी यहाँ लिखें..." />
+          <div className="att4-field-group">
+            <label className="att4-label">नोट / विशेष टिप्पणी</label>
+            <textarea id="att-note" className="att4-input att4-textarea" rows={2} placeholder="विशेष टिप्पणी यहाँ लिखें..." />
           </div>
 
-          {/* Action buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          {/* Add row */}
+          <div>
             <button id="att-add-row" className="add-row-btn">+ कार्मिक जोड़ें</button>
-            <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
-              <button id="att-btn-print" className="btn btn-secondary">
-                <Printer size={15} /> Print
-              </button>
-              <button id="att-btn-pdf" className="btn btn-primary">
-                <Download size={15} /> PDF सहेजें
-              </button>
-            </div>
           </div>
         </div>
 
-        {/* A4 Landscape document — this IS the print area */}
-        <div style={{ background: 'linear-gradient(180deg,#E8EAEE,#D5D9E0)', padding: '20px 24px 28px', overflowX: 'auto', flex: 1 }}>
-          <div id="att-doc" className="att-doc-page">
-            {/* Rendered dynamically by web-portal.js Staff Attendance v3 */}
+        {/* ── A4 Landscape document area ── */}
+        <div className="att4-doc-area">
+          <div id="att-doc" className="att4-doc-page">
+            {/* Rendered dynamically by web-portal.js */}
           </div>
         </div>
 
