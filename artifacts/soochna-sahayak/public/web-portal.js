@@ -793,7 +793,7 @@ function showHomeScreen() {
           width: 1122,
           windowWidth: 1122,
           logging: false,
-          foreignObjectRendering: true,
+          foreignObjectRendering: false,
           imageTimeout: 0,
           onclone: function(clonedDoc) {
             var style = clonedDoc.createElement('style');
