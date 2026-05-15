@@ -573,9 +573,9 @@ function showHomeScreen() {
       groups.forEach(function(g) {
         html += '<th colspan="' + g.dates.length + '" class="att4-th att4-th-month">' + esc(g.label) + '</th>';
       });
-      html += '<th rowspan="2" class="att4-th att4-th-sum">CL योग<br>(इस अवधि)</th>';
-      html += '<th rowspan="2" class="att4-th att4-th-sum">पूर्व<br>CL</th>';
-      html += '<th rowspan="2" class="att4-th att4-th-sum">कुल<br>CL</th>';
+      html += '<th rowspan="2" class="att4-th att4-th-sum"><span class="att4-th-sum-inner">CL योग (इस अवधि)</span></th>';
+      html += '<th rowspan="2" class="att4-th att4-th-sum"><span class="att4-th-sum-inner">पूर्व CL</span></th>';
+      html += '<th rowspan="2" class="att4-th att4-th-sum"><span class="att4-th-sum-inner">कुल CL</span></th>';
       html += '<th rowspan="2" class="att4-th att4-th-del no-print"></th>';
       html += '</tr>';
 
@@ -1255,26 +1255,8 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   }
 }
 
-/* === DARK MODE TOGGLE (19.12) === */
-window.toggleTheme = function() {
-  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  var newTheme = isDark ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', newTheme);
-  localStorage.setItem('theme', newTheme);
-  var sun = document.querySelector('.theme-icon-sun');
-  var moon = document.querySelector('.theme-icon-moon');
-  if (sun) sun.style.display = newTheme === 'dark' ? 'none' : 'block';
-  if (moon) moon.style.display = newTheme === 'dark' ? 'block' : 'none';
-};
-
-// On load — restore saved theme
-(function() {
-  var savedTheme = localStorage.getItem('theme');
-  if (!savedTheme) {
-    savedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  }
-  document.documentElement.setAttribute('data-theme', savedTheme);
-})();
+/* === THEME: always light === */
+document.documentElement.setAttribute('data-theme', 'light');
 
 /* === GLOWING TOP BORDER ON SCROLL (19.8) === */
 window.addEventListener('scroll', function() {

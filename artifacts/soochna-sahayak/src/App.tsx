@@ -7,8 +7,7 @@ export default function App() {
     document.documentElement.lang = "hi";
     document.title = "Soochna Sahayak — Smart Office Assistant";
 
-    const savedTheme = localStorage.getItem("theme") || "light";
-    document.documentElement.setAttribute("data-theme", savedTheme);
+    document.documentElement.setAttribute("data-theme", "light");
 
     const loadScript = (src: string, onload?: () => void) => {
       if (document.querySelector(`script[src="${src}"]`)) {
@@ -62,9 +61,7 @@ export default function App() {
       }
     }
 
-    return () => {
-      mo?.disconnect();
-    };
+    return () => {};
   }, []);
 
   return <HomePage />;

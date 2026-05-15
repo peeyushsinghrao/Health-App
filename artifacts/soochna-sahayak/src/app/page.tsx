@@ -1,4 +1,4 @@
-import { BarChart3, Users, Heart, Volume2, Eye, Printer, Download, ArrowRight, ChevronLeft, Sparkles, Table, Sun, Moon, FileDown } from 'lucide-react';
+import { BarChart3, Users, Heart, Volume2, Eye, Printer, Download, ArrowRight, ChevronLeft, Sparkles, Table, FileDown } from 'lucide-react';
 import '../web-portal.css';
 
 export default function Home() {
@@ -40,30 +40,6 @@ export default function Home() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <button
-            className="theme-toggle"
-            onClick={() => {
-              const html = document.documentElement;
-              if ((window as any).toggleTheme) {
-                (window as any).toggleTheme();
-              } else {
-                const isDark = html.getAttribute('data-theme') === 'dark';
-                const newTheme = isDark ? 'light' : 'dark';
-                html.setAttribute('data-theme', newTheme);
-                localStorage.setItem('theme', newTheme);
-              }
-              const sunEl = document.querySelector('.theme-icon-sun') as HTMLElement;
-              const moonEl = document.querySelector('.theme-icon-moon') as HTMLElement;
-              const isDarkNow = document.documentElement.getAttribute('data-theme') === 'dark';
-              if (sunEl) sunEl.style.display = isDarkNow ? 'none' : 'block';
-              if (moonEl) moonEl.style.display = isDarkNow ? 'block' : 'none';
-            }}
-            aria-label="Toggle dark mode"
-            id="theme-toggle-btn"
-          >
-            <Sun size={16} className="theme-icon-sun" />
-            <Moon size={16} className="theme-icon-moon" style={{ display: 'none' }} />
-          </button>
           <span className="badge badge-primary hidden sm:inline-flex">
             Ayurveda Dept
           </span>

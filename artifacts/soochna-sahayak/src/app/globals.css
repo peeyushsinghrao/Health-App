@@ -2241,46 +2241,6 @@ body.scrolled::after {
   }
 }
 
-/* =========================================================
-   DARK MODE
-   ========================================================= */
-[data-theme="dark"] {
-  --bg-base:        #111210;
-  --bg-surface:     #1A1C18;
-  --bg-elevated:    #222420;
-  --bg-deep:        #181A16;
-  --text-primary:   #F2F0E8;
-  --text-secondary: #B8B4A8;
-  --text-muted:     #6B685E;
-  --text-on-accent: #FFFFFF;
-  --border:         #2C2E28;
-  --border-strong:  #3A3C36;
-  --border-hover:   rgba(26,92,56,0.35);
-  --focus-ring:     rgba(26,92,56,0.25);
-}
-
-[data-theme="dark"] body {
-  background-color: #111210;
-}
-
-[data-theme="dark"] .nav-bar {
-  background: rgba(17,18,16,0.90);
-}
-
-[data-theme="dark"] .theme-icon-sun {
-  display: none !important;
-}
-[data-theme="dark"] .theme-icon-moon {
-  display: block !important;
-}
-[data-theme="light"] .theme-icon-moon,
-:root:not([data-theme="dark"]) .theme-icon-moon {
-  display: none !important;
-}
-[data-theme="light"] .theme-icon-sun,
-:root:not([data-theme="dark"]) .theme-icon-sun {
-  display: block !important;
-}
 
 /* Table Row Slide In */
 tbody tr:nth-child(1) { animation: rowSlide 300ms ease both; animation-delay: 50ms; }
