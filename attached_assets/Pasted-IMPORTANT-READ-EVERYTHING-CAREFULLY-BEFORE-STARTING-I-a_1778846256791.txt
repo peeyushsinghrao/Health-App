@@ -1,0 +1,278 @@
+IMPORTANT — READ EVERYTHING CAREFULLY BEFORE STARTING
+
+I am uploading my FULL APP PROJECT FILES.
+
+You must FIRST inspect the existing Staff Attendance module and DELETE the OLD implementation COMPLETELY before rebuilding anything.
+
+DO NOT PATCH THE OLD UI.
+DO NOT MODIFY OLD TABLES.
+DO NOT REUSE OLD CSS.
+DO NOT KEEP OLD COMPONENTS.
+DO NOT KEEP OLD PDF STRUCTURE.
+DO NOT KEEP OLD ATTENDANCE LOGIC.
+DO NOT KEEP OLD PAGE DESIGN.
+DO NOT TRY TO “FIX” THE CURRENT VERSION.
+
+I WANT A COMPLETE REBUILD FROM SCRATCH.
+
+======================================================
+STEP 1 — DELETE OLD STAFF ATTENDANCE SYSTEM
+======================================================
+
+Find and completely remove:
+- Old Staff Attendance page
+- Old attendance table logic
+- Old attendance PDF generator
+- Old attendance print logic
+- Old attendance styles
+- Old attendance components
+- Old attendance hooks/state
+- Old attendance utilities
+- Old attendance responsive structure
+- Old attendance export functions
+
+Also remove:
+- Unused imports
+- Dead CSS
+- Old date logic
+- Old row logic
+- Old table rendering logic
+
+Clean the project properly after deletion.
+
+======================================================
+STEP 2 — CREATE COMPLETELY NEW PROFESSIONAL SYSTEM
+======================================================
+
+Now create a NEW PROFESSIONAL GOVERNMENT-STYLE ATTENDANCE SHEET GENERATOR.
+
+This should NOT look like the previous version.
+
+The UI must feel:
+- Premium
+- Clean
+- Government-office style
+- Print-focused
+- A4 optimized
+- Extremely compact
+- Professional
+- Elegant
+- Structured
+- Stable
+- Production-level
+
+======================================================
+DESIGN SYSTEM (VERY IMPORTANT)
+======================================================
+
+Use the SAME PREMIUM DESIGN LANGUAGE from this HTML/CSS reference:
+
+- Editorial layout
+- Premium government feel
+- Light warm background
+- Deep green accent
+- Professional typography
+- Soft borders
+- Minimal shadows
+- Compact spacing
+- Lora + DM Sans style typography
+- A4 print optimized structure
+- Clean tables
+- Professional buttons
+- Structured forms
+- Elegant spacing
+- Sticky header
+- Print-safe layout
+- Refined hover states
+- Professional input styling
+- Condensed table design
+- Responsive mobile adaptation
+
+IMPORTANT:
+The final UI must visually feel inspired by the provided premium Soochna Sahayak HTML/CSS reference.
+
+Do NOT create:
+- Generic dashboard UI
+- Tailwind default cards
+- Purple gradients
+- Random glassmorphism everywhere
+- Cartoon styling
+- Big paddings
+- Oversized buttons
+- Fancy animations
+
+Keep it:
+- Professional
+- Government office style
+- Extremely usable
+- Dense but clean
+- Print-first
+
+======================================================
+CORE FUNCTIONALITY
+======================================================
+
+Build a COMPLETE Attendance Sheet Generator.
+
+The entire system must dynamically work.
+
+Everything must function correctly:
+- Date generation
+- Month splitting
+- Attendance selection
+- CL calculations
+- Row addition
+- Row deletion
+- Print
+- PDF
+- Preview
+- A4 fitting
+- Auto calculations
+- Vertical text rendering
+- Responsive behavior
+
+======================================================
+MANDATORY IMPLEMENTATION DETAILS
+======================================================
+
+( Attendance Sheet Generator हेतु मास्टर प्रॉम्प्ट (Master Prompt):
+"एक प्रोफेशनल 'उपस्थिति पत्रक' जनरेटर (Web Tool) बनाएं जो विशेष रूप से राजस्थान सरकार के आयुर्वेद विभाग के लिए हो। इसकी विशिष्टताएँ निम्नलिखित हैं:
+1. लेआउट और हेडर (Header):
+टॉप सेंटर: 'आयुर्वेद विभाग राजस्थान सरकार' (Bold)।
+उसके नीचे: 'कार्यालय राजकीय [Input Box for Office Name]' (यह नाम नीचे सील में भी रिपीट होगा)।
+थर्ड लाइन (एक ही रो में): - Left: 'क्रमांक - उपस्थिति /'
+Center: 'CODE No. [Numerical Input Field]'
+Right: 'दिनांक: [Date Picker in dd/mm/yyyy format]'
+(इन तीनों का फॉन्ट साइज विभाग के नाम के बराबर हो)।
+मेन टाइटल: 'उपस्थिति पत्रक' (सेंटर में, बोल्ड, बड़े अक्षर, ऊपर-नीचे अधिक स्पेस के साथ)।
+2. डायनेमिक टेबल लॉजिक (Table Logic):
+अवधि चयन: 'उपस्थिति अवधि [Start Date] से [End Date] तक' चुनने का विकल्प हो (अधिकतम 31 दिन)।
+ऑटो-जेनरेट टेबल: जैसे ही तारीखें चुनी जाएं, टेबल नीचे बन जाए।
+महीने का विभाजन: यदि अवधि दो महीनों में है (जैसे 11.04.26 से 10.05.26), तो हेडर में पहले 'अप्रैल 2026' और उसके नीचे तारीखें (11 से 30), फिर 'मई 2026' और तारीखें (1 से 10) आनी चाहिए।
+कॉलम विवरण: 1. क्र.सं. (छोटा कॉलम)
+2. कार्मिक का नाम मय पद (नाम ऊपर, पद उसके नीचे ऑटो-एडजस्ट)।
+3. दिनांक कॉलम (8pt साइज, चौड़ाई कम ताकि A4 पर फिट आए)।
+4. इस अवधि में ली गई CL (Auto-Sum)।
+5. पूर्व अवधि की CL (Manual Input, max 15)।
+6. अब तक कुल CL (Col 4 + Col 5 का ऑटो योग)।
+3. अटेंडेंस ऑप्शन्स और स्टाइल:
+हर सेल में डिफ़ॉल्ट 'उपस्थित' लिखा हो।
+ड्रॉपडाउन ऑप्शन्स: उपस्थित, Day off, CL, चाइल्डकेयरलीव, PL, परिवर्तित अवकाश, असाधारण अवकाश, प्रसूति अवकाश, पितृत्व अवकाश, willful absence, Onduty, अवकाश पर, कार्यमुक्त।
+वर्टिकल टेक्स्ट: टेबल में जगह बचाने के लिए इन ऑप्शन्स को वर्टिकल (नीचे से ऊपर) दिखाएं।
+रो मैनेजमेंट: कार्मिकों के लिए 'Add Row' और 'Delete Row' का बटन हो।
+4. फुटर और प्रिंट सेटिंग्स:
+नोट सेक्शन: एक बड़ा टेक्स्ट बॉक्स जहाँ विशेष विवरण टाइप किया जा सके।
+
+प्रमाणन: 'प्रमाणित किया जाता है कि उपस्थिति पत्रक का मिलान उपस्थिति पंजिका से कर लिया गया है, साथ ही कोई भी कार्मिक बिना सक्षम स्तर से अवकाश स्वीकृत कराए उपस्थिति पत्रक में उल्लिखित अवधि के दौरान अनुपस्थित नहीं रहा है।' (बोल्ड, सेंटर)।
+
+हस्ताक्षर: नीचे दाईं ओर 'हस्ताक्षर प्रभारी' और उसके नीचे कार्यालय का नाम (जो ऊपर भरा गया था)।
+A4 फिटिंग: CSS इस तरह हो कि पूरी टेबल 36 कॉलम के साथ भी एक ही A4 पेज पर फिट आए (Condensed fonts का उपयोग करें)।
+बटन: 'Preview', 'Print' और 'Save PDF' के बटन सबसे ऊपर या नीचे हों जो प्रिंटिंग के समय छुप जाएं।एक उपस्थिति पत्रक बनाना है जो हर महीने भेजना पड़ता है ऑफिस में जिसका फॉर्मेट ऐसा होता है -
+
+आयुर्वेद विभाग राजस्थान सरकार (सबसे ऊपर सेंटर में)
+
+फिर
+
+कार्यालय राजकीय ......(इसके आगे ऑफिस का नाम manually टाइप होगा, जो पूरा नीचे प्रभारी के हस्ताक्षर सील के नीचे भी आना चाहिए)
+
+फिर
+
+कार्यालय के नाम के नीचे
+left side में "क्रमांक - उपस्थिति /"
+
+CODE No.(Center में , इसके आगे टाइप का ऑप्शन हो जिसमें कोई भी nimrical velue डाल सके)
+
+"दिनांक...." (Right side में दिनांक Select करने का हो जो dd/mm/yyyy format में हो)
+(ये सभी , left,center,right एक ही लाइन में एक ही साइज में हो, इनकी साइज सबसे ऊपर विभाग के नाम के बराबर हो)
+
+फिर
+
+उपस्थिति पत्रक (सेंटर में bold और बड़े अक्षर में (कार्यालय के नाम के बराबर size) यह आना चाहिए और इसके ऊपर और नीचे की तरफ बाकी से ज्यादा space होना चाहिए)
+
+फिर टेबल से ठीक ऊपर left side में
+उपस्थिति अवधि .....से......तक (जैसे 11.04.2026 से 10.05.2026 तक, यह manually सलेक्ट करने जैसा हो जो कभी भी एक माह से ज्यादा नहीं होगा जैसे 28 से 31 दिन तक की ही range होगी, जैसे ही यह सलेक्ट करे उसी दिनांक अनुसार टेबल इसके ठीक नीचे बने ,11.04.26 से 10.04.26 तक तो नीचे एक टेबल बने जिसमें सबसे पहले क्रम संख्या, कार्मिक का नाम (कार्मिक का नाम कॉलम की चौड़ाई इतनी हो कि एक नाम जैसे- सौरभ सिंह हाड़ा आराम से आ जाए इसके बाद इसका पदनाम उसी row में नीचे की तरफ ऑटो एडजस्ट हो जाए , इसके बाद महीने की जो dates चुनी है वैसे ही नाम के सामने आगे की row बन जाए जो अधिकतम 31 days की होगी , यह row की width छोटी रखे ताकि पूरे a4 साइज पेज में फिट आ सके, इसके लिए इसकी साइज 8 या इससे कम रख सकते है साथ ही इसमें उपस्थिति/अवकाश आदि जो भी choose करे वो vartical नीचे से ऊपर लिखा हुआ सेट कर सकते है जिससे साइज fit हो , साथ ही जैसे अगर 11.04.26 से 10.05.26 तक dates choose की है तो टेबल में सबसे ऊपर माह अप्रैल 2026 आयेगा इसके नीचे कॉलम में 11,12,13.....30 तक row बन जाए, इसके बाद मई 2026 में बाकी dates यानि 1,2,3....10 की row बन जाए, dates का normal alinment हो और उपस्थित/अवकाश/सीएल....आदि का ऊपर से नीचे ताकि सभी row सही से टेबल में आए, दिनांक की row के बाद अगली ROW "उपस्थिति पत्रक अवधि में लिए गए CL का योग"(यह dates अनुसार CL की कुल CHOOSE संख्या अनुसार AUTOMATIC FILL होगा), इससे अगली ROW "पूर्व उपस्थिति पत्रक अवधि में लिए गए CL का योग(यह मैनुअली भरा जाएगा जो अधितकम 15 से ज्यादा नहीं हो सकता)" इसके बाद वाली row "अब तक कुल ली गई CL का योग(आगे को दोनों cl वाली row का योग automatic आयेगा),
+
+इस प्रकार टेबल - क्र.सं. (यह छोटा SHORT में लिखे) /नाम कार्मिक मय पद/ माह और उसके अनुसार दिनांक (यह 28 से 31 तक ROW हो सकती है)/उपस्थिति पत्रक अवधि में लिए गए CL का योग/पूर्व उपस्थिति पत्रक अवधि में लिए गए CL का योग/अब तक कुल ली गई CL का योग (कुल 33 से 36 ROW बनेगी जो माह के अनुसार होगी , यहां यह ध्यान रखना है कि पूरी टेबल एक ही A4 साइज पर पर फिट आए और इसके लिए उपस्थिति/CL या जो भी CHOOSE करे वो VARTICAL हो, और LAST की 3 ROW CL वाली की WIDTH छोटी करने के लिए hight बड़ी कर सकते है और फ़ॉन्ट भी सभी के छोटे कर सकते है
+
+Teble में सभी मैटर को fit करने के लिए ऊपर , नीचे , बीच में ज्यादा space नहीं रखना।
+
+कार्मिक के नाम के सामने उपस्थिति दिवस (जैसे 11.04.26 से 10.05.26) वाली row में by defalt उपस्थिति लिखा हो और choose करने के लिए हर दिन के लिए this क्रम में option teb आए - उपस्थित, Day off, CL, चाइल्डकेयरलीव,PL,परिवर्तितअवकाश,असाधारण अवकाश ,प्रसूतिअवकाश, पितृत्वअवकाश, willful absence, Onduty, अवकाश पर, कार्यमुक्त (बाकी default सेटिंग में सभी में ऑटोमैटिक "उपस्थित" लिखा हुआ हो।) ,
+
+यह हर कार्मिक के अलग अलग हो सकता है, इसलिए यह कार्मिक के अनुसार अलग अलग कॉलम बनेगा , कार्मिक संख्या अनुसार लाइन add ,delete कर सके।
+
+नीचे नोट लिखने के लिए एक window रखनी है जहां टाइप किया जा सके कुछ अगर विशेष विवरण लिखना हो तो।
+
+फिर
+
+"प्रमाणित किया जाता है कि उपस्थिति पत्रक का मिलान उपस्थिति पंजिका से कर लिया गया है, साथ ही कोई भी कार्मिक बिना सक्षम स्तर से अवकाश स्वीकृत कराए उपस्थिति पत्रक में उल्लिखित अवधि के दौरान अनुपस्थित नहीं रहा है।" (यह bold में सेंटर में लिखना है)
+
+सबसे नीचे हस्ताक्षर प्रभारी (और इसके नीचे सील में ऊपर कार्यालय का नाम जो लिखा वो आए)
+
+(ये feed करने के बाद इसका PRINT, PREVIEW, SAVE PDF ऑप्शन आना चाहिए) )
+
+======================================================
+VERY IMPORTANT IMPLEMENTATION RULES
+======================================================
+
+1. DO NOT SKIP ANY DETAIL.
+2. DO NOT SHORTEN ANYTHING.
+3. DO NOT SIMPLIFY LOGIC.
+4. DO NOT CREATE BASIC TABLES.
+5. DO NOT IGNORE A4 FITTING.
+6. DO NOT MAKE HORIZONTAL OVERFLOW IN PRINT.
+7. DO NOT USE GENERIC TABLE DESIGN.
+8. DO NOT MISS VERTICAL TEXT SYSTEM.
+9. DO NOT MISS AUTO CL CALCULATIONS.
+10. DO NOT MISS MONTH SPLITTING LOGIC.
+11. DO NOT MISS DYNAMIC DATE HEADER GENERATION.
+12. DO NOT MISS PRINT CSS.
+13. DO NOT MISS PDF GENERATION.
+14. DO NOT MISS RESPONSIVE VIEW.
+15. DO NOT MISS COMPACT GOVERNMENT FORMAT.
+
+======================================================
+PRINT + PDF REQUIREMENTS
+======================================================
+
+- A4 Landscape optimized
+- Perfect print spacing
+- Compact margins
+- Hide buttons during print
+- Prevent page breaking
+- Entire table must fit on ONE PAGE
+- PDF should look exactly like preview
+- Use condensed typography for table
+- Vertical text where necessary
+- Professional government report formatting
+
+======================================================
+EXPECTED OUTPUT
+======================================================
+
+After implementation:
+1. Test everything fully.
+2. Check all dynamic logic.
+3. Check month splitting.
+4. Check PDF export.
+5. Check print.
+6. Check mobile.
+7. Check A4 fitting.
+8. Check all calculations.
+9. Check add/delete rows.
+10. Check office name reflection in footer.
+11. Check vertical text rendering.
+12. Check dropdown defaults.
+
+Then provide:
+- Complete implementation summary
+- Files deleted
+- Files created
+- Files modified
+- Features completed
+- Logic implemented
+- Remaining issues if any
+
+DO NOT STOP MIDWAY.
+DO NOT LEAVE PLACEHOLDERS.
+DO NOT LEAVE TODO COMMENTS.
+COMPLETE EVERYTHING FULLY.
