@@ -6,3 +6,9 @@ id = "2AzanyyMdMKqUpBfgmy1C"
 uri = "file://soochna-sahayak-design-details.txt"
 type = "text"
 title = "Soochna Sahayak — Complete Design Details"
+
+[[outputs]]
+id = "avSyoJi8w0F2lLVcWUbdn"
+uri = "file://soochna-sahayak-design-gist.md"
+type = "text"
+title = "Soochna Sahayak — Design System Gist"
