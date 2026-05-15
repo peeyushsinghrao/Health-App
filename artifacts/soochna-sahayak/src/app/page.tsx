@@ -424,7 +424,7 @@ export default function Home() {
               <h2 className="font-display text-[24px] sm:text-[28px] font-semibold text-[var(--text-primary)] leading-tight">
                 कार्मिक उपस्थिति पत्रक
               </h2>
-              <p className="text-[var(--text-muted)] text-[14px] mt-1">Staff Attendance Sheet — A4 Landscape PDF</p>
+              <p className="text-[var(--text-muted)] text-[14px] mt-1">Staff Attendance Sheet — A4 Portrait PDF</p>
             </div>
           </div>
         </div>
@@ -438,31 +438,36 @@ export default function Home() {
             <span className="att-step-num">1</span>
             <span>हेडर जानकारी</span>
           </div>
+
+          {/* Office Name — Full width */}
           <div className="flex flex-col gap-2 mb-4">
             <label className="att-field-label">
               <span className="att-field-icon">🏛️</span>
-              विभाग का नाम
+              कार्यालय राजकीय <span className="text-red-500">*</span>
             </label>
             <input
               className="form-input-base"
               type="text"
-              id="att-vibhag"
-              defaultValue="आयुर्वेद विभाग"
-              placeholder="जैसे: आयुर्वेद विभाग"
+              id="att-office-name"
+              placeholder="जैसे: राजकीय आयुर्वेद चिकित्सालय, जयपुर"
             />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="lg:col-span-2 flex flex-col gap-2">
+
+          {/* 3-column row: Kramank | CODE No | Date */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+            <div className="flex flex-col gap-2">
               <label className="att-field-label">
-                <span className="att-field-icon">🏛️</span>
-                कार्यालय राजकीय <span className="text-red-500">*</span>
+                <span className="att-field-icon">📋</span>
+                क्रमांक <span className="text-[var(--text-muted)] font-normal text-[11px] normal-case">(वैकल्पिक)</span>
               </label>
-              <input
-                className="form-input-base"
-                type="text"
-                id="att-office-name"
-                placeholder="जैसे: कार्यालय मुख्य चिकित्सा एवं स्वास्थ्य अधिकारी"
-              />
+              <input className="form-input-base" type="text" id="att-kramank" placeholder="जैसे: 123/2025" />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="att-field-label">
+                <span className="att-field-icon">#</span>
+                CODE No. <span className="text-[var(--text-muted)] font-normal text-[11px] normal-case">(वैकल्पिक)</span>
+              </label>
+              <input className="form-input-base" type="number" id="att-code-no" placeholder="जैसे: 4521" inputMode="numeric" min="0" />
             </div>
             <div className="flex flex-col gap-2">
               <label className="att-field-label">
@@ -471,16 +476,9 @@ export default function Home() {
               </label>
               <input className="form-input-base" type="date" id="att-date" />
             </div>
-            <div className="flex flex-col gap-2">
-              <label className="att-field-label">
-                <span className="att-field-icon">#</span>
-                क्रमांक <span className="text-[var(--text-muted)] font-normal text-[11px] normal-case">(वैकल्पिक)</span>
-              </label>
-              <input className="form-input-base" type="text" id="att-kramank" placeholder="जैसे: 123/2025" />
-            </div>
           </div>
 
-          {/* Period selector — most important field, gets its own prominent row */}
+          {/* Period selector */}
           <div className="att-period-row">
             <div className="att-period-label">
               <span className="att-field-icon">📅</span>
@@ -508,13 +506,13 @@ export default function Home() {
             <span>कार्मिक एवं उपस्थिति विवरण</span>
           </div>
 
-
           {/* Scroll hint + Table */}
           <div className="att-table-outer">
             <div className="att-scroll-hint-wrap">
               <div className="overflow-x-auto att-table-scroll" style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
                 <table className="w-full text-left border-collapse att-data-table" style={{ minWidth: '600px' }}>
                   <thead>
+                    <tr id="att-tbl-head-month" />
                     <tr id="att-tbl-head" className="bg-[var(--bg-elevated)] text-[var(--text-secondary)] text-[11px] uppercase tracking-[0.04em] [&>th]:p-3 [&>th]:border-b [&>th]:border-[var(--border)] [&>th]:whitespace-nowrap" />
                   </thead>
                   <tbody id="att-tbody" className="[&>tr:nth-child(even)]:bg-[var(--bg-elevated)] [&>tr:nth-child(odd)]:bg-[var(--bg-surface)] [&>tr>td]:border-b [&>tr>td]:border-[var(--border)] [&>tr>td]:align-middle" />
@@ -555,7 +553,7 @@ export default function Home() {
             <div className="att-preview-toggle-bar">
               <div className="flex items-center gap-2">
                 <span className="text-[13px] font-medium text-[var(--text-secondary)]">📄 दस्तावेज़ प्रीव्यू</span>
-                <span className="badge badge-secondary text-[10px]">A4 Landscape</span>
+                <span className="badge badge-secondary text-[10px]">A4 Portrait</span>
               </div>
             </div>
 

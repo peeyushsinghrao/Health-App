@@ -35,10 +35,10 @@ export default function App() {
       document.querySelectorAll<HTMLSelectElement>('.att-day-select').forEach((sel) => {
         sel.classList.remove('val-present', 'val-absent', 'val-cl', 'val-dayoff');
         const v = sel.value;
-        if (v === 'उपस्थित')         sel.classList.add('val-present');
-        else if (v === 'अनुपस्थित') sel.classList.add('val-absent');
-        else if (v === 'आकस्मिक अवकाश') sel.classList.add('val-cl');
-        else if (v === 'Day Off')    sel.classList.add('val-dayoff');
+        if (v === 'उपस्थित')             sel.classList.add('val-present');
+        else if (v === 'Willful Absence') sel.classList.add('val-absent');
+        else if (v === 'CL')              sel.classList.add('val-cl');
+        else if (v === 'Day Off')         sel.classList.add('val-dayoff');
       });
     }
 

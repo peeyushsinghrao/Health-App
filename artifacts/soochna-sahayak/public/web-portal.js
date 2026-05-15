@@ -470,31 +470,31 @@ function showHomeScreen() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/* === STAFF ATTENDANCE === */
+/* === STAFF ATTENDANCE (v2) === */
 let attState = {
   vibhag: 'आयुर्वेद विभाग',
   officeName: '',
   kramank: '',
+  codeNo: '',
   date: '',
   periodFrom: '',
   periodTo: '',
   note: '',
   staff: [
-    { name: '', prevLeaves: 0, days: {} }
+    { name: '', designation: '', prevLeaves: 0, days: {} }
   ]
 };
 
 const ATT_OPTIONS = [
   "उपस्थित",
   "Day Off",
-  "आकस्मिक अवकाश",
-  "चाइल्डकेयर लीव",
-  "उपार्जित अवकाश",
-  "परिवर्तित अवकाश",
-  "अर्धवेतन अवकाश",
+  "CL",
+  "चाइल्डकेयरलीव",
+  "PL",
+  "परिवर्तितअवकाश",
   "असाधारण अवकाश",
-  "प्रसूति अवकाश",
-  "पितृत्व अवकाश",
+  "प्रसूतिअवकाश",
+  "पितृत्वअवकाश",
   "Willful Absence",
   "Onduty",
   "अवकाश पर",
@@ -526,62 +526,99 @@ function formatDateDisplay(d) {
   return `${dd}.${mm}.${yy}`;
 }
 
+function fmtDate(ds) {
+  if (!ds) return '';
+  var d = new Date(ds + 'T00:00:00');
+  return String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + d.getFullYear();
+}
+
+function fmtDateLong(ds) {
+  var MONTHS = ['जनवरी','फरवरी','मार्च','अप्रैल','मई','जून','जुलाई','अगस्त','सितम्बर','अक्टूबर','नवम्बर','दिसम्बर'];
+  if (!ds) return '';
+  var d = new Date(ds + 'T00:00:00');
+  return d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear();
+}
+
+function groupDatesByMonth(dates) {
+  var HINDI_MONTHS = [
+    'जनवरी','फरवरी','मार्च','अप्रैल','मई','जून',
+    'जुलाई','अगस्त','सितम्बर','अक्टूबर','नवम्बर','दिसम्बर'
+  ];
+  var groups = [];
+  dates.forEach(function(d) {
+    var key = d.getMonth() + '-' + d.getFullYear();
+    var last = groups[groups.length - 1];
+    if (last && last.key === key) {
+      last.dates.push(d);
+    } else {
+      groups.push({ key: key, label: HINDI_MONTHS[d.getMonth()] + ' ' + d.getFullYear(), dates: [d] });
+    }
+  });
+  return groups;
+}
+
 function renderAttTable() {
   const dates = getDatesArray(attState.periodFrom, attState.periodTo);
-  
-  let headHtml = `
-    <th style="width:30px">क्र.सं.</th>
-    <th class="att-name-col">नाम कार्मिक मय पद</th>
-  `;
-  dates.forEach(d => {
-    headHtml += `<th class="att-day-col">${formatDateDisplay(d)}</th>`;
+
+  // ── Month Group Header Row ──
+  const monthGroups = groupDatesByMonth(dates);
+  let monthHeadHtml = '<th rowspan="2" style="width:28px">क्र.सं.</th>';
+  monthHeadHtml += '<th rowspan="2" class="att-name-col">नाम कार्मिक मय पद</th>';
+  monthGroups.forEach(function(g) {
+    monthHeadHtml += '<th colspan="' + g.dates.length + '" class="att-month-header">' + g.label + '</th>';
   });
-  headHtml += `
-    <th class="att-count-col">उपस्थिति पत्रक अवधि में उपभोग किए गए आकस्मिक अवकाश का योग</th>
-    <th class="att-count-col">पिछले उपस्थिति पत्रक अवधि तक उपयोग किए गए कुल आकस्मिक अवकाश</th>
-    <th class="att-count-col">अब तक कुल उपभोग आकस्मिक अवकाश</th>
-    <th style="width:40px">—</th>
-  `;
+  monthHeadHtml += '<th rowspan="2" class="att-count-col">उपस्थिति पत्रक अवधि में लिए गए CL का योग</th>';
+  monthHeadHtml += '<th rowspan="2" class="att-count-col">पूर्व उपस्थिति पत्रक अवधि में लिए गए CL का योग</th>';
+  monthHeadHtml += '<th rowspan="2" class="att-count-col">अब तक कुल ली गई CL का योग</th>';
+  monthHeadHtml += '<th rowspan="2" style="width:36px" class="no-print">—</th>';
+  var monthHeadEl = document.getElementById('att-tbl-head-month');
+  if (monthHeadEl) monthHeadEl.innerHTML = monthHeadHtml;
+
+  // ── Date Header Row ──
+  let headHtml = '';
+  dates.forEach(function(d) {
+    headHtml += '<th class="att-day-col">' + d.getDate() + '</th>';
+  });
   document.getElementById('att-tbl-head').innerHTML = headHtml;
 
+  // ── Body Rows ──
   let bodyHtml = '';
-  attState.staff.forEach((s, idx) => {
-    let currentPeriodCL = 0;
-    
+  attState.staff.forEach(function(s, idx) {
+    let currentCL = 0;
     let daysCells = '';
-    dates.forEach(d => {
+    dates.forEach(function(d) {
       const dateStr = d.toISOString().split('T')[0];
       const val = s.days[dateStr] || 'उपस्थित';
-      if (val === 'आकस्मिक अवकाश') currentPeriodCL++;
-      
-      let optionsHtml = '';
-      ATT_OPTIONS.forEach(opt => {
-        optionsHtml += `<option value="${opt}" ${opt === val ? 'selected' : ''}>${opt}</option>`;
-      });
-      
-      daysCells += `<td>
-        <select data-idx="${idx}" data-date="${dateStr}" class="att-day-select">${optionsHtml}</select>
-        <span class="att-select-print-span" style="display:none;">${val}</span>
-      </td>`;
+      if (val === 'CL') currentCL++;
+
+      let optionsHtml = ATT_OPTIONS.map(function(opt) {
+        return '<option value="' + opt + '" ' + (opt === val ? 'selected' : '') + '>' + opt + '</option>';
+      }).join('');
+
+      daysCells += '<td><select data-idx="' + idx + '" data-date="' + dateStr + '" class="att-day-select">' + optionsHtml + '</select>' +
+                   '<span class="att-select-print-span">' + esc(val) + '</span></td>';
     });
-    
+
     const prevCL = parseInt(s.prevLeaves) || 0;
-    const totalCL = currentPeriodCL + prevCL;
-    
-    bodyHtml += `
-      <tr>
-        <td class="sno">${idx + 1}</td>
-        <td><input type="text" data-idx="${idx}" class="att-name-input" value="${esc(s.name)}" placeholder="नाम एवं पद"></td>
-        ${daysCells}
-        <td style="font-weight:bold" id="att-n1-${idx}">${currentPeriodCL}</td>
-        <td><input type="text" inputMode="numeric" pattern="[0-9]*" autocomplete="off" autocorrect="off" data-idx="${idx}" class="att-prev-input" value="${s.prevLeaves}"></td>
-        <td style="font-weight:bold" id="att-n3-${idx}">${totalCL}</td>
-        <td><button class="rm-btn" onclick="removeAttRow(${idx})" ${attState.staff.length <= 1 ? 'disabled' : ''}>✕</button></td>
-      </tr>
-    `;
+    const totalCL = currentCL + prevCL;
+    const prevCLBorder = prevCL > 15 ? 'style="border:2px solid red;"' : '';
+
+    bodyHtml += '<tr>' +
+      '<td class="sno">' + (idx + 1) + '</td>' +
+      '<td class="att-name-cell">' +
+        '<input type="text" data-idx="' + idx + '" data-field="name" class="att-name-input" value="' + esc(s.name) + '" placeholder="नाम" />' +
+        '<input type="text" data-idx="' + idx + '" data-field="designation" class="att-desig-input" value="' + esc(s.designation) + '" placeholder="पदनाम" />' +
+      '</td>' +
+      daysCells +
+      '<td class="att-sum-cell" id="att-n1-' + idx + '">' + currentCL + '</td>' +
+      '<td><input type="number" inputMode="numeric" min="0" max="15" data-idx="' + idx + '" class="att-prev-input" value="' + s.prevLeaves + '" ' + prevCLBorder + ' /></td>' +
+      '<td class="att-sum-cell" id="att-n3-' + idx + '">' + totalCL + '</td>' +
+      '<td class="no-print"><button class="rm-btn" onclick="removeAttRow(' + idx + ')" ' + (attState.staff.length <= 1 ? 'disabled' : '') + '>✕</button></td>' +
+      '</tr>';
   });
   document.getElementById('att-tbody').innerHTML = bodyHtml;
-  
+
+  updateProgressPill(dates);
   renderAttPreview(dates);
 }
 
@@ -589,24 +626,15 @@ function renderAttPreview(dates) {
   var tableEl = document.getElementById('att-doc-table');
   if (!tableEl) return;
 
-  var MONTHS = ['जनवरी','फरवरी','मार्च','अप्रैल','मई','जून','जुलाई','अगस्त','सितम्बर','अक्टूबर','नवम्बर','दिसम्बर'];
+  var B    = 'border:1px solid #000;';
+  var CENTER = 'text-align:center;';
+  var VMID = 'vertical-align:middle;';
+  var BOLD = 'font-weight:bold;';
 
-  function fmtDate(ds) {
-    if (!ds) return '';
-    var d = new Date(ds + 'T00:00:00');
-    return String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + d.getFullYear();
-  }
-  function fmtDateLong(ds) {
-    if (!ds) return '';
-    var d = new Date(ds + 'T00:00:00');
-    return d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear();
-  }
+  var DAYS_CNT   = (dates && dates.length) ? dates.length : 0;
+  var totalCols  = 2 + DAYS_CNT + 3;
 
-  var DAYS_CNT    = (dates && dates.length) ? dates.length : 0;
-  var TOTAL_COLS  = 2 + DAYS_CNT + 3;
-
-  // ── Exact proportional column widths from Excel measurements (mm) ──
-  // Col A=5.4 | Col B=24.5 | Day cols=4.5 each (narrow rotated text) | Sum1=18 | Sum2=18 | Sum3=15
+  // ── Column widths ──
   var TOTAL_MM = 5.4 + 24.5 + 4.5 * DAYS_CNT + 18.0 + 18.0 + 15.0;
   var pSNO  = (5.4  / TOTAL_MM * 100).toFixed(3) + '%';
   var pNAME = (24.5 / TOTAL_MM * 100).toFixed(3) + '%';
@@ -615,11 +643,6 @@ function renderAttPreview(dates) {
   var pSUM2 = (18.0 / TOTAL_MM * 100).toFixed(3) + '%';
   var pSUM3 = (15.0 / TOTAL_MM * 100).toFixed(3) + '%';
 
-  var B = 'border:1.5px solid #000;';
-  var CENTER = 'text-align:center;';
-  var VMID = 'vertical-align:middle;';
-
-  // ── Build colgroup ──
   var html = '<colgroup>';
   html += '<col style="width:' + pSNO + '">';
   html += '<col style="width:' + pNAME + '">';
@@ -629,136 +652,136 @@ function renderAttPreview(dates) {
   html += '<col style="width:' + pSUM3 + '">';
   html += '</colgroup>';
 
-  // ── THEAD: 7 rows matching Excel structure exactly ──
   html += '<thead>';
 
-  // Row 1: आयुर्वेद विभाग / custom department name — full width
-  html += '<tr><th colspan="' + TOTAL_COLS + '" style="' + B + CENTER + VMID +
-          'font-size:11pt;font-weight:900;padding:5px 3px;letter-spacing:0.06em;">' +
-          esc(attState.vibhag || 'आयुर्वेद विभाग') + '</th></tr>';
+  // ROW 1: विभाग का नाम
+  html += '<tr><th colspan="' + totalCols + '" style="' + B + CENTER + VMID + BOLD +
+          'font-size:14pt;padding:6px;">' + esc(attState.vibhag || 'आयुर्वेद विभाग') + ' राजस्थान सरकार</th></tr>';
 
-  // Row 2: Office name — full width
-  html += '<tr><th colspan="' + TOTAL_COLS + '" style="' + B + CENTER + VMID +
-          'font-size:9pt;font-weight:700;padding:3px;">' +
-          esc('कार्यालय राजकीय ' + (attState.officeName || '')) + '</th></tr>';
+  // ROW 2: कार्यालय राजकीय
+  html += '<tr><th colspan="' + totalCols + '" style="' + B + CENTER + VMID +
+          'font-size:11pt;padding:4px;">कार्यालय राजकीय ' + esc(attState.officeName || '') + '</th></tr>';
 
-  // Row 3: Kramank (left, spanning TOTAL_COLS-1) | Date (right, last col only)
+  // ROW 3: Kramank (left) | CODE No. (center) | Date (right) — same font size
+  var leftSpan  = Math.floor(totalCols / 3);
+  var midSpan   = Math.floor(totalCols / 3);
+  var rightSpan = totalCols - leftSpan - midSpan;
   html += '<tr>';
-  html += '<th colspan="' + (TOTAL_COLS - 1) + '" style="' + B + 'text-align:left;' + VMID +
-          'font-size:7.5pt;font-weight:400;padding:3px 5px;">क्रमांक - उपस्थिति / ' +
-          esc(attState.kramank || '') + '</th>';
-  html += '<th style="' + B + 'text-align:right;' + VMID +
-          'font-size:7.5pt;font-weight:400;padding:3px 5px;">दिनांक ' + fmtDate(attState.date) + '</th>';
+  html += '<th colspan="' + leftSpan + '" style="' + B + 'text-align:left;' + VMID +
+          'font-size:9pt;padding:3px 5px;">क्रमांक - उपस्थिति / ' + esc(attState.kramank || '') + '</th>';
+  html += '<th colspan="' + midSpan + '" style="' + B + CENTER + VMID +
+          'font-size:9pt;padding:3px 5px;">CODE No. ' + esc(attState.codeNo || '') + '</th>';
+  html += '<th colspan="' + rightSpan + '" style="' + B + 'text-align:right;' + VMID +
+          'font-size:9pt;padding:3px 5px;">दिनांक ' + fmtDate(attState.date) + '</th>';
   html += '</tr>';
 
-  // Row 4: उपस्थिति पत्रक — large bold, full width
-  html += '<tr><th colspan="' + TOTAL_COLS + '" style="' + B + CENTER + VMID +
-          'font-size:13pt;font-weight:900;padding:6px 3px;letter-spacing:0.1em;">उपस्थिति पत्रक</th></tr>';
+  // ROW 4: उपस्थिति पत्रक — extra padding top & bottom
+  html += '<tr><th colspan="' + totalCols + '" style="' + B + CENTER + VMID + BOLD +
+          'font-size:14pt;padding:12px 3px;letter-spacing:0.12em;">उपस्थिति पत्रक</th></tr>';
 
-  // Row 5: Period — full width
-  html += '<tr><th colspan="' + TOTAL_COLS + '" style="' + B + CENTER + VMID +
-          'font-size:8pt;font-weight:600;padding:3px;">उपस्थिति अवधि ' +
-          fmtDate(attState.periodFrom) + ' से ' + fmtDate(attState.periodTo) + ' तक</th></tr>';
+  // ROW 5: Attendance period
+  html += '<tr><th colspan="' + totalCols + '" style="' + B + 'text-align:left;' + VMID +
+          'font-size:8pt;padding:3px 5px;">उपस्थिति अवधि ' + fmtDate(attState.periodFrom) +
+          ' से ' + fmtDate(attState.periodTo) + ' तक</th></tr>';
 
   if (DAYS_CNT > 0) {
-    // Group dates by month
-    var monthGroups = [];
-    var curGroup = null;
-    dates.forEach(function(d) {
-      var mk = d.getFullYear() + '-' + d.getMonth();
-      if (!curGroup || curGroup.key !== mk) {
-        curGroup = { key: mk, label: MONTHS[d.getMonth()] + ' ' + d.getFullYear(), count: 0 };
-        monthGroups.push(curGroup);
-      }
-      curGroup.count++;
-    });
+    var monthGroups = groupDatesByMonth(dates);
 
-    var SUM_HDR = B + CENTER + VMID + 'font-size:4pt;font-weight:700;padding:2px 1px;line-height:1.2;word-break:break-word;overflow-wrap:break-word;white-space:normal;';
+    var SUM_HDR = B + CENTER + VMID + 'font-size:7pt;width:30px;height:80px;' +
+                  'writing-mode:vertical-rl;transform:rotate(180deg);';
 
-    // Row 6: अवधि (colspan=2) | month groups | 3 summary headers (rowspan=2)
-    html += '<tr style="background:#e8e8e8">';
-    html += '<th colspan="2" style="' + B + CENTER + VMID +
-            'font-size:6.5pt;font-weight:700;padding:2px 3px;background:#d0d0d0">' +
-            'अवधि - ' + fmtDateLong(attState.periodFrom) + ' से ' + fmtDateLong(attState.periodTo) + ' तक</th>';
+    // ROW 6: month group headers + 3 CL summary cols (rowspan=2)
+    html += '<tr>';
+    html += '<th rowspan="2" style="' + B + CENTER + VMID + 'font-size:8pt;width:20px;">क्र.सं.</th>';
+    html += '<th rowspan="2" style="' + B + CENTER + VMID + 'font-size:8pt;width:90px;">नाम कार्मिक मय पद</th>';
     monthGroups.forEach(function(g) {
-      html += '<th colspan="' + g.count + '" style="' + B + CENTER + VMID +
-              'font-size:7pt;font-weight:700;padding:2px 1px;background:#e0e0e0">माह - ' + g.label + '</th>';
+      html += '<th colspan="' + g.dates.length + '" style="' + B + CENTER + VMID +
+              'font-size:8pt;' + BOLD + 'padding:2px;">' + g.label + '</th>';
     });
-    html += '<th rowspan="2" style="' + SUM_HDR + '">उपस्थिति पत्रक अवधि में लिए गए आकस्मिक अवकाश का योग</th>';
-    html += '<th rowspan="2" style="' + SUM_HDR + '">पूर्व उपस्थिति पत्रक तक लिए गए आकस्मिक अवकाश का योग</th>';
-    html += '<th rowspan="2" style="' + SUM_HDR + '">अब तक कुल लिए आकस्मिक अवकाश का योग</th>';
+    html += '<th rowspan="2" style="' + SUM_HDR + '">उपस्थिति पत्रक अवधि में लिए गए CL का योग</th>';
+    html += '<th rowspan="2" style="' + SUM_HDR + '">पूर्व उपस्थिति पत्रक अवधि में लिए गए CL का योग</th>';
+    html += '<th rowspan="2" style="' + SUM_HDR + '">अब तक कुल ली गई CL का योग</th>';
     html += '</tr>';
 
-    // Row 7: क्र.सं. | नाम | date numbers (summary cols continue from rowspan=2)
-    html += '<tr style="background:#f0f0f0">';
-    html += '<th style="' + B + CENTER + VMID + 'font-size:7pt;font-weight:700;padding:2px 1px;background:#e8e8e8">क्र.सं.</th>';
-    html += '<th style="' + B + 'text-align:left;' + VMID + 'font-size:7pt;font-weight:700;padding:2px 3px;background:#e8e8e8">नाम कार्मिक मय पद</th>';
+    // ROW 7: date numbers
+    html += '<tr>';
     dates.forEach(function(d) {
-      html += '<th style="' + B + CENTER + VMID + 'font-size:6pt;font-weight:700;padding:2px 0;background:#e8e8e8">' + d.getDate() + '</th>';
+      html += '<th style="' + B + CENTER + VMID + 'font-size:7pt;width:18px;padding:1px;">' + d.getDate() + '</th>';
     });
     html += '</tr>';
   }
 
   html += '</thead>';
 
-  // ── TBODY: data rows + certification + signature ──
-  // Cell height 80px: at 5pt (~5.3px/char for Noto Sans Devanagari), longest text
-  // "आकस्मिक अवकाश" (14 chars ≈ 75px rotated) fits within 80px with room to spare.
-  var DAY_CELL_STYLE = B + 'padding:0;' + CENTER + VMID + 'font-size:6pt;position:relative;overflow:hidden;height:80px;';
-  var VERT_SPAN = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-90deg);' +
-                  '-webkit-transform:translate(-50%,-50%) rotate(-90deg);' +
-                  'display:block;white-space:nowrap;font-size:5pt;line-height:1.15;overflow:visible;width:max-content;z-index:1;';
+  // ── TBODY ──
+  var CELL = B + CENTER + VMID;
+  var VERT_CELL = CELL + 'font-size:6pt;writing-mode:vertical-rl;transform:rotate(180deg);' +
+                  'width:18px;padding:1px;overflow:hidden;white-space:nowrap;';
 
   html += '<tbody>';
 
   if (DAYS_CNT > 0) {
     attState.staff.forEach(function(s, idx) {
       var currentCL = 0;
+      var dateCells = '';
       dates.forEach(function(d) {
-        var ds = d.toISOString().split('T')[0];
-        if ((s.days[ds] || 'उपस्थित') === 'आकस्मिक अवकाश') currentCL++;
+        var ds  = d.toISOString().split('T')[0];
+        var val = s.days[ds] || 'उपस्थित';
+        if (val === 'CL') currentCL++;
+
+        var bg = '';
+        if (val === 'CL')             bg = 'background:#fffde7;';
+        else if (val === 'Day Off')   bg = 'background:#e3f2fd;';
+        else if (val === 'Willful Absence') bg = 'background:#ffebee;';
+        else if (val === 'Onduty')    bg = 'background:#e8f5e9;';
+
+        dateCells += '<td style="' + VERT_CELL + bg + '">' + esc(val) + '</td>';
       });
+
       var prevCL  = parseInt(s.prevLeaves) || 0;
       var totalCL = currentCL + prevCL;
 
       html += '<tr>';
-      html += '<td style="' + B + CENTER + VMID + 'font-size:8pt;font-weight:700;padding:2px 1px">' + (idx + 1) + '</td>';
-      html += '<td style="' + B + 'text-align:left;' + VMID + 'font-size:7pt;padding:3px 4px;line-height:1.35">' + esc(s.name) + '</td>';
-      dates.forEach(function(d) {
-        var ds  = d.toISOString().split('T')[0];
-        var val = s.days[ds] || 'उपस्थित';
-        html += '<td style="' + DAY_CELL_STYLE + '"><span class="att-day-cell-span" style="' + VERT_SPAN + '">' + esc(val) + '</span></td>';
-      });
-      html += '<td style="' + B + CENTER + VMID + 'font-size:8pt;font-weight:700;" id="att-doc-n1-' + idx + '">' + currentCL + '</td>';
-      html += '<td style="' + B + CENTER + VMID + 'font-size:8pt;" id="att-doc-n2-' + idx + '">' + prevCL + '</td>';
-      html += '<td style="' + B + CENTER + VMID + 'font-size:9pt;font-weight:700;" id="att-doc-n3-' + idx + '">' + totalCL + '</td>';
+      html += '<td style="' + CELL + 'font-size:8pt;">' + (idx + 1) + '</td>';
+      html += '<td style="' + B + VMID + 'font-size:8pt;padding:2px 4px;">' +
+              '<div style="font-weight:bold;">' + esc(s.name) + '</div>' +
+              '<div style="font-size:7pt;color:#444;">' + esc(s.designation) + '</div>' +
+              '</td>';
+      html += dateCells;
+      html += '<td style="' + CELL + 'font-size:8pt;font-weight:bold;" id="att-doc-n1-' + idx + '">' + currentCL + '</td>';
+      html += '<td style="' + CELL + 'font-size:8pt;" id="att-doc-n2-' + idx + '">' + prevCL + '</td>';
+      html += '<td style="' + CELL + 'font-size:8pt;font-weight:bold;" id="att-doc-n3-' + idx + '">' + totalCL + '</td>';
       html += '</tr>';
     });
   }
 
-  // Certification text (full width) + optional note
-  html += '<tr><td colspan="' + TOTAL_COLS + '" style="' + B +
-          'font-size:6.5pt;padding:6px 7px;line-height:1.6;text-align:left;">' +
-          'प्रमाणित किया जाता है कि उपस्थिति पत्रक का मिलान उपस्थिति पंजिका से कर लिया गया है, ' +
-          'साथ ही कोई भी कार्मिक बिना सक्षम स्तर से अवकाश स्वीकृत कराए उपस्थिति पत्रक में ' +
-          'उल्लिखित अवधि के दौरान अनुपस्थित नहीं रहा है।';
+  // NOTE ROW
   if (attState.note && attState.note.trim()) {
-    html += '<br><strong>नोट :</strong> ' + esc(attState.note.trim());
+    html += '<tr><td colspan="' + totalCols + '" style="' + B + 'text-align:left;font-size:8pt;padding:4px;">' +
+            '<strong>नोट :</strong> ' + esc(attState.note.trim()) + '</td></tr>';
   }
-  html += '</td></tr>';
 
-  // Blank spacer row (signature area)
-  html += '<tr>';
-  html += '<td colspan="' + (TOTAL_COLS - 1) + '" style="height:32px;border-left:1.5px solid #000;border-bottom:1.5px solid #000;border-right:none;border-top:none;"></td>';
-  html += '<td style="height:32px;border-right:1.5px solid #000;border-bottom:1.5px solid #000;border-left:1.5px solid #000;border-top:none;' +
-          CENTER + VMID + 'font-size:7.5pt;font-weight:700;padding:3px 2px;">' +
-          'हस्ताक्षर प्रभारी<br><span style="font-weight:400;font-size:6.5pt;">' +
-          esc(attState.officeName || '') + '</span></td>';
-  html += '</tr>';
+  // CERTIFICATION TEXT ROW
+  html += '<tr><td colspan="' + totalCols + '" style="' + B + CENTER + VMID + BOLD +
+          'font-size:8pt;padding:8px;">प्रमाणित किया जाता है कि उपस्थिति पत्रक का मिलान उपस्थिति पंजिका से ' +
+          'कर लिया गया है, साथ ही कोई भी कार्मिक बिना सक्षम स्तर से अवकाश ' +
+          'स्वीकृत कराए उपस्थिति पत्रक में उल्लिखित अवधि के दौरान अनुपस्थित नहीं रहा है।</td></tr>';
+
+  // SIGNATURE ROW
+  html += '<tr><td colspan="' + totalCols + '" style="' + B + 'text-align:right;font-size:8pt;padding:10px 12px 6px;">' +
+          '<div style="display:inline-block;text-align:center;min-width:180px;">' +
+          '<div style="margin-bottom:28px;">हस्ताक्षर प्रभारी</div>' +
+          '<div style="border-top:1px solid #000;padding-top:4px;font-size:7pt;">' + esc(attState.officeName || '') + '</div>' +
+          '</div></td></tr>';
 
   html += '</tbody>';
-
   tableEl.innerHTML = html;
+
+  // Show preview body when dates exist
+  var previewBody = document.querySelector('.att-preview-body');
+  if (previewBody && DAYS_CNT > 0) {
+    previewBody.style.display = 'block';
+  }
 }
 
 function removeAttRow(idx) {
@@ -769,40 +792,28 @@ function removeAttRow(idx) {
 
 function updateLeavesForStaff(idx) {
   const dates = getDatesArray(attState.periodFrom, attState.periodTo);
-  let currentPeriodCL = 0;
-  dates.forEach(d => {
-    const dateStr = d.toISOString().split('T')[0];
-    const val = attState.staff[idx].days[dateStr] || 'उपस्थित';
-    if (val === 'आकस्मिक अवकाश') currentPeriodCL++;
+  let currentCL = 0;
+  dates.forEach(function(d) {
+    var ds = d.toISOString().split('T')[0];
+    if ((attState.staff[idx].days[ds] || 'उपस्थित') === 'CL') currentCL++;
   });
-  
-  const prevCL = parseInt(attState.staff[idx].prevLeaves) || 0;
-  const totalCL = currentPeriodCL + prevCL;
+  const prevCL  = parseInt(attState.staff[idx].prevLeaves) || 0;
+  const totalCL = currentCL + prevCL;
 
-  // Update Form
-  const n1 = document.getElementById(`att-n1-${idx}`);
-  if (n1) n1.textContent = currentPeriodCL;
-  const n3 = document.getElementById(`att-n3-${idx}`);
+  const n1 = document.getElementById('att-n1-' + idx);
+  if (n1) n1.textContent = currentCL;
+  const n3 = document.getElementById('att-n3-' + idx);
   if (n3) n3.textContent = totalCL;
 
-  // Update Preview
-  const docN1 = document.getElementById(`att-doc-n1-${idx}`);
-  if (docN1) docN1.textContent = currentPeriodCL;
-  const docN2 = document.getElementById(`att-doc-n2-${idx}`);
+  const docN1 = document.getElementById('att-doc-n1-' + idx);
+  if (docN1) docN1.textContent = currentCL;
+  const docN2 = document.getElementById('att-doc-n2-' + idx);
   if (docN2) docN2.textContent = prevCL;
-  const docN3 = document.getElementById(`att-doc-n3-${idx}`);
+  const docN3 = document.getElementById('att-doc-n3-' + idx);
   if (docN3) docN3.textContent = totalCL;
 }
 
-// Event Listeners for Live Sync
-var _attVibhagEl = document.getElementById('att-vibhag');
-if (_attVibhagEl) {
-  attState.vibhag = _attVibhagEl.value || 'आयुर्वेद विभाग';
-  _attVibhagEl.addEventListener('input', function(e) {
-    attState.vibhag = e.target.value;
-    renderAttPreview(getDatesArray(attState.periodFrom, attState.periodTo));
-  });
-}
+// ── Event Listeners ──
 document.getElementById('att-office-name').addEventListener('input', function(e) {
   attState.officeName = e.target.value;
   renderAttPreview(getDatesArray(attState.periodFrom, attState.periodTo));
@@ -811,82 +822,100 @@ document.getElementById('att-kramank').addEventListener('input', function(e) {
   attState.kramank = e.target.value;
   renderAttPreview(getDatesArray(attState.periodFrom, attState.periodTo));
 });
+document.getElementById('att-code-no').addEventListener('input', function(e) {
+  attState.codeNo = e.target.value;
+  renderAttPreview(getDatesArray(attState.periodFrom, attState.periodTo));
+});
 document.getElementById('att-date').addEventListener('change', function(e) {
   attState.date = e.target.value;
   renderAttPreview(getDatesArray(attState.periodFrom, attState.periodTo));
 });
-document.getElementById('att-period-from').addEventListener('change', function(e) { attState.periodFrom = e.target.value; renderAttTable(); });
-document.getElementById('att-period-to').addEventListener('change', function(e) { attState.periodTo = e.target.value; renderAttTable(); });
+document.getElementById('att-period-from').addEventListener('change', function(e) {
+  attState.periodFrom = e.target.value;
+  renderAttTable();
+});
+document.getElementById('att-period-to').addEventListener('change', function(e) {
+  attState.periodTo = e.target.value;
+  renderAttTable();
+});
 document.getElementById('att-note').addEventListener('input', function(e) {
   attState.note = e.target.value;
   renderAttPreview(getDatesArray(attState.periodFrom, attState.periodTo));
 });
 
-document.getElementById('att-add-row-btn').addEventListener('click', () => {
-  attState.staff.push({ name: '', prevLeaves: 0, days: {} });
+document.getElementById('att-add-row-btn').addEventListener('click', function() {
+  attState.staff.push({ name: '', designation: '', prevLeaves: 0, days: {} });
   renderAttTable();
-  // Animate the newly added row
-  setTimeout(() => {
-    const rows = document.querySelectorAll('#att-tbody tr');
-    const newRow = rows[rows.length - 1];
-    if (newRow) {
-      newRow.style.animation = 'fadeSlideUp 0.4s ease';
-    }
+  setTimeout(function() {
+    var rows = document.querySelectorAll('#att-tbody tr');
+    var newRow = rows[rows.length - 1];
+    if (newRow) newRow.style.animation = 'fadeSlideUp 0.4s ease';
   }, 10);
 });
 
-document.getElementById('att-tbody').addEventListener('input', e => {
-  const el = e.target;
-  const idx = el.dataset.idx;
-  if (idx === undefined) return;
-  
+document.getElementById('att-tbody').addEventListener('input', function(e) {
+  var el = e.target;
+  var idx = parseInt(el.dataset.idx);
+  if (isNaN(idx)) return;
+
   if (el.classList.contains('att-name-input')) {
-    attState.staff[+idx].name = el.value;
-    renderAttPreview(getDatesArray(attState.periodFrom, attState.periodTo)); // Re-render preview to sync name
-  } else if (el.classList.contains('att-prev-input')) {
-    attState.staff[+idx].prevLeaves = el.value;
-    updateLeavesForStaff(+idx);
+    attState.staff[idx].name = el.value;
+    renderAttPreview(getDatesArray(attState.periodFrom, attState.periodTo));
+  }
+  if (el.classList.contains('att-desig-input')) {
+    attState.staff[idx].designation = el.value;
+    renderAttPreview(getDatesArray(attState.periodFrom, attState.periodTo));
+  }
+  if (el.classList.contains('att-prev-input')) {
+    var val = parseInt(el.value) || 0;
+    if (val > 15) {
+      el.style.border = '2px solid red';
+      showToast('⚠️ पूर्व CL अधिकतम 15 हो सकती है', 3000);
+    } else {
+      el.style.border = '';
+    }
+    attState.staff[idx].prevLeaves = Math.min(val, 15);
+    updateLeavesForStaff(idx);
+    renderAttPreview(getDatesArray(attState.periodFrom, attState.periodTo));
   }
 });
 
-document.getElementById('att-tbody').addEventListener('change', e => {
-  const el = e.target;
-  const idx = el.dataset.idx;
-  if (idx === undefined) return;
-  
+document.getElementById('att-tbody').addEventListener('change', function(e) {
+  var el = e.target;
+  var idx = parseInt(el.dataset.idx);
+  if (isNaN(idx)) return;
+
   if (el.classList.contains('att-day-select')) {
-    const date = el.dataset.date;
-    const val = el.value;
-    attState.staff[+idx].days[date] = val;
-    // Update the print span sibling
-    const span = el.nextElementSibling;
+    var date = el.dataset.date;
+    var val  = el.value;
+    attState.staff[idx].days[date] = val;
+    var span = el.nextElementSibling;
     if (span && span.classList.contains('att-select-print-span')) {
       span.textContent = val;
     }
+    updateLeavesForStaff(idx);
     renderAttPreview(getDatesArray(attState.periodFrom, attState.periodTo));
-    updateLeavesForStaff(+idx);
   }
 });
 
 function validateAttForm() {
-  let errs = [];
-  if (!attState.officeName.trim()) {
-    errs.push('कार्यालय का नाम आवश्यक है।');
-  }
-  if (!attState.periodFrom || !attState.periodTo) {
+  const errs = [];
+  if (!attState.officeName.trim())
+    errs.push('कार्यालय का नाम अनिवार्य है।');
+  if (!attState.periodFrom || !attState.periodTo)
     errs.push('उपस्थिति अवधि चुनना आवश्यक है।');
-  } else if (new Date(attState.periodFrom + 'T00:00:00') > new Date(attState.periodTo + 'T00:00:00')) {
-    errs.push('अवधि प्रारंभ तिथि समाप्ति तिथि से पहले होनी चाहिए।');
-  }
-  
-  const hasStaff = attState.staff.some(s => s.name.trim() !== '');
-  if (!hasStaff) {
-    errs.push('कम से कम एक कार्मिक का नाम आवश्यक है।');
-  }
-  
+  else if (new Date(attState.periodFrom) > new Date(attState.periodTo))
+    errs.push('प्रारंभ तिथि समाप्ति तिथि से पहले होनी चाहिए।');
+  if (attState.staff.length === 0)
+    errs.push('कृपया कम से कम एक कार्मिक जोड़ें।');
+  attState.staff.forEach(function(s, i) {
+    if (parseInt(s.prevLeaves) > 15)
+      errs.push('कार्मिक ' + (i + 1) + ' की पूर्व CL 15 से अधिक नहीं हो सकती।');
+  });
+
   const errBox = document.getElementById('att-err-box');
   if (errs.length > 0) {
-    errBox.innerHTML = errs.map(e => `<div>⚠️ ${e}</div>`).join('');
+    errBox.innerHTML = errs.map(function(e) { return '<div>⚠️ ' + e + '</div>'; }).join('');
     errBox.style.display = 'block';
     return false;
   }
@@ -906,12 +935,12 @@ if (attPreviewBtn) {
   });
 }
 
-document.getElementById('att-btn-print').addEventListener('click', () => {
+document.getElementById('att-btn-print').addEventListener('click', function() {
   if (!validateAttForm()) return;
   window.print();
 });
 
-document.getElementById('att-btn-pdf').addEventListener('click', async () => {
+document.getElementById('att-btn-pdf').addEventListener('click', async function() {
   if (!validateAttForm()) return;
 
   if (typeof html2pdf === 'undefined') {
@@ -922,28 +951,28 @@ document.getElementById('att-btn-pdf').addEventListener('click', async () => {
   const overlay = document.getElementById('overlay');
   overlay.classList.add('active');
 
-  let pFromStr = attState.periodFrom || 'Start';
-  let pToStr = attState.periodTo || 'End';
+  var pFromStr = attState.periodFrom || 'Start';
+  var pToStr   = attState.periodTo   || 'End';
 
   try {
-    await new Promise(r => setTimeout(r, 200));
+    await new Promise(function(r) { setTimeout(r, 200); });
     const element = document.getElementById('att-doc-page');
     const opt = {
-      margin:    [6, 6, 6, 6],   // top, right, bottom, left in mm
-      filename:  'Upasthiti_Patrak_' + pFromStr + '_' + pToStr + '.pdf',
-      image:     { type: 'jpeg', quality: 0.98 },
+      margin:   [8, 8, 8, 8],
+      filename: 'Upasthiti_Patrak_' + pFromStr + '_' + pToStr + '.pdf',
+      image:    { type: 'jpeg', quality: 0.98 },
       html2canvas: {
-        scale:          2.5,     // Higher scale = crisper Devanagari text
-        useCORS:        true,
-        letterRendering:true,
-        scrollY:        0,
-        width:          1122,    // Exact A4 landscape px width
-        windowWidth:    1122
+        scale:           2.5,
+        useCORS:         true,
+        letterRendering: true,
+        scrollY:         0,
+        width:           794,
+        windowWidth:     794
       },
       jsPDF: {
         unit:        'mm',
         format:      'a4',
-        orientation: 'landscape'  // 297mm wide × 210mm tall
+        orientation: 'portrait'
       },
       pagebreak: { mode: 'avoid-all' }
     };
@@ -953,11 +982,20 @@ document.getElementById('att-btn-pdf').addEventListener('click', async () => {
     if (attPdfBtn) { attPdfBtn.classList.add('success-pulse'); setTimeout(function(){ attPdfBtn.classList.remove('success-pulse'); }, 600); }
 
     saveReportToHistory({
-      type: 'att',
-      title: 'उपस्थिति पत्रक',
+      type:     'att',
+      title:    'उपस्थिति पत्रक',
       subtitle: attState.officeName,
-      period: attState.periodFrom + ' – ' + attState.periodTo,
-      snapshot: JSON.stringify({ officeName: attState.officeName, kramank: attState.kramank, date: attState.date, periodFrom: attState.periodFrom, periodTo: attState.periodTo, note: attState.note, staff: attState.staff })
+      period:   attState.periodFrom + ' – ' + attState.periodTo,
+      snapshot: JSON.stringify({
+        officeName: attState.officeName,
+        kramank:    attState.kramank,
+        codeNo:     attState.codeNo,
+        date:       attState.date,
+        periodFrom: attState.periodFrom,
+        periodTo:   attState.periodTo,
+        note:       attState.note,
+        staff:      attState.staff
+      })
     });
     renderHistorySection();
   } finally {
@@ -966,7 +1004,7 @@ document.getElementById('att-btn-pdf').addEventListener('click', async () => {
 });
 
 renderAttTable();
-/* === END STAFF ATTENDANCE === */
+/* === END STAFF ATTENDANCE (v2) === */
 
 /* =========================================================
    SOUND SYSTEM — Web Audio API (lightweight, no external files)
