@@ -802,7 +802,14 @@ function showHomeScreen() {
           windowWidth: 1122,
           logging: false,
           allowTaint: false,
-          foreignObjectRendering: false
+          foreignObjectRendering: false,
+          imageTimeout: 0,
+          onclone: function(clonedDoc) {
+            var link = clonedDoc.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;900&family=Noto+Serif+Devanagari:wght@400;500;600;700;900&display=block';
+            clonedDoc.head.appendChild(link);
+          }
         },
         jsPDF:       { unit: 'mm', format: 'a4', orientation: 'landscape' },
         pagebreak:   { mode: 'avoid-all' }
@@ -834,10 +841,24 @@ function showHomeScreen() {
       });
     };
 
+    var runExport = function() {
+      if (document.fonts && document.fonts.load) {
+        Promise.all([
+          document.fonts.load('900 14pt "Noto Serif Devanagari"', 'आयुर्वेद विभाग राजस्थान सरकार'),
+          document.fonts.load('700 10pt "Noto Serif Devanagari"', 'हस्ताक्षर प्रभारी उपस्थिति'),
+          document.fonts.load('400 8pt "Noto Serif Devanagari"', 'प्रमाणित किया जाता है'),
+          document.fonts.load('700 8pt "Noto Sans Devanagari"', 'उपस्थित अवकाश'),
+          document.fonts.load('600 6pt "Noto Sans Devanagari"', 'उपस्थित CL Day off'),
+          document.fonts.load('400 8pt "Noto Sans Devanagari"', 'कार्मिक पदनाम')
+        ]).then(doExport).catch(doExport);
+      } else {
+        doExport();
+      }
+    };
     if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(doExport);
+      document.fonts.ready.then(runExport);
     } else {
-      doExport();
+      runExport();
     }
   });
 

@@ -1,0 +1,205 @@
+Fix ONLY the remaining issues in the Staff Attendance PDF export and Attendance document.
+
+IMPORTANT:
+- Do NOT redesign the app
+- Do NOT regenerate unrelated screens
+- Keep existing warm parchment government theme
+- Keep existing layout structure
+- Keep current table logic
+- Only fix the remaining PDF/document issues professionally
+
+====================================================
+1. HARD FIX HINDI FONT RENDERING
+====================================================
+
+Current issue:
+Hindi text is STILL breaking/corrupted in exported PDF.
+
+Normal Google font loading is NOT enough.
+
+Now use a stronger/fallback approach.
+
+MANDATORY FIX:
+Use embedded Devanagari-compatible fonts properly inside PDF rendering.
+
+Try these solutions:
+- Embed base64 font directly
+- Use @font-face with local fallback
+- Use canvas rendering before PDF export
+- Use jsPDF custom font embedding
+- Use html2canvas scale rendering with loaded fonts
+- Wait for document.fonts.ready before export
+- Use Unicode-safe Devanagari rendering
+- Convert critical Hindi headers into rendered canvas/text layer if needed
+
+Preferred fonts:
+- Noto Sans Devanagari
+- Noto Serif Devanagari
+- Mukta
+- Hind
+- Arial Unicode MS fallback
+
+CRITICAL:
+The following text MUST render perfectly:
+- आयुर्वेद विभाग राजस्थान सरकार
+- उपस्थिति पत्रक
+- प्रमाणित किया जाता है...
+- हस्ताक्षर प्रभारी
+- All attendance dropdown labels
+
+No:
+- Broken glyphs
+- Split letters
+- Missing matras
+- Corrupted Hindi characters
+
+====================================================
+2. FIX SIGNATURE BLOCK
+====================================================
+
+Current issue:
+Signature section still feels weak and unofficial.
+
+Improve:
+- Better alignment
+- Better spacing
+- More official appearance
+- Proper seal/signature gap
+
+Layout:
+Bottom-right aligned
+
+Structure:
+--------------------------------
+              हस्ताक्षर प्रभारी
+     [Office Name Below]
+--------------------------------
+
+Add:
+- More breathing space above signature line
+- Better typography hierarchy
+- Slightly bolder label
+- More realistic government document feel
+
+====================================================
+3. IMPROVE CERTIFICATION BLOCK
+====================================================
+
+Current issue:
+Certification section looks compressed and weak.
+
+Fix:
+- Increase padding
+- Improve line-height
+- Improve readability
+- Add stronger border
+- Better spacing above and below
+
+Keep:
+- Bold centered text
+- Official formatting
+- Government document feel
+
+Text should feel:
+- Important
+- Formal
+- Easy to read
+
+====================================================
+4. FIX DESIGNATION VISIBILITY
+====================================================
+
+Current issue:
+Staff designation text is unclear/missing visually.
+
+Fix:
+Inside “नाम कार्मिक मय पद” column:
+- Name should appear on top
+- Designation should appear below
+- Smaller font for designation
+- Muted grey tone
+- Better spacing between them
+
+Example:
+सौरभ सिंह हाड़ा
+(आयुर्वेद चिकित्सक)
+
+Make this visually clean and readable.
+
+====================================================
+5. MAKE ATTENDANCE BOXES BIGGER
+====================================================
+
+Current issue:
+Attendance cells are too cramped.
+
+Fix:
+Increase attendance cell size slightly.
+
+Increase:
+- Cell width slightly
+OR
+- Cell height slightly
+
+Keep:
+- A4 landscape fitting intact
+- Compact government style
+
+Goal:
+Vertical attendance labels become more readable.
+
+Improve readability for:
+- उपस्थित
+- CL
+- Day off
+- Onduty
+- अवकाश labels
+
+====================================================
+6. IMPROVE VERTICAL TEXT RENDERING
+====================================================
+
+Current issue:
+Vertical attendance labels still feel cramped.
+
+Fix:
+Use:
+writing-mode: vertical-rl;
+transform: rotate(90deg);
+
+Make text:
+- Cleaner
+- More readable
+- Properly centered
+- Slightly bolder
+
+Ensure:
+No upside-down rendering.
+
+====================================================
+7. KEEP EXISTING DESIGN SYSTEM
+====================================================
+
+Keep existing:
+- Warm parchment background
+- Forest green branding
+- Premium Rajasthan government SaaS look
+- Existing table structure
+- Existing layout
+- Existing typography hierarchy
+
+====================================================
+FINAL GOAL
+====================================================
+
+The final PDF should look like:
+A real Rajasthan Government Ayurveda Department official attendance document generated from a premium production-grade SaaS system.
+
+It should feel:
+- Official
+- Professional
+- Hindi-perfect
+- Properly aligned
+- Balanced
+- Print-perfect
+- Government-grade
