@@ -7,7 +7,7 @@
   .no-print { display: none !important; }
 }
 
-/* ====== DOCUMENT PAGE ====== */
+/* ====== DOCUMENT PAGE (PLP / Yoga shared) ====== */
 .doc-page {
   width: 794px; min-height: 1100px; background: #fff; padding: 20px 24px;
   border: 2px solid #000; font-family: "Noto Serif Devanagari", "Noto Sans Devanagari", serif;
@@ -40,98 +40,105 @@
 .sig-line-area { height: 36px; border-bottom: 1.5px solid #000; margin-bottom: 5px; }
 .sig-text { font-size: .68rem; font-weight: 700; line-height: 1.5; }
 
-/* Staff Attendance Document Classes */
-/* A4 Portrait: 210mm × 297mm */
+/* =========================================================
+   STAFF ATTENDANCE v3 — A4 LANDSCAPE DOCUMENT
+   ========================================================= */
+
+/* The A4 Landscape document container */
 .att-doc-page {
-  width: 794px;      /* 210mm at 96dpi ≈ 794px  */
-  min-height: 1123px;/* 297mm at 96dpi ≈ 1123px */
+  width: 1122px;     /* 297mm at 96dpi */
+  min-height: 794px; /* 210mm at 96dpi */
   background: #fff;
-  padding: 16px 20px;
-  font-family: 'Noto Sans Devanagari', 'Noto Serif Devanagari', serif;
-  font-size: 9pt;
+  padding: 10px 14px 12px;
+  font-family: 'Noto Sans Devanagari', 'Noto Serif Devanagari', Arial, sans-serif;
+  font-size: 8pt;
   color: #000;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
-  border-radius: 2px;
-  transform: scale(calc((100vw - 96px) / 794px));
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  transform: scale(calc((100vw - 96px) / 1122px));
   transform-origin: top left;
-  margin-bottom: calc((calc((100vw - 96px) / 794px) - 1) * 1123px);
+  margin-bottom: calc((calc((100vw - 96px) / 1122px) - 1) * 794px);
 }
-@media(min-width: 890px) {
+@media(min-width: 1218px) {
   .att-doc-page { transform: scale(1); margin-bottom: 0; }
 }
 
-/* ── Name + Designation stacked cell ── */
-.att-name-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 4px;
-}
-.att-desig-input {
-  font-size: 11px;
-  color: var(--text-secondary);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 2px 6px;
-  width: 100%;
-  background: transparent;
+/* ── Document header ── */
+.att3-hdr { text-align: center; border-bottom: 2.5px double #000; padding-bottom: 5px; margin-bottom: 4px; }
+.att3-dept { font-size: 13pt; font-weight: 900; letter-spacing: 0.04em; line-height: 1.2; }
+.att3-office { font-size: 9.5pt; font-weight: 700; margin-top: 3px; }
+.att3-meta { display: flex; justify-content: space-between; align-items: center; font-size: 8pt; border-top: 1px solid #000; margin-top: 4px; padding: 3px 0; }
+.att3-meta span { flex: 1; }
+.att3-meta span:nth-child(2) { text-align: center; }
+.att3-meta span:last-child { text-align: right; }
+.att3-title { font-size: 16pt; font-weight: 900; letter-spacing: 0.14em; padding: 10px 0 7px; text-align: center; text-decoration: underline; text-underline-offset: 3px; }
+
+/* ── Period line ── */
+.att3-period { font-size: 8pt; padding: 2px 0 4px; border-bottom: 1px solid #000; margin-bottom: 3px; }
+
+/* ── Attendance Table ── */
+.att3-tbl { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 7pt; }
+.att3-th { border: 1px solid #000; padding: 2px 1px; text-align: center; font-size: 6.5pt; font-weight: 700; background: #efefef; vertical-align: middle; line-height: 1.2; }
+.att3-th-name { width: 110px; text-align: left; padding-left: 3px; }
+.att3-th-day { width: 15px; min-width: 14px; max-width: 16px; font-size: 6pt; padding: 1px 0; }
+.att3-th-month { background: #ddd; font-size: 7pt; }
+.att3-th-sum { width: 52px; font-size: 5.5pt; writing-mode: vertical-rl; transform: rotate(180deg); height: 72px; padding: 2px 1px; line-height: 1.2; white-space: normal; }
+.att3-td { border: 1px solid #000; padding: 0 1px; vertical-align: middle; font-size: 7pt; }
+.att3-td-name { width: 110px; padding: 2px 3px; vertical-align: top; }
+.att3-td-day { width: 15px; min-width: 14px; max-width: 16px; padding: 0; text-align: center; height: 52px; position: relative; overflow: hidden; }
+.att3-td-sum { text-align: center; font-weight: 700; font-size: 7.5pt; }
+.att3-total { font-size: 8pt; }
+
+/* Select inside day cell */
+.att3-sel {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  font-size: 5pt; padding: 0; border: none;
+  background: transparent; cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+  writing-mode: vertical-rl; transform: rotate(180deg);
+  text-align: center; color: #000;
 }
 
-/* ── Month group header in data table ── */
-.att-month-header {
-  background: var(--bg-elevated);
-  font-size: 10px;
-  font-weight: 700;
-  text-align: center;
-  padding: 4px 2px;
-  border-bottom: 2px solid var(--border);
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-}
-
-/* ── Day column — narrow for A4 fit ── */
-.att-day-col {
-  min-width: 18px !important;
-  max-width: 22px !important;
-  width: 18px;
-  padding: 2px 1px !important;
-  text-align: center;
-  font-size: 9px;
-}
-
-/* ── Attendance select — vertical print text ── */
-.att-select-print-span {
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  font-size: 7px;
+/* Vertical span for print */
+.att3-vspan {
   display: none;
-  white-space: nowrap;
-  overflow: hidden;
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%,-50%) rotate(-90deg);
+  white-space: nowrap; font-size: 5.5pt;
+  pointer-events: none;
 }
 
-/* ── Print: hide selects, show vertical span ── */
-@media print {
-  .att-day-select { display: none !important; }
-  .att-select-print-span { display: block !important; }
-  .no-print { display: none !important; }
-}
+/* Name/desig inputs */
+.att3-name-wrap { display: flex; flex-direction: column; gap: 2px; }
+.att3-ninp { width: 100%; border: none; border-bottom: 1px solid #ccc; font-size: 7.5pt; padding: 1px 2px; background: transparent; outline: none; font-family: inherit; color: inherit; font-weight: 600; }
+.att3-dinp { width: 100%; border: none; border-bottom: 1px solid #ddd; font-size: 6.5pt; padding: 1px 2px; background: transparent; outline: none; font-family: inherit; color: #555; }
+.att3-name-print { display: none; }
+.att3-np { font-size: 7.5pt; font-weight: 700; line-height: 1.3; }
+.att3-dp { font-size: 6.5pt; color: #333; line-height: 1.3; }
 
-/* ── CL summary columns ── */
-.att-count-col {
-  min-width: 30px;
-  max-width: 36px;
-  font-size: 8px;
-  text-align: center;
-  padding: 2px;
-}
+/* PrevCL input */
+.att3-pinp { width: 100%; border: none; text-align: center; font-size: 7pt; background: transparent; outline: none; font-family: inherit; color: inherit; padding: 2px 0; }
+.att3-pspan { display: none; }
 
-/* ── Dropdown color coding ── */
-.att-day-select.val-present { background: #f0fdf4; }
-.att-day-select.val-cl      { background: #fffde7; color: #b45309; }
-.att-day-select.val-dayoff  { background: #eff6ff; }
-.att-day-select.val-absent  { background: #fef2f2; color: #dc2626; }
+/* Delete row button */
+.att3-delbtn { width: 22px; height: 22px; border: 1px solid #ccc; background: #fee; border-radius: 3px; cursor: pointer; font-size: 10px; padding: 0; line-height: 1; vertical-align: middle; }
+.att3-delbtn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-/* A4 Scaler wrapping doc-page */
+/* Note */
+.att3-note { font-size: 7.5pt; border: 1px solid #aaa; padding: 3px 6px; margin-top: 3px; }
+
+/* Certification */
+.att3-certify { font-size: 8pt; font-weight: 700; text-align: center; border: 1px solid #000; padding: 6px 10px; margin-top: 3px; line-height: 1.6; }
+
+/* Signature */
+.att3-sig { display: flex; justify-content: flex-end; padding: 8px 12px 0; }
+.att3-sig-block { text-align: center; min-width: 200px; }
+.att3-sig-gap { height: 30px; }
+.att3-sig-line { border-top: 1px solid #000; padding-top: 3px; }
+.att3-sig-label { font-size: 8pt; font-weight: 700; }
+.att3-sig-office { font-size: 7pt; margin-top: 2px; }
+
+/* ── A4 Scaler wrapper ── */
 .a4-scaler {
   width: 100%; overflow: hidden;
   background: linear-gradient(180deg, #E8EAEE, #D5D9E0);
@@ -140,7 +147,66 @@
   box-shadow: inset 0 2px 16px rgba(0,0,0,0.06);
 }
 
-.sno{background:#f0fafa;font-weight:700;color:#0a6e6e;width:40px;text-align:center;border-radius:4px;margin:4px;font-size:0.75rem;}
-.karya-name{text-align:left;padding:8px 12px;font-size:0.8125rem;font-weight:500;line-height:1.4;}
-.pct-cell{background:#fef5e7;font-weight:700;color:#d97706;border-radius:4px;font-size:0.8125rem;}
-.rashi-cell{font-weight:700;color:#0a6e6e;font-size:0.8125rem;}
+/* ── print-only elements hidden by default ── */
+.print-only { display: none !important; }
+
+/* ── PLP/Yoga shared preview classes ── */
+.att-preview-toggle-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; background: var(--bg-elevated);
+  border: 1px solid var(--border); border-radius: 10px; margin-bottom: 0;
+}
+.att-preview-scaler {
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: 12px; overflow-x: auto; padding: 20px; box-shadow: var(--shadow-sm);
+}
+.plp-preview-body { margin-top: 12px; }
+.yog-preview-body { margin-top: 12px; }
+
+/* ── Table misc ── */
+.sno { background:#f0fafa; font-weight:700; color:#0a6e6e; width:40px; text-align:center; border-radius:4px; margin:4px; font-size:0.75rem; }
+.karya-name { text-align:left; padding:8px 12px; font-size:0.8125rem; font-weight:500; line-height:1.4; }
+.pct-cell { background:#fef5e7; font-weight:700; color:#d97706; border-radius:4px; font-size:0.8125rem; }
+.rashi-cell { font-weight:700; color:#0a6e6e; font-size:0.8125rem; }
+
+/* =========================================================
+   PRINT STYLES — Staff Attendance v3
+   ========================================================= */
+@media print {
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+
+  /* Show vertical spans, hide selects */
+  .att3-sel { display: none !important; }
+  .att3-vspan { display: block !important; }
+
+  /* Show name print divs, hide inputs */
+  .att3-ninp, .att3-dinp { display: none !important; }
+  .att3-pinp { display: none !important; }
+  .att3-name-print { display: block !important; }
+  .att3-pspan { display: inline !important; }
+
+  /* Reset document scaling for print */
+  .att-doc-page {
+    transform: none !important;
+    margin: 0 !important;
+    width: 100% !important;
+    min-height: auto !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
+  /* PLP/Yoga doc pages */
+  #doc-page, .plp-doc-page {
+    position: absolute !important; left: 0 !important; top: 0 !important;
+    width: 100% !important; transform: none !important;
+    box-shadow: none !important; border: none !important; background: white !important;
+  }
+
+  @page { size: A4 landscape; margin: 8mm; }
+
+  tr { break-inside: avoid; }
+
+  /* Prevent nav/overlays from printing */
+  .nav-bar, .loading-overlay, #sound-toggle, .toast { display: none !important; }
+}

@@ -1,0 +1,238 @@
+You are working on my existing app/website project.
+
+IMPORTANT:
+Remove the existing Staff Attendance mode completely and rebuild it from scratch.
+
+Strict rules:
+- Do NOT touch PLP mode.
+- Do NOT touch Yoga Instructor Attendance mode.
+- Do NOT change homepage except keeping Staff Attendance button connected.
+- Do NOT change existing Hindi text in other modules.
+- Do NOT break existing PDF/Print features.
+- Rebuild ONLY Staff Attendance mode.
+
+Goal:
+Create a professional “उपस्थिति पत्रक” generator for राजस्थान सरकार आयुर्वेद विभाग.
+
+========================
+PHASE 1: REMOVE OLD STAFF ATTENDANCE
+========================
+
+First identify the current Staff Attendance page/component/files.
+
+Remove old Staff Attendance:
+- old UI
+- old table
+- old logic
+- old broken layout
+- old CSS related only to Staff Attendance
+
+Keep route/button name:
+Staff Attendance
+
+After removal, create a new clean Staff Attendance page.
+
+========================
+PHASE 2: HEADER + FORM
+========================
+
+Create this exact format:
+
+Top center:
+आयुर्वेद विभाग राजस्थान सरकार
+
+Below:
+कार्यालय राजकीय [manual office name input]
+
+This office name must also appear at bottom below हस्ताक्षर प्रभारी.
+
+Next line must have 3 parts in one row and same size:
+
+Left:
+क्रमांक - उपस्थिति /
+
+Center:
+CODE No. [numeric input only]
+
+Right:
+दिनांक: [date picker in dd/mm/yyyy format]
+
+Then center title:
+उपस्थिति पत्रक
+
+Title must be bold, large, centered, with more space above and below.
+
+Then above table left side:
+उपस्थिति अवधि [Start Date] से [End Date] तक
+
+Date range rules:
+- User can manually select start and end date.
+- Maximum range: 31 days.
+- Usually 28 to 31 days.
+- As soon as date range is selected, generate table below.
+
+========================
+PHASE 3: DYNAMIC TABLE
+========================
+
+Create table columns:
+
+1. क्र.सं.
+2. नाम कार्मिक मय पद
+   - Name on top
+   - Designation below in same cell
+   - Width enough for names like “सौरभ सिंह हाड़ा”
+3. Date columns based on selected range, max 31 days
+4. उपस्थिति पत्रक अवधि में लिए गए CL का योग
+5. पूर्व उपस्थिति पत्रक अवधि में लिए गए CL का योग
+6. अब तक कुल ली गई CL का योग
+
+Month split logic:
+If selected period is 11.04.2026 से 10.05.2026 तक:
+- Table header should show अप्रैल 2026 above dates 11 to 30
+- Then मई 2026 above dates 1 to 10
+
+Date row should show only date numbers:
+11, 12, 13...30, then 1, 2, 3...10
+
+Attendance text inside date cells should be vertical from bottom to top to save width.
+
+Keep date column width very small.
+Use small font size around 8px or lower if needed.
+
+The full table must fit on A4 landscape as much as possible.
+
+Avoid extra padding inside table.
+Avoid unnecessary spacing above, below, or between table cells.
+
+========================
+PHASE 4: ATTENDANCE OPTIONS
+========================
+
+Every staff/date cell default value:
+उपस्थित
+
+Each date cell must have dropdown options in this exact order:
+
+उपस्थित
+Day off
+CL
+चाइल्डकेयरलीव
+PL
+परिवर्तित अवकाश
+असाधारण अवकाश
+प्रसूति अवकाश
+पितृत्व अवकाश
+willful absence
+Onduty
+अवकाश पर
+कार्यमुक्त
+
+Each staff row has independent attendance selections.
+
+Add row management:
+- Add Row button
+- Delete Row button
+
+User should be able to add/delete staff rows.
+
+========================
+PHASE 5: CL CALCULATIONS
+========================
+
+For each staff row:
+
+Column:
+उपस्थिति पत्रक अवधि में लिए गए CL का योग
+- Auto count number of selected “CL” cells in current date range.
+
+Column:
+पूर्व उपस्थिति पत्रक अवधि में लिए गए CL का योग
+- Manual input.
+- Numeric only.
+- Maximum value 15.
+
+Column:
+अब तक कुल ली गई CL का योग
+- Auto calculate:
+current period CL + previous period CL
+
+========================
+PHASE 6: NOTE + CERTIFICATE + SIGNATURE
+========================
+
+Add note section:
+A large textarea where user can type special details.
+
+Add certificate text exactly:
+
+प्रमाणित किया जाता है कि उपस्थिति पत्रक का मिलान उपस्थिति पंजिका से कर लिया गया है, साथ ही कोई भी कार्मिक बिना सक्षम स्तर से अवकाश स्वीकृत कराए उपस्थिति पत्रक में उल्लिखित अवधि के दौरान अनुपस्थित नहीं रहा है।
+
+This must be:
+- bold
+- centered
+
+Bottom right:
+हस्ताक्षर प्रभारी
+
+Below it:
+show same office name entered above.
+
+========================
+PHASE 7: PREVIEW / PRINT / SAVE PDF
+========================
+
+Add buttons:
+- Preview
+- Print
+- Save PDF
+
+Rules:
+- Buttons should hide during print.
+- Print layout must be A4 Landscape.
+- PDF layout must be A4 Landscape.
+- Table must be compressed and fitted for A4.
+- Use condensed fonts/small font for table.
+- Preview must match print/PDF layout.
+
+Use print CSS:
+@page {
+  size: A4 landscape;
+  margin: 8mm;
+}
+
+Hide non-print UI during print.
+
+========================
+PHASE 8: FINAL TESTING
+========================
+
+Test these cases:
+
+1. Select 11.04.2026 to 10.05.2026
+   - April and May headers must split correctly.
+
+2. Add 3 staff rows
+   - all rows must show date columns.
+
+3. Change some days to CL
+   - current CL count must update automatically.
+
+4. Enter previous CL
+   - total CL must update.
+
+5. Try previous CL more than 15
+   - prevent or show validation.
+
+6. Print preview
+   - A4 landscape should fit properly.
+
+7. Save PDF
+   - PDF should match preview.
+
+After completion, report:
+- Files changed
+- Files removed
+- New Staff Attendance logic added
+- How to test
+- Any limitation in A4 fitting
