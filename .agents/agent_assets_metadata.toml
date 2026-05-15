@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "2AzanyyMdMKqUpBfgmy1C"
+uri = "file://soochna-sahayak-design-details.txt"
+type = "text"
+title = "Soochna Sahayak — Complete Design Details"

@@ -1,0 +1,405 @@
+================================================================
+SOOCHNA SAHAYAK — COMPLETE DESIGN DETAILS
+Design System: "Warm Parchment Edition"
+Aesthetic: Premium Government SaaS
+================================================================
+
+
+----------------------------------------------------------------
+1. COLOR PALETTE
+----------------------------------------------------------------
+
+Background Colors
+  bg-base         #FAFAF5    Page background (warm off-white parchment)
+  bg-surface      #FFFFFF    Cards, panels, navbar
+  bg-elevated     #F4F3EC    Input fields, table headers, raised areas
+  bg-deep         #ECEADE    Deepest background layer
+
+Accent Colors
+  accent-primary        #1A5C38    Deep forest green — primary brand color
+  accent-primary-hover  #14472D    Darker green for hover states
+  accent-light          #E8F2EC    Light green tint for badges & highlights
+  accent-amber          #B45309    Warm amber for warnings / secondary accent
+
+Text Colors
+  text-primary     #1C1917    Near-black body text
+  text-secondary   #44403C    Warm dark grey
+  text-muted       #A8A29E    Placeholders, hints, captions
+  text-on-accent   #FFFFFF    White text on green backgrounds
+
+Border Colors
+  border          #E2DFD5    Default borders (warm grey)
+  border-strong   #C5BFB0    Stronger borders, table lines
+  border-hover    rgba(26,92,56,0.25)   Green-tinted border on hover
+  focus-ring      rgba(26,92,56,0.15)   Green focus glow
+
+Status Colors
+  success   #16A34A    Green success
+  warning   #B45309    Amber warning
+  error     #DC2626    Red error / required field indicator
+
+
+----------------------------------------------------------------
+2. TYPOGRAPHY
+----------------------------------------------------------------
+
+Font Families
+  Display / Headings   Lora (serif)              — Editorial titles, headings
+  Body / UI            DM Sans (sans-serif)       — All UI labels, body text
+  Monospace / Data     JetBrains Mono             — Numbers, code, tabular data
+  Devanagari (docs)    Noto Sans Devanagari /
+                       Noto Serif Devanagari      — Inside A4 government documents
+
+Heading Scale
+  heading-xl    clamp(2.5rem, 5vw, 4rem)   font-weight 600   line-height 1.1    letter-spacing -0.02em
+  heading-lg    clamp(1.75rem, 3vw, 2.5rem) font-weight 600  line-height 1.15   letter-spacing -0.01em
+  heading-md    clamp(1.25rem, 2vw, 1.5rem) font-weight 600  line-height 1.3
+  heading-sm    1.125rem                    font-weight 600   line-height 1.4
+
+Body Text Scale
+  body-lg     1.125rem   line-height 1.7   color text-secondary
+  body-md     1rem       line-height 1.6   color text-secondary
+  body-sm     0.875rem   line-height 1.5   color text-muted
+  label-sm    0.75rem    font-weight 600   uppercase   letter-spacing 0.08em
+
+Document Typography (inside A4 print)
+  Department title    13pt   font-weight 900   letter-spacing 0.04em
+  Office name         10pt   font-weight 700
+  Main title          16pt   font-weight 900   letter-spacing 0.14em   underlined
+  Table headers       6.5pt  font-weight 700   background #e8e4dc
+  Table cells         7pt    normal weight
+  CL summary columns  5.5pt  vertical writing-mode (rotated 180deg)
+  Certification text  8pt    font-weight 700   centered
+  Signature label     8pt    font-weight 700
+
+
+----------------------------------------------------------------
+3. BORDER RADIUS SYSTEM
+----------------------------------------------------------------
+
+  radius-sm   6px    Form inputs, small UI elements
+  radius-md   10px   Buttons, badges, toggles, back button
+  radius-lg   14px   Cards, table wrappers, panels
+  radius-xl   20px   Large form panels
+
+
+----------------------------------------------------------------
+4. SHADOW SYSTEM
+----------------------------------------------------------------
+
+  shadow-sm           0 1px 3px rgba(28,25,23,0.08), 0 1px 2px rgba(28,25,23,0.06)
+                      — Cards at rest
+
+  shadow-md           0 4px 16px rgba(28,25,23,0.10), 0 2px 6px rgba(28,25,23,0.06)
+                      — Elevated elements
+
+  shadow-lg           0 12px 40px rgba(28,25,23,0.14), 0 4px 12px rgba(28,25,23,0.08)
+                      — Cards on hover, A4 document preview
+
+  shadow-green        0 0 0 3px rgba(26,92,56,0.15)
+                      — Focus ring on inputs
+
+  shadow-raised       0 10px 25px rgba(28,25,23,0.12)
+                      — Floating/lifted surfaces
+
+  shadow-inset        inset 0 2px 4px rgba(28,25,23,0.04)
+                      — Pressed / inset states
+
+  shadow-card-rest    same as shadow-sm
+  shadow-card-hover   same as shadow-lg
+  shadow-card-active  0 4px 12px rgba(28,25,23,0.10), 0 0 0 1px rgba(26,92,56,0.20)
+
+  A4 Document shadow  0 6px 32px rgba(0,0,0,0.22)
+
+
+----------------------------------------------------------------
+5. ANIMATION & EASING
+----------------------------------------------------------------
+
+  ease-out-expo       cubic-bezier(0.16, 1, 0.3, 1)        — Snappy exits, reveals
+  ease-out-quart      cubic-bezier(0.25, 1, 0.5, 1)        — Smooth exits
+  ease-out-circ       cubic-bezier(0, 0.55, 0.45, 1)       — Circular ease
+  ease-in-out-smooth  cubic-bezier(0.4, 0, 0.2, 1)         — Material Design standard
+  ease-spring         cubic-bezier(0.34, 1.56, 0.64, 1)    — Spring / bounce
+
+Notable animations
+  pulse          3s ease infinite             — Nav brand dot breathing pulse
+  bounceDot      1.2s ease infinite           — PDF loading spinner dots
+                 delays: 0ms / 200ms / 400ms for 3 dots
+  growRule       600ms ease, delay 300ms      — Hero underline rule grows in
+  page-transition  0.4s ease                  — Panel slide-in on navigation
+  scroll-reveal  opacity + translateY(20px)   — Intersection Observer fade-up
+
+
+----------------------------------------------------------------
+6. GLOBAL BODY & HTML
+----------------------------------------------------------------
+
+  Top border        3px solid #1A5C38 on <body> — signature accent line
+  Background        #FAFAF5 warm parchment
+  Font smoothing    -webkit-font-smoothing: antialiased
+  Scroll behavior   smooth globally
+  Text selection    background #1A5C38, color #FFFFFF
+  Paper texture     SVG feTurbulence noise (fractalNoise, baseFrequency 0.9,
+                    4 octaves) at opacity 0.025, tiled 200x200px — parchment feel
+  Content z-index   All body children at z-index 1 (above grain texture)
+  Line height       1.6 base
+
+
+----------------------------------------------------------------
+7. COMPONENT DETAILS
+----------------------------------------------------------------
+
+NAVBAR
+  Height          ~56px sticky top
+  Background      bg-surface (#FFFFFF) with bottom border
+  Left side       Pulsing green dot (8px, animation 3s pulse)
+                  + Green square logo (10x10 rounded-xl, #1A5C38) with Sparkles icon
+                  + "Soochna Sahayak" in Lora serif 18px, "Sahayak" in accent green
+  Right side      Theme toggle (32x32px, bg-elevated, border, 6px radius)
+                  + "AYURVEDA DEPT" badge (green pill)
+
+CARDS (Home screen tools)
+  Background      bg-surface
+  Border          1px solid border (#E2DFD5), radius 14px, padding 32px
+  Shadow          shadow-sm at rest
+  Hover           translateY(-4px) + shadow-lg + green border tint
+                  Transition: 280ms cubic-bezier(0.4, 0, 0.2, 1)
+  Active          scale(0.98) translateY(0) + shadow-card-active, 100ms
+  Decorative      Radial green glow ::after in top-right corner (90x90px)
+                  Scales 1.3x on hover
+  Featured card   3px left border in accent green
+  Disabled        opacity 0.45, pointer-events none
+
+BUTTONS
+  All buttons     border-radius 10px, font-weight 600, font-size 14px
+                  Ripple effect via ::before white overlay on :active
+
+  btn-primary     Background #1A5C38, color white, padding 11px 22px
+                  shadow: 0 2px 8px rgba(26,92,56,0.30)
+                  Hover: #14472D, translateY(-1px), stronger shadow
+
+  btn-secondary   Transparent, border border-strong, color text-primary
+                  padding 11px 20px
+                  Hover: green border + green text + light green tint
+
+  btn-ghost       Background accent-light (#E8F2EC), color accent-primary
+                  border 1px rgba(26,92,56,0.20), padding 11px 20px
+                  Hover: rgba(26,92,56,0.12) background
+
+  btn-danger      Transparent, border #FCA5A5, color #DC2626
+                  padding 4px 10px, font-size 11px
+                  Hover: background #FEF2F2
+
+  btn-excel       Transparent, border #16A34A, color #16A34A, padding 11px 20px
+                  Hover: #F0FDF4 background, #14532D border/text
+
+  back-btn        Transparent, border border, color text-secondary
+                  padding 7px 14px, radius 10px, font-size 13px
+                  Hover: green border + green text, icon slides left 2px
+
+  add-row-btn     Full width, dashed border-strong border
+                  Background bg-elevated, color accent-primary
+                  font-size 13px, radius 10px, margin-top 12px
+                  Hover: accent-light bg + green border
+
+FORM INPUTS
+  Background      bg-elevated (#F4F3EC)
+  Border          1px solid border (#E2DFD5)
+  Border hover    border-strong (#C5BFB0)
+  Border focus    accent-primary + shadow-green ring
+  Background focus #FFFFFF
+  Border radius   6px
+  Padding         10px 13px
+  Font            14px DM Sans
+  Placeholder     text-muted (#A8A29E)
+
+  Attendance form inputs (att4-input)
+    Border radius   7px
+    Padding         8px 12px
+    Font size       13px
+    Focus ring      0 0 0 2px rgba(26,92,56,0.10)
+
+BADGES
+  Shape           Pill (border-radius 999px)
+  Font            10px, uppercase, letter-spacing 0.06em
+  Padding         3px 9px
+
+  badge-primary   bg: accent-light (#E8F2EC), color: accent-primary (#1A5C38)
+                  border: rgba(26,92,56,0.2)
+  badge-secondary bg: bg-elevated, color: text-muted
+                  border: border
+
+LOADING OVERLAY
+  Background      rgba(250,250,245,0.85) + backdrop-filter blur(6px)
+  Transition      opacity 0.2s ease
+  Content         3 bouncing green dots (10px each, staggered 200ms)
+                  + italic Lora text "PDF तैयार हो रही है..."
+
+
+----------------------------------------------------------------
+8. STAFF ATTENDANCE MODULE (v4)
+----------------------------------------------------------------
+
+CONTROL BAR (sticky, no-print)
+  Position        Sticky top, z-index 10
+  Height          ~56px
+  Background      bg-surface (#FFFFFF)
+  Bottom border   1px solid border
+  Left            Back button + Heading "कार्मिक उपस्थिति पत्रक"
+                  (Lora, 16px, font-weight 600) + subtitle 11px muted
+  Right           Preview (outlined) + Print (outlined) + PDF (green primary)
+
+FORM SECTION (no-print)
+  Background      bg-surface
+  Padding         18px 22px 16px
+  Gap             14px between fields
+  Bottom border   1px solid border
+  Layout          Single column for office name
+                  3-column grid for kramank/code/date
+                  Flex row for period pickers (से / तक separators)
+                  Single column for note textarea
+                  Full-width dashed add-row button
+
+DOCUMENT PREVIEW AREA
+  Background      linear-gradient(180deg, #E2E4E8, #CDD0D8) — grey desk
+  Padding         24px 24px 36px
+
+A4 LANDSCAPE DOCUMENT
+  Dimensions      1122 x 794px (297mm x 210mm at 96dpi)
+  Background      #FFFFFF
+  Padding         11px 15px 13px
+  Shadow          0 6px 32px rgba(0,0,0,0.22)
+  Font family     Noto Sans Devanagari / Noto Serif Devanagari / Arial Narrow
+  Base font size  8pt
+  Color           #000000 (pure black)
+  Scaling         CSS transform scale() to fit viewport width
+                  scale = (100vw - 96px) / 1122px
+                  Full size at viewport >= 1218px
+
+  Document Header
+    Department title  "आयुर्वेद विभाग राजस्थान सरकार"
+                      13pt, font-weight 900, letter-spacing 0.04em, centered
+    Office name       "कार्यालय राजकीय [input]"
+                      10pt, font-weight 700
+    Border            2.5px double #000 below header
+    Meta row          3 columns: क्रमांक | CODE No. | दिनांक
+                      8pt, separated by 1px solid #000 top border
+
+    Main title        "उपस्थिति पत्रक"
+                      16pt, font-weight 900, letter-spacing 0.14em
+                      underlined, text-underline-offset 3px, centered
+                      Padding 9px top, 6px bottom
+
+  Attendance Table
+    Table layout    fixed, border-collapse collapse, 7pt font
+    Header bg       #e8e4dc (warm beige)
+    Month header bg #d0cbbf (darker beige)
+    All borders     1px solid #000
+    Column: क्र.सं.  20px wide, centered
+    Column: नाम      110px wide, left-aligned
+    Day columns     15px each (min 13, max 16), date number 6pt
+    CL columns      50px each, 5.5pt, writing-mode vertical-rl
+                    rotated 180deg, height 72px
+    Day cells       Height 54px, position relative, overflow hidden
+    Dropdown select writing-mode: vertical-rl, rotate(180deg)
+                    Full cell size, no border, transparent bg, 5pt font
+    Name inputs     7.5pt, border-bottom 1px #ccc only, transparent bg
+    Desig inputs    6.5pt, border-bottom 1px #ddd only, color #444
+
+  Certification Block
+    Border          1px solid #000
+    Padding         6px 10px
+    Font            8pt, font-weight 700, centered
+    Line height     1.65
+
+  Signature Block
+    Alignment       Flex justify-content flex-end (bottom right)
+    Gap height      32px (space above line)
+    Line            1.5px solid #000 top border
+    Label           "हस्ताक्षर प्रभारी" — 8pt, font-weight 700
+    Sub-label       Office name — 7pt, color #222
+
+
+----------------------------------------------------------------
+9. DARK MODE
+----------------------------------------------------------------
+
+  Activated by    [data-theme="dark"] on <html> element
+  Saved to        localStorage key "theme"
+
+  Key dark values
+    bg-base         #1A1917    Deep warm charcoal
+    bg-surface      #252220    Dark surface
+    bg-elevated     #2E2B28    Raised dark surfaces
+    bg-deep         #141210    Deepest dark
+    text-primary    #F5F0E8    Warm off-white
+    text-secondary  #C8BEB5    Warm light grey
+    text-muted      #6B6560    Muted warm grey
+    border          #3A3630    Dark warm border
+    border-strong   #4A453F    Stronger dark border
+    accent-primary  #1A5C38    Same green (unchanged)
+    accent-light    rgba(26,92,56,0.15)   Dark tint for green highlights
+
+  Loading overlay dark     rgba(26,25,23,0.85) + blur(6px)
+
+
+----------------------------------------------------------------
+10. PRINT / PDF STYLES
+----------------------------------------------------------------
+
+  Page size       A4 landscape (297mm x 210mm), margin 6mm
+  Hidden on print All .no-print elements (navbar, form, buttons, overlay)
+  Shown on print  All .print-only elements (vertical text spans, print name divs)
+  Dropdowns       Hidden (replaced by vertical text spans)
+  Name inputs     Hidden (replaced by .att4-name-print div with static text)
+  Delete buttons  Hidden
+  Document        Transform reset, width 100%, no shadow, padding 6mm
+  Row breaks      break-inside: avoid on all tr elements
+
+
+----------------------------------------------------------------
+11. RESPONSIVE BREAKPOINTS
+----------------------------------------------------------------
+
+  Mobile (<= 640px)
+    att4-form-row3      Single column
+    att4-topbar         Column layout, actions full-width right-aligned
+    att4-period-row     Column layout, date inputs full-width
+
+  Mobile (<= 768px)
+    hero-title          32px (down from 52px)
+    card-grid           Single column, padding 0 16px
+    card                padding 20px, min-height 60px
+    stats-row           Wrapped, padding 0 16px
+    form-panel          padding 16px, radius 12px
+    form-row            Single column, gap 16px
+    hero decorations    Hidden (.hero-deco)
+    hero-rule           Fixed 40px width
+
+  Tablet (768px - 1024px)
+    card-grid           2 columns
+    featured card       Full width (grid-column 1 / -1)
+
+  A4 Document full size at >= 1218px viewport width
+
+
+----------------------------------------------------------------
+12. TECH STACK
+----------------------------------------------------------------
+
+  Framework       React + Vite (TypeScript)
+  Styling         Tailwind CSS v4 + custom CSS design system
+  Component lib   shadcn/ui (Radix UI primitives)
+  Icons           Lucide React
+  Fonts           Google Fonts (Lora, DM Sans, JetBrains Mono, Noto Sans/Serif Devanagari)
+  PDF export      html2pdf.js (CDN loaded at runtime)
+  Excel export    SheetJS / xlsx (CDN loaded at runtime)
+  Backend         Express 5 + Drizzle ORM + PostgreSQL
+  Monorepo        pnpm workspaces
+  Language (UI)   Hindi (Devanagari script), lang="hi" on <html>
+
+
+================================================================
+END OF DESIGN DETAILS
+================================================================
