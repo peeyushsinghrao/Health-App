@@ -430,6 +430,14 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
    ========================================================= */
 renderAll();
 
+/* Auto-navigate via URL hash (e.g. /#att, /#plp, /#yog) */
+(function() {
+  var h = window.location.hash;
+  if (h === '#att') setTimeout(function() { showPanel('staff-att-panel'); }, 200);
+  else if (h === '#plp') setTimeout(function() { showPanel('plp-panel'); }, 200);
+  else if (h === '#yog') setTimeout(function() { showPanel('yog-panel'); }, 200);
+})();
+
 /* === NAVIGATION === */
 function showPanel(panelId) {
   document.getElementById('home-screen').style.display = 'none';

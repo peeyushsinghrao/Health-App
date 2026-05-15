@@ -28,7 +28,12 @@ export default function App() {
     loadScript(
       "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"
     );
-    loadScript("/web-portal.js");
+    loadScript("/web-portal.js", () => {
+      const h = window.location.hash;
+      if (h === '#att') (window as any).showPanel?.('staff-att-panel');
+      else if (h === '#plp') (window as any).showPanel?.('plp-panel');
+      else if (h === '#yog') (window as any).showPanel?.('yog-panel');
+    });
 
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {

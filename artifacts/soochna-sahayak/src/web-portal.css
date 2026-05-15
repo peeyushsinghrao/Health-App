@@ -265,6 +265,14 @@
 /* ── print-only elements hidden by default ── */
 .print-only { display: none !important; }
 
+/* ── CSS :target deep-link navigation (works before JS loads) ── */
+#staff-att-panel:target { display: flex !important; }
+#plp-panel:target        { display: flex !important; }
+#yog-panel:target        { display: flex !important; }
+body:has(#staff-att-panel:target) #home-screen { display: none !important; }
+body:has(#plp-panel:target)       #home-screen { display: none !important; }
+body:has(#yog-panel:target)       #home-screen { display: none !important; }
+
 /* ── PLP/Yoga shared preview classes ── */
 .att-preview-toggle-bar {
   display: flex; align-items: center; justify-content: space-between;
