@@ -573,9 +573,9 @@ function showHomeScreen() {
       groups.forEach(function(g) {
         html += '<th colspan="' + g.dates.length + '" class="att4-th att4-th-month">' + esc(g.label) + '</th>';
       });
-      html += '<th rowspan="2" class="att4-th att4-th-sum">उपस्थिति पत्रक अवधि में लिए गए CL का योग</th>';
-      html += '<th rowspan="2" class="att4-th att4-th-sum">पूर्व उपस्थिति पत्रक अवधि में लिए गए CL का योग</th>';
-      html += '<th rowspan="2" class="att4-th att4-th-sum">अब तक कुल ली गई CL का योग</th>';
+      html += '<th rowspan="2" class="att4-th att4-th-sum">CL योग<br>(इस अवधि)</th>';
+      html += '<th rowspan="2" class="att4-th att4-th-sum">पूर्व<br>CL</th>';
+      html += '<th rowspan="2" class="att4-th att4-th-sum">कुल<br>CL</th>';
       html += '<th rowspan="2" class="att4-th att4-th-del no-print"></th>';
       html += '</tr>';
 
@@ -785,37 +785,60 @@ function showHomeScreen() {
     var overlay = document.getElementById('overlay');
     if (overlay) overlay.classList.add('active');
     var el = document.getElementById('att-doc');
-    var opt = {
-      margin:      [6, 6, 6, 6],
-      filename:    'Upasthiti_Patrak_' + fmtD(state.from) + '_to_' + fmtD(state.to) + '.pdf',
-      image:       { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2.5, useCORS: true, letterRendering: true, scrollY: 0, width: 1122, windowWidth: 1122 },
-      jsPDF:       { unit: 'mm', format: 'a4', orientation: 'landscape' },
-      pagebreak:   { mode: 'avoid-all' }
+
+    el.classList.add('att4-pdf-mode');
+
+    var doExport = function() {
+      var opt = {
+        margin:      [5, 5, 5, 5],
+        filename:    'Upasthiti_Patrak_' + fmtD(state.from) + '_to_' + fmtD(state.to) + '.pdf',
+        image:       { type: 'jpeg', quality: 1.0 },
+        html2canvas: {
+          scale: 3,
+          useCORS: true,
+          letterRendering: true,
+          scrollY: 0,
+          width: 1122,
+          windowWidth: 1122,
+          logging: false,
+          allowTaint: false,
+          foreignObjectRendering: false
+        },
+        jsPDF:       { unit: 'mm', format: 'a4', orientation: 'landscape' },
+        pagebreak:   { mode: 'avoid-all' }
+      };
+      html2pdf().set(opt).from(el).save().then(function() {
+        el.classList.remove('att4-pdf-mode');
+        if (window.soundFX) window.soundFX.success();
+        try {
+          if (typeof saveReportToHistory === 'function') {
+            saveReportToHistory({
+              type:     'att',
+              title:    'उपस्थिति पत्रक',
+              subtitle: state.officeName,
+              period:   fmtD(state.from) + ' \u2013 ' + fmtD(state.to),
+              snapshot: JSON.stringify({
+                officeName: state.officeName, kramank: state.kramank,
+                codeNo: state.codeNo, date: state.date,
+                from: state.from, to: state.to,
+                note: state.note, staff: state.staff
+              })
+            });
+            if (typeof renderHistorySection === 'function') renderHistorySection();
+          }
+        } catch(e) { /* ignore */ }
+        if (overlay) overlay.classList.remove('active');
+      }).catch(function() {
+        el.classList.remove('att4-pdf-mode');
+        if (overlay) overlay.classList.remove('active');
+      });
     };
-    html2pdf().set(opt).from(el).save().then(function() {
-      if (window.soundFX) window.soundFX.success();
-      try {
-        if (typeof saveReportToHistory === 'function') {
-          saveReportToHistory({
-            type:     'att',
-            title:    'उपस्थिति पत्रक',
-            subtitle: state.officeName,
-            period:   fmtD(state.from) + ' \u2013 ' + fmtD(state.to),
-            snapshot: JSON.stringify({
-              officeName: state.officeName, kramank: state.kramank,
-              codeNo: state.codeNo, date: state.date,
-              from: state.from, to: state.to,
-              note: state.note, staff: state.staff
-            })
-          });
-          if (typeof renderHistorySection === 'function') renderHistorySection();
-        }
-      } catch(e) { /* ignore */ }
-      if (overlay) overlay.classList.remove('active');
-    }).catch(function() {
-      if (overlay) overlay.classList.remove('active');
-    });
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(doExport);
+    } else {
+      doExport();
+    }
   });
 
   /* Initial render */
