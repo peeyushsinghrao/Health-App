@@ -184,16 +184,16 @@
 .att4-th-month { background: #d4cfbf; font-size: 7pt; font-weight: 700; padding: 3px 2px; }
 .att4-th-sum {
   width: 42px; min-width: 38px;
-  height: 90px; padding: 0;
-  font-size: 6.5pt; font-weight: 700;
+  height: 90px; min-height: 90px; padding: 4px 2px;
+  font-size: 7pt; font-weight: 700;
   text-align: center; vertical-align: middle;
   overflow: visible;
-  position: relative;
 }
 .att4-th-sum-inner {
-  display: block;
-  position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%, -50%) rotate(90deg);
+  display: inline-block;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
   white-space: nowrap; font-size: 7pt; font-weight: 700;
   font-family: 'Noto Sans Devanagari', 'Noto Serif Devanagari', sans-serif;
   line-height: 1; color: #000;
@@ -215,12 +215,14 @@
 .att4-sel {
   position: absolute; top: 0; left: 0;
   width: 100%; height: 100%;
-  font-size: 6pt; padding: 0; border: none;
+  font-size: 11px; padding: 4px 2px; border: none;
   background: transparent; cursor: pointer;
   -webkit-appearance: none; appearance: none;
-  writing-mode: vertical-lr;
+  writing-mode: vertical-rl;
   text-orientation: mixed;
-  text-align: center; color: #000;
+  transform: rotate(180deg);
+  text-align: center; vertical-align: middle;
+  color: #000; white-space: nowrap;
   font-family: 'Noto Sans Devanagari', 'Noto Serif Devanagari', sans-serif;
 }
 
@@ -229,13 +231,16 @@
   display: none;
   position: absolute; top: 0; left: 0;
   width: 100%; height: 100%;
-  writing-mode: vertical-lr;
+  writing-mode: vertical-rl;
   text-orientation: mixed;
-  font-size: 6pt; font-weight: 700;
+  transform: rotate(180deg);
+  font-size: 11px; font-weight: 700;
+  padding: 4px 2px;
   pointer-events: none;
   font-family: 'Noto Sans Devanagari', 'Noto Serif Devanagari', sans-serif;
   color: #000;
-  text-align: center;
+  text-align: center; vertical-align: middle;
+  white-space: nowrap;
   overflow: hidden;
 }
 
@@ -251,16 +256,11 @@
   font-size: 6.5pt; padding: 1px 2px; background: transparent;
   outline: none; font-family: inherit; color: #444;
 }
-.att4-name-print { display: none; flex-direction: column; gap: 2px; }
+.att4-name-print { display: none; flex-direction: column; gap: 0; }
 .att4-np {
   font-size: 7.5pt; font-weight: 700; line-height: 1.4;
   font-family: 'Noto Serif Devanagari', 'Noto Sans Devanagari', sans-serif;
   word-break: break-word; color: #000;
-}
-.att4-dp {
-  font-size: 7pt; color: #333; line-height: 1.35;
-  font-family: 'Noto Sans Devanagari', 'Noto Serif Devanagari', sans-serif;
-  word-break: break-word; font-style: normal;
 }
 
 /* Prev CL input */

@@ -573,9 +573,9 @@ function showHomeScreen() {
       groups.forEach(function(g) {
         html += '<th colspan="' + g.dates.length + '" class="att4-th att4-th-month">' + esc(g.label) + '</th>';
       });
-      html += '<th rowspan="2" class="att4-th att4-th-sum"><span class="att4-th-sum-inner">CL योग (इस अवधि)</span></th>';
-      html += '<th rowspan="2" class="att4-th att4-th-sum"><span class="att4-th-sum-inner">पूर्व CL</span></th>';
-      html += '<th rowspan="2" class="att4-th att4-th-sum"><span class="att4-th-sum-inner">कुल CL</span></th>';
+      html += '<th rowspan="2" class="att4-th att4-th-sum"><span class="att4-th-sum-inner">उपस्थित</span></th>';
+      html += '<th rowspan="2" class="att4-th att4-th-sum"><span class="att4-th-sum-inner">CL</span></th>';
+      html += '<th rowspan="2" class="att4-th att4-th-sum"><span class="att4-th-sum-inner">अवकाश</span></th>';
       html += '<th rowspan="2" class="att4-th att4-th-del no-print"></th>';
       html += '</tr>';
 
@@ -588,13 +588,16 @@ function showHomeScreen() {
 
       /* Staff rows */
       html += '<tbody>';
+      var LEAVE_TYPES = ['चाइल्डकेयरलीव','PL','परिवर्तित अवकाश','असाधारण अवकाश','प्रसूति अवकाश','पितृत्व अवकाश','willful absence','अवकाश पर','कार्यमुक्त'];
       state.staff.forEach(function(s, idx) {
-        var currCL = 0;
+        var presentCount = 0, clCount = 0, leaveCount = 0;
         var dayCells = '';
         dates.forEach(function(d) {
           var ds  = d.toISOString().split('T')[0];
           var val = s.days[ds] || 'उपस्थित';
-          if (val === 'CL') currCL++;
+          if (val === 'उपस्थित') presentCount++;
+          else if (val === 'CL') clCount++;
+          else if (LEAVE_TYPES.indexOf(val) !== -1) leaveCount++;
           var opts = ATT_OPTIONS.map(function(o) {
             return '<option value="' + esc(o) + '"' + (o === val ? ' selected' : '') + '>' + esc(o) + '</option>';
           }).join('');
@@ -604,23 +607,17 @@ function showHomeScreen() {
               '<span class="att4-vspan print-only">' + esc(val) + '</span>' +
             '</td>';
         });
-        var prevCL  = parseInt(s.prevCL) || 0;
-        var totalCL = currCL + prevCL;
         html += '<tr>';
         html += '<td class="att4-td att4-td-no">' + (idx + 1) + '</td>';
         html += '<td class="att4-td att4-td-name">' +
           '<div class="att4-name-wrap">' +
             '<input class="att4-ninp no-print" data-idx="' + idx + '" data-field="name" value="' + esc(s.name) + '" placeholder="नाम" />' +
-            '<input class="att4-dinp no-print" data-idx="' + idx + '" data-field="desig" value="' + esc(s.desig) + '" placeholder="पदनाम" />' +
-            '<div class="att4-name-print print-only"><div class="att4-np">' + esc(s.name) + '</div>' + (s.desig ? '<div class="att4-dp">(' + esc(s.desig) + ')</div>' : '') + '</div>' +
+            '<div class="att4-name-print print-only"><div class="att4-np">' + esc(s.name) + '</div></div>' +
           '</div></td>';
         html += dayCells;
-        html += '<td class="att4-td att4-td-sum" id="att4-cl1-' + idx + '">' + currCL + '</td>';
-        html += '<td class="att4-td att4-td-sum">' +
-          '<input class="att4-pinp no-print" type="number" min="0" max="15" data-idx="' + idx + '" value="' + prevCL + '" />' +
-          '<span class="att4-pspan print-only">' + prevCL + '</span>' +
-        '</td>';
-        html += '<td class="att4-td att4-td-sum" id="att4-cl3-' + idx + '">' + totalCL + '</td>';
+        html += '<td class="att4-td att4-td-sum" id="att4-p-' + idx + '">' + presentCount + '</td>';
+        html += '<td class="att4-td att4-td-sum" id="att4-cl-' + idx + '">' + clCount + '</td>';
+        html += '<td class="att4-td att4-td-sum" id="att4-lv-' + idx + '">' + leaveCount + '</td>';
         html += '<td class="att4-td att4-td-del no-print">' +
           '<button class="att4-delbtn" data-idx="' + idx + '"' + (state.staff.length <= 1 ? ' disabled' : '') + '>\u2715</button>' +
         '</td>';
@@ -667,34 +664,16 @@ function showHomeScreen() {
       });
     });
 
-    /* Name / designation inputs */
-    document.querySelectorAll('.att4-ninp, .att4-dinp').forEach(function(inp) {
+    /* Name input */
+    document.querySelectorAll('.att4-ninp').forEach(function(inp) {
       inp.addEventListener('input', function() {
-        var idx = +this.dataset.idx, field = this.dataset.field;
-        state.staff[idx][field] = this.value;
+        var idx = +this.dataset.idx;
+        state.staff[idx].name = this.value;
         var wrap = this.closest('.att4-name-wrap');
         if (wrap) {
-          var np = wrap.querySelector('.att4-np'), dp = wrap.querySelector('.att4-dp');
-          if (np) np.textContent = state.staff[idx].name;
-          if (dp) {
-            var dv = state.staff[idx].desig;
-            dp.textContent = dv ? '(' + dv + ')' : '';
-          }
+          var np = wrap.querySelector('.att4-np');
+          if (np) np.textContent = this.value;
         }
-      });
-    });
-
-    /* Prev CL inputs */
-    document.querySelectorAll('.att4-pinp').forEach(function(inp) {
-      inp.addEventListener('change', function() {
-        var idx = +this.dataset.idx;
-        var v = parseInt(this.value) || 0;
-        if (v > 15) { v = 15; this.value = 15; if (typeof showToast === 'function') showToast('\u26a0\ufe0f पूर्व CL अधिकतम 15 है', 2500); }
-        if (v < 0)  { v = 0;  this.value = 0; }
-        state.staff[idx].prevCL = v;
-        var span = this.nextElementSibling;
-        if (span) span.textContent = v;
-        refreshCL(idx);
       });
     });
 
@@ -709,20 +688,25 @@ function showHomeScreen() {
     });
   }
 
-  /* ── Recalculate CL totals for one staff row ── */
+  var LEAVE_TYPES_SET = ['चाइल्डकेयरलीव','PL','परिवर्तित अवकाश','असाधारण अवकाश','प्रसूति अवकाश','पितृत्व अवकाश','willful absence','अवकाश पर','कार्यमुक्त'];
+
+  /* ── Recalculate totals for one staff row ── */
   function refreshCL(idx) {
     var dates = getDates();
-    var currCL = 0;
+    var presentCount = 0, clCount = 0, leaveCount = 0;
     dates.forEach(function(d) {
       var ds = d.toISOString().split('T')[0];
-      if ((state.staff[idx].days[ds] || 'उपस्थित') === 'CL') currCL++;
+      var val = state.staff[idx].days[ds] || 'उपस्थित';
+      if (val === 'उपस्थित') presentCount++;
+      else if (val === 'CL') clCount++;
+      else if (LEAVE_TYPES_SET.indexOf(val) !== -1) leaveCount++;
     });
-    var prevCL  = parseInt(state.staff[idx].prevCL) || 0;
-    var totalCL = currCL + prevCL;
-    var el1 = document.getElementById('att4-cl1-' + idx);
-    if (el1) el1.textContent = currCL;
-    var el3 = document.getElementById('att4-cl3-' + idx);
-    if (el3) el3.textContent = totalCL;
+    var ep = document.getElementById('att4-p-' + idx);
+    if (ep) ep.textContent = presentCount;
+    var ec = document.getElementById('att4-cl-' + idx);
+    if (ec) ec.textContent = clCount;
+    var el = document.getElementById('att4-lv-' + idx);
+    if (el) el.textContent = leaveCount;
   }
 
   /* ── Validate period (max 31 days, end >= start) ── */
@@ -790,6 +774,10 @@ function showHomeScreen() {
     var el = document.getElementById('att-doc');
 
     el.classList.add('att4-pdf-mode');
+
+    /* Wait 2 rAF + 200ms so the browser fully repaints with pdf-mode CSS
+       before html2canvas reads any computed display values */
+    var startExport = function() {
 
     var doExport = function() {
       var opt = {
@@ -863,6 +851,13 @@ function showHomeScreen() {
     } else {
       runExport();
     }
+    }; /* end startExport */
+
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        setTimeout(startExport, 200);
+      });
+    });
   });
 
   /* Initial render */
