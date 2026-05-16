@@ -1,0 +1,114 @@
+In the Staff Attendance Sheet module of my web app, the PDF export 
+is broken because we are using html2canvas to capture the page. 
+html2canvas cannot render Devanagari conjunct characters (like स्थ, 
+र्व, त्र) correctly because its internal canvas renderer re-draws 
+text without proper Hindi glyph shaping — so the output is always 
+garbled no matter what font overrides we apply.
+
+THE SOLUTION: Replace html2canvas PDF export with window.print() 
+in a new window. This uses the browser's own render engine which 
+already renders the preview perfectly.
+
+DO THIS ONE THING ONLY:
+
+In the file:
+artifacts/soochna-sahayak/public/web-portal.js
+
+Find the entire att-btn-pdf click handler — it starts with:
+  bind('att-btn-pdf', 'click', function() {
+and ends with the closing });
+
+DELETE the entire handler and REPLACE it with this:
+
+bind('att-btn-pdf', 'click', function() {
+  if (!state.officeName.trim()) {
+    if (typeof showToast === 'function') showToast('⚠️ कार्यालय नाम आवश्यक है', 3000);
+    return;
+  }
+  if (!state.from || !state.to) {
+    if (typeof showToast === 'function') showToast('⚠️ उपस्थिति अवधि आवश्यक है', 3000);
+    return;
+  }
+
+  var win = window.open('', '_blank');
+  var docEl = document.getElementById('att-doc');
+  var docHTML = docEl.outerHTML;
+
+  win.document.write('<!DOCTYPE html>'
+    + '<html><head>'
+    + '<meta charset="UTF-8">'
+    + '<title>Upasthiti Patrak</title>'
+    + '<link rel="preconnect" href="https://fonts.googleapis.com">'
+    + '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+    + '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari'
+    + ':wght@400;500;600;700&display=block" rel="stylesheet">'
+    + '<style>'
+    + '* { font-family: "Noto Sans Devanagari", sans-serif !important; box-sizing: border-box; }'
+    + 'body { margin: 0; padding: 0; background: white; }'
+    + '@page { size: A4 landscape; margin: 8mm; }'
+    + 'table { border-collapse: collapse; width: 100%; font-size: 7pt; }'
+    + 'td, th { border: 1px solid #000; padding: 2px 3px; font-family: "Noto Sans Devanagari", sans-serif !important; }'
+    + '.no-print { display: none !important; }'
+    + 'select { display: none !important; }'
+    + '.print-only { display: inline !important; }'
+    + '.att4-name-print { display: block !important; }'
+    + '#att-doc-table { table-layout: fixed !important; }'
+    + '#att-doc-table td { position: relative !important; height: 80px !important; overflow: hidden !important; vertical-align: middle !important; }'
+    + '.att-day-cell-span { position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) rotate(-90deg) !important; white-space: nowrap !important; font-size: 6pt !important; display: block !important; width: max-content !important; overflow: visible !important; font-family: "Noto Sans Devanagari", sans-serif !important; }'
+    + '.att4-note { display: block !important; margin-top: 6px; font-size: 8pt; }'
+    + '.att4-cert { display: block !important; }'
+    + '.att4-sign { display: block !important; }'
+    + '</style>'
+    + '</head><body>'
+    + docHTML
+    + '<script>'
+    + 'document.fonts.ready.then(function() {'
+    + '  setTimeout(function() {'
+    + '    window.print();'
+    + '    setTimeout(function() { window.close(); }, 2000);'
+    + '  }, 1500);'
+    + '});'
+    + '<\/script>'
+    + '</body></html>'
+  );
+
+  win.document.close();
+});
+
+---
+
+WHY THIS WORKS:
+- Opens a new blank window with only the attendance sheet HTML
+- Loads Noto Sans Devanagari fresh with display=block (forces load)
+- Applies font to every element via * selector
+- Waits for fonts.ready then calls window.print()
+- Browser's native print engine renders Hindi perfectly
+- User gets Save as PDF option in the print dialog
+- This is identical to how the preview looks — no canvas re-draw
+
+---
+
+ALSO CHECK AND FIX:
+After replacing the handler, make sure these CSS classes are 
+present in the injected styles so the printed output is complete:
+
+- .no-print must be display:none (hides form controls)
+- .print-only must be display:inline (shows status text spans)
+- .att4-name-print must be display:block (shows employee names)
+- .att4-note must be visible (shows the note field)
+- .att4-cert must be visible (shows certification paragraph)  
+- .att4-sign must be visible (shows signature block)
+
+If any of these classes have display:none in the main stylesheet 
+and are not being overridden in the new window styles, add them 
+to the injected <style> block above.
+
+---
+
+DO NOT CHANGE ANYTHING ELSE:
+- Do not touch globals.css
+- Do not touch the print button handler (att-btn-print)
+- Do not touch any data binding or state logic
+- Do not touch the table rendering logic
+- Do not touch any other part of web-portal.js
+- Only replace the att-btn-pdf click handler

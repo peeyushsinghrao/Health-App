@@ -773,86 +773,100 @@ function showHomeScreen() {
       if (typeof showToast === 'function') showToast('\u26a0\ufe0f उपस्थिति अवधि आवश्यक है', 3000);
       return;
     }
-    if (typeof html2canvas === 'undefined' || !window.jspdf) {
-      if (typeof showToast === 'function') showToast('\u26a0\ufe0f PDF लाइब्रेरी लोड हो रही है...', 3000);
+
+    var win = window.open('', '_blank');
+    if (!win) {
+      if (typeof showToast === 'function') showToast('\u26a0\ufe0f पॉप-अप ब्लॉक है — ब्राउज़र में पॉप-अप अनुमति दें', 4000);
       return;
     }
 
-    var overlay = document.getElementById('overlay');
-    if (overlay) overlay.classList.add('active');
-    var el = document.getElementById('att-doc');
+    var docEl = document.getElementById('att-doc');
+    var docHTML = docEl.outerHTML;
 
-    /* Switch to PDF-render mode so print-only elements appear */
-    el.classList.add('att4-pdf-mode');
+    var styles = [
+      '* { font-family: "Noto Sans Devanagari", sans-serif !important; box-sizing: border-box; margin: 0; padding: 0; }',
+      'body { background: #fff; }',
+      '@page { size: A4 landscape; margin: 8mm; }',
+      'table { border-collapse: collapse; width: 100%; font-size: 7pt; }',
+      'td, th { border: 1px solid #000; padding: 2px 3px; font-family: "Noto Sans Devanagari", sans-serif !important; }',
+      /* visibility toggles */
+      '.no-print { display: none !important; }',
+      'select { display: none !important; }',
+      '.print-only { display: inline !important; }',
+      '.att4-vspan { display: inline !important; }',
+      '.att4-name-print { display: block !important; }',
+      '.att4-np { display: block !important; font-weight: 700; font-size: 7.5pt; }',
+      '.att4-dp { display: block !important; font-size: 7pt; }',
+      '.att4-ninp { display: none !important; }',
+      '.att4-dinp { display: none !important; }',
+      '.att4-delbtn { display: none !important; }',
+      '.att4-th-del { display: none !important; }',
+      '.att4-td-del { display: none !important; }',
+      '.att4-note { display: block !important; margin-top: 6px; font-size: 8pt; border: 1px solid #999; padding: 4px 8px; }',
+      '.att4-certify { display: block !important; }',
+      '.att4-sig { display: flex !important; }',
+      /* header */
+      '.att4-hdr { text-align: center; margin-bottom: 4px; }',
+      '.att4-dept { font-size: 13pt; font-weight: 900; }',
+      '.att4-office { font-size: 9pt; font-weight: 600; margin: 2px 0; }',
+      '.att4-meta { display: flex; justify-content: space-between; font-size: 7.5pt; margin: 4px 0; }',
+      '.att4-title { font-size: 14pt; font-weight: 900; text-decoration: underline; margin: 4px 0 6px; }',
+      '.att4-period { font-size: 8pt; margin-bottom: 4px; }',
+      /* vertical day cells — rotate() instead of writing-mode for reliable Devanagari */
+      '#att-doc-table { table-layout: fixed !important; }',
+      '#att-doc-table td { position: relative !important; height: 90px !important; width: 22px !important; overflow: hidden !important; vertical-align: middle !important; padding: 0 !important; }',
+      '#att-doc-table th { padding: 2px 3px !important; }',
+      '.att-day-cell-span, .att4-vspan { position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) rotate(-90deg) !important; -webkit-transform: translate(-50%, -50%) rotate(-90deg) !important; white-space: nowrap !important; font-size: 6.5pt !important; display: block !important; width: max-content !important; overflow: visible !important; font-family: "Noto Sans Devanagari", sans-serif !important; line-height: 1.2 !important; }',
+      /* summary headers */
+      '.att4-th-sum { vertical-align: middle; text-align: center; }',
+      '.att4-th-sum-inner { display: inline-block; font-size: 7pt; font-weight: 700; }',
+      /* name column */
+      '.att4-td-name { width: 120px !important; min-width: 100px !important; }',
+      '.att4-th-name { width: 120px !important; }',
+      '.att4-name-wrap { display: flex; flex-direction: column; gap: 2px; padding: 2px 3px; }'
+    ].join('\n');
 
-    /* Two animation frames ensure the browser fully repaints before capture */
-    requestAnimationFrame(function() {
-      requestAnimationFrame(function() {
-        /* Wait for all fonts (already loaded in live browser context) and a
-           short settle delay for the pdf-mode CSS repaint */
-        document.fonts.ready.then(function() {
-          return new Promise(function(r) { setTimeout(r, 2000); });
-        }).then(function() {
-          /* Force Noto Devanagari on every node right before capture —
-             overrides any inherited DM Sans / Lora from the design system */
-          el.querySelectorAll('*').forEach(function(node) {
-            node.style.fontFamily = "'Noto Sans Devanagari', sans-serif";
-          });
-          /* ── Capture the LIVE element — no clone, fonts are preserved ── */
-          return html2canvas(el, {
-            scale: 2,
-            useCORS: true,
-            allowTaint: true,
-            backgroundColor: '#ffffff',
-            scrollX: 0,
-            scrollY: -window.scrollY,
-            windowWidth:  el.scrollWidth,
-            windowHeight: el.scrollHeight,
-            logging: false
-          });
-        }).then(function(canvas) {
-          el.classList.remove('att4-pdf-mode');
+    win.document.write(
+      '<!DOCTYPE html>'
+      + '<html lang="hi"><head>'
+      + '<meta charset="UTF-8">'
+      + '<title>Upasthiti Patrak — ' + fmtD(state.from) + ' to ' + fmtD(state.to) + '</title>'
+      + '<link rel="preconnect" href="https://fonts.googleapis.com">'
+      + '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+      + '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;900&display=block" rel="stylesheet">'
+      + '<style>' + styles + '</style>'
+      + '</head><body>'
+      + docHTML
+      + '<script>'
+      + 'document.fonts.ready.then(function() {'
+      + '  setTimeout(function() {'
+      + '    window.print();'
+      + '    setTimeout(function() { window.close(); }, 2000);'
+      + '  }, 1500);'
+      + '});'
+      + '<\/script>'
+      + '</body></html>'
+    );
+    win.document.close();
 
-          var imgData = canvas.toDataURL('image/png');
-          var jsPDF   = window.jspdf.jsPDF;
-          var pdfW    = canvas.width  / 2;
-          var pdfH    = canvas.height / 2;
-
-          var pdf = new jsPDF({
-            orientation: pdfW > pdfH ? 'landscape' : 'portrait',
-            unit: 'px',
-            format: [pdfW, pdfH]
-          });
-          pdf.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
-          pdf.save('Upasthiti_Patrak_' + fmtD(state.from) + '_to_' + fmtD(state.to) + '.pdf');
-
-          if (window.soundFX) window.soundFX.success();
-          try {
-            if (typeof saveReportToHistory === 'function') {
-              saveReportToHistory({
-                type:     'att',
-                title:    'उपस्थिति पत्रक',
-                subtitle: state.officeName,
-                period:   fmtD(state.from) + ' \u2013 ' + fmtD(state.to),
-                snapshot: JSON.stringify({
-                  officeName: state.officeName, kramank: state.kramank,
-                  codeNo: state.codeNo, date: state.date,
-                  from: state.from, to: state.to,
-                  note: state.note, staff: state.staff
-                })
-              });
-              if (typeof renderHistorySection === 'function') renderHistorySection();
-            }
-          } catch(e) { /* ignore */ }
-          if (overlay) overlay.classList.remove('active');
-        }).catch(function(err) {
-          console.error('PDF export error:', err);
-          el.classList.remove('att4-pdf-mode');
-          if (overlay) overlay.classList.remove('active');
-          if (typeof showToast === 'function') showToast('\u274c PDF export \u0935\u093f\u092b\u0932', 4000);
+    try {
+      if (typeof saveReportToHistory === 'function') {
+        saveReportToHistory({
+          type:     'att',
+          title:    'उपस्थिति पत्रक',
+          subtitle: state.officeName,
+          period:   fmtD(state.from) + ' \u2013 ' + fmtD(state.to),
+          snapshot: JSON.stringify({
+            officeName: state.officeName, kramank: state.kramank,
+            codeNo: state.codeNo, date: state.date,
+            from: state.from, to: state.to,
+            note: state.note, staff: state.staff
+          })
         });
-      });
-    });
+        if (typeof renderHistorySection === 'function') renderHistorySection();
+      }
+    } catch(e) { /* ignore */ }
+    if (window.soundFX) window.soundFX.success();
   });
 
   /* Initial render */

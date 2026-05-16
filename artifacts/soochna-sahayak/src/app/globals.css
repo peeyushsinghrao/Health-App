@@ -2115,18 +2115,21 @@ body.scrolled::after {
   width: max-content !important;
   z-index: 1 !important;
   color: inherit !important;
-  font-family: 'Noto Sans Devanagari', sans-serif !important;
-}
+    font-family: 'Noto Sans Devanagari', sans-serif !important;
+  }
 
-/* Force Noto Devanagari on entire attendance document — overrides DM Sans / Lora */
-#att-doc,
-#att-doc *,
-.att4-doc-page,
-.att4-doc-page * {
-  font-family: 'Noto Sans Devanagari', sans-serif !important;
-}
+  /* Force Noto Devanagari on entire attendance document */
+  #att-doc,
+  #att-doc *,
+  .att4-doc-page,
+  .att4-doc-page *,
+  .att4-pdf-mode,
+  .att4-pdf-mode * {
+    font-family: 'Noto Sans Devanagari', sans-serif !important;
+  }
+  
 
-/* Also force on att4-pdf-mode */
+  * Also force on att4-pdf-mode */
 .att4-pdf-mode,
 .att4-pdf-mode * {
   font-family: 'Noto Sans Devanagari', sans-serif !important;
