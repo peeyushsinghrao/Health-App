@@ -486,11 +486,14 @@ function showHomeScreen() {
     'पितृत्व अवकाश','willful absence','Onduty','अवकाश पर','कार्यमुक्त'
   ];
 
+  var _td = new Date();
+  var _todayStr = _td.getFullYear() + '-' + ('0'+(_td.getMonth()+1)).slice(-2) + '-' + ('0'+_td.getDate()).slice(-2);
+
   var state = {
     officeName: '',
     kramank: '',
     codeNo: '',
-    date: '',
+    date: _todayStr,
     from: '',
     to: '',
     note: '',
@@ -612,7 +615,8 @@ function showHomeScreen() {
         html += '<td class="att4-td att4-td-name">' +
           '<div class="att4-name-wrap">' +
             '<input class="att4-ninp no-print" data-idx="' + idx + '" data-field="name" value="' + esc(s.name) + '" placeholder="नाम" />' +
-            '<div class="att4-name-print print-only"><div class="att4-np">' + esc(s.name) + '</div></div>' +
+            '<input class="att4-dinp no-print" data-idx="' + idx + '" data-field="desig" value="' + esc(s.desig || '') + '" placeholder="पदनाम" />' +
+            '<div class="att4-name-print print-only"><div class="att4-np">' + esc(s.name) + '</div>' + (s.desig ? '<div class="att4-dp">(' + esc(s.desig) + ')</div>' : '') + '</div>' +
           '</div></td>';
         html += dayCells;
         html += '<td class="att4-td att4-td-sum" id="att4-p-' + idx + '">' + presentCount + '</td>';
@@ -628,10 +632,9 @@ function showHomeScreen() {
       html += '<div class="att4-empty">उपस्थिति अवधि चुनें — तालिका स्वतः बनेगी</div>';
     }
 
-    /* ── Note ── */
-    if (state.note && state.note.trim()) {
-      html += '<div class="att4-note"><strong>नोट:</strong> ' + esc(state.note.trim()) + '</div>';
-    }
+    /* ── Note — always render so it shows in pdf-mode even if typed after init ── */
+    var noteText = (state.note || '').trim();
+    html += '<div class="att4-note' + (noteText ? '' : ' no-print') + '"><strong>नोट:</strong> ' + esc(noteText) + '</div>';
 
     /* ── Certification ── */
     html += '<div class="att4-certify">प्रमाणित किया जाता है कि उपस्थिति पत्रक का मिलान उपस्थिति पंजिका से कर लिया गया है, साथ ही कोई भी कार्मिक बिना सक्षम स्तर से अवकाश स्वीकृत कराए उपस्थिति पत्रक में उल्लिखित अवधि के दौरान अनुपस्थित नहीं रहा है।</div>';
@@ -664,15 +667,20 @@ function showHomeScreen() {
       });
     });
 
-    /* Name input */
-    document.querySelectorAll('.att4-ninp').forEach(function(inp) {
+    /* Name / designation inputs */
+    document.querySelectorAll('.att4-ninp, .att4-dinp').forEach(function(inp) {
       inp.addEventListener('input', function() {
-        var idx = +this.dataset.idx;
-        state.staff[idx].name = this.value;
+        var idx = +this.dataset.idx, field = this.dataset.field;
+        state.staff[idx][field] = this.value;
         var wrap = this.closest('.att4-name-wrap');
         if (wrap) {
           var np = wrap.querySelector('.att4-np');
-          if (np) np.textContent = this.value;
+          var dp = wrap.querySelector('.att4-dp');
+          if (np) np.textContent = state.staff[idx].name;
+          if (dp) {
+            var dv = state.staff[idx].desig || '';
+            dp.textContent = dv ? '(' + dv + ')' : '';
+          }
         }
       });
     });
@@ -796,10 +804,28 @@ function showHomeScreen() {
           foreignObjectRendering: false,
           imageTimeout: 0,
           onclone: function(clonedDoc) {
-            var style = clonedDoc.createElement('style');
-            style.textContent = "@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;900&family=Noto+Serif+Devanagari:wght@400;500;600;700;900&display=block');";
-            clonedDoc.head.insertBefore(style, clonedDoc.head.firstChild);
-            return new Promise(function(resolve) { setTimeout(resolve, 800); });
+            /* 1. Universal font rule — highest specificity wins */
+            var fontRule = clonedDoc.createElement('style');
+            fontRule.textContent = [
+              "* {",
+              "  font-family: 'Noto Sans Devanagari', 'Noto Serif Devanagari', sans-serif !important;",
+              "}"
+            ].join('\n');
+            clonedDoc.head.insertBefore(fontRule, clonedDoc.head.firstChild);
+
+            /* 2. Inline font-family on EVERY element — belt-and-suspenders */
+            clonedDoc.querySelectorAll('*').forEach(function(el) {
+              if (el.style) {
+                el.style.setProperty(
+                  'font-family',
+                  "'Noto Sans Devanagari', 'Noto Serif Devanagari', sans-serif",
+                  'important'
+                );
+              }
+            });
+
+            /* 3. Wait for font to settle in this rendering context */
+            return new Promise(function(resolve) { setTimeout(resolve, 1000); });
           }
         },
         jsPDF:       { unit: 'mm', format: 'a4', orientation: 'landscape' },
@@ -862,6 +888,10 @@ function showHomeScreen() {
 
   /* Initial render */
   renderDoc();
+
+  /* Pre-fill date input with today if user hasn't set it */
+  var _dateEl = document.getElementById('att-date');
+  if (_dateEl && !_dateEl.value) { _dateEl.value = state.date; }
 
 })();
 /* === END STAFF ATTENDANCE v4 === */

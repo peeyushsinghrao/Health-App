@@ -256,11 +256,16 @@
   font-size: 6.5pt; padding: 1px 2px; background: transparent;
   outline: none; font-family: inherit; color: #444;
 }
-.att4-name-print { display: none; flex-direction: column; gap: 0; }
+.att4-name-print { display: none; flex-direction: column; gap: 2px; }
 .att4-np {
   font-size: 7.5pt; font-weight: 700; line-height: 1.4;
-  font-family: 'Noto Serif Devanagari', 'Noto Sans Devanagari', sans-serif;
+  font-family: 'Noto Sans Devanagari', 'Noto Serif Devanagari', sans-serif;
   word-break: break-word; color: #000;
+}
+.att4-dp {
+  font-size: 7pt; color: #333; line-height: 1.3;
+  font-family: 'Noto Sans Devanagari', 'Noto Serif Devanagari', sans-serif;
+  word-break: break-word;
 }
 
 /* Prev CL input */

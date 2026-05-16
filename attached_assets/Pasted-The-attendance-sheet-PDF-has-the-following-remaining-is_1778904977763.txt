@@ -1,0 +1,94 @@
+The attendance sheet PDF has the following remaining issues. 
+Fix ALL of them without breaking anything that currently works 
+(summary counts 25/1/5 are correct — do not touch that logic).
+
+---
+
+### 1. HINDI FONT BROKEN AGAIN — CRITICAL
+The Devanagari font fix was lost. All Hindi text is garbled again.
+
+Fix:
+- Re-apply the Noto Sans Devanagari or Tiro Devanagari font 
+  via @font-face in the PDF export CSS.
+- This font MUST apply to every single element in the PDF:
+  headers, title, table cells, certification paragraph, 
+  signature block, note field — use:
+  * { font-family: 'Noto Sans Devanagari', sans-serif !important; }
+- The font must be loaded BEFORE html2pdf() or window.print() 
+  is triggered. Use document.fonts.ready promise.
+- IMPORTANT: The font must also work inside vertical writing-mode cells.
+  Test specifically that "उपस्थित", "अनुपस्थित", "अवकाश" 
+  render correctly in vertical-rl mode.
+
+---
+
+### 2. EMPLOYEE NAME AND DESIGNATION NOT SHOWING
+The name and post/designation columns are blank in the PDF row.
+
+Fix:
+- Check the employee object property names being used in the template.
+- Confirm the correct field names (e.g. employee.name, employee.post 
+  or employee.designation) and bind them to the table row cells.
+- The name column and designation/post column must show real data.
+
+---
+
+### 3. ATTENDANCE CELL TEXT GARBLED IN VERTICAL MODE
+Attendance cells show broken characters like "ðhे", "IIM", "ठD" 
+instead of "उपस्थित", "अनुपस्थित", "अवकाश", "CL".
+
+Fix:
+- The font is not being applied inside vertical-mode cells.
+- Force font-family on every td and span inside attendance cells.
+- Use a font that supports Devanagari in vertical writing mode.
+- Also verify the attendance status values in the data are 
+  proper Unicode Hindi strings, not encoded or escaped characters.
+
+---
+
+### 4. CODE No. AND क्रमांक FIELDS ARE BLANK
+Both the क्रमांक - उपस्थिति field and CODE No. field are empty.
+
+Fix:
+- Bind the correct office code / wscode value to these fields.
+- These should pull from the same office/settings data as the 
+  office name.
+
+---
+
+### 5. दिनांक (DATE) IN HEADER IS BLANK
+The top-right date field shows nothing.
+
+Fix:
+- Bind today's date or the report generation date to this field.
+- Format: DD.MM.YYYY (e.g. 15.05.2026)
+
+---
+
+### 6. NOTE FIELD IS MISSING ENTIRELY
+The नोट line has disappeared from the PDF.
+
+Fix:
+- Re-add the note field below the attendance table.
+- Display: "नोट: [user entered note text]"
+- Render exactly what the user typed — do not validate or change it.
+
+---
+
+### 7. OFFICE NAME SHOWING WRONG VALUE
+Shows "Ooooooo" instead of the actual office name entered by the user.
+
+Fix:
+- Pull the office name from the correct data source/settings field.
+- Same fix applies to the signature block — show the actual 
+  signatory name the user entered, not a placeholder.
+
+---
+
+### STRICT RULES — DO NOT CHANGE THESE:
+- Summary count logic (25 present, 1 CL, 5 other) is correct — 
+  do NOT touch the counting logic.
+- Date range "15.05.2026 से 14.06.2026 तक" is correct — keep it.
+- Vertical writing-mode on attendance cells — keep it, just fix the font.
+- Row height of attendance cells — keep it tall enough for vertical text.
+- Page orientation landscape — keep it.
