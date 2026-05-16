@@ -1,0 +1,245 @@
+I have a government web app called "Soochna Sahayak — Smart Office 
+Assistant" built for Rajasthan Ayurveda Department. It has a Staff 
+Attendance Sheet module that generates a PDF called "Upasthiti Patrak".
+
+Fix ALL the issues below in one go. Do not break anything that 
+currently works in the browser preview.
+
+═══════════════════════════════════════════════════════
+SECTION 1 — PDF EXPORT METHOD (MOST CRITICAL)
+═══════════════════════════════════════════════════════
+
+The browser preview looks perfect but the PDF has broken Hindi text.
+This is because the current export method loses Google Fonts.
+
+COMPLETELY REPLACE the entire PDF export function with this:
+
+STEP 1 — Ensure these CDN scripts are in <head>:
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+STEP 2 — Replace the entire PDF export function with this exact code:
+
+async function downloadPDF() {
+  // 1. Get the attendance sheet wrapper element
+  const element = document.getElementById('printArea');
+  // Change 'printArea' to whatever ID wraps the attendance sheet
+
+  // 2. Wait for all fonts to fully load
+  await document.fonts.ready;
+  await new Promise(r => setTimeout(r, 1500));
+
+  // 3. Capture the live browser view as image
+  const canvas = await html2canvas(element, {
+    scale: 2,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: '#ffffff',
+    scrollX: 0,
+    scrollY: 0,
+    windowWidth: element.scrollWidth,
+    windowHeight: element.scrollHeight
+  });
+
+  // 4. Convert canvas to image and build PDF
+  const imgData = canvas.toDataURL('image/png');
+  const { jsPDF } = window.jspdf;
+
+  const pdf = new jsPDF({
+    orientation: 'landscape',
+    unit: 'px',
+    format: [canvas.width / 2, canvas.height / 2]
+  });
+
+  pdf.addImage(imgData, 'PNG', 0, 0,
+    canvas.width / 2, canvas.height / 2);
+
+  pdf.save('Upasthiti_Patrak.pdf');
+}
+
+STEP 3 — Wire the download button:
+<button onclick="downloadPDF()">PDF डाउनलोड करें</button>
+
+WHY: This takes a screenshot of the exact live browser view.
+What you see in preview = what gets saved as PDF.
+Fonts, layout, and everything are preserved perfectly.
+
+═══════════════════════════════════════════════════════
+SECTION 2 — HINDI FONT (DEVANAGARI)
+═══════════════════════════════════════════════════════
+
+Add this in <head> for proper Devanagari rendering:
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+
+Apply globally in CSS:
+
+* {
+  font-family: 'Noto Sans Devanagari', sans-serif !important;
+}
+body, table, th, td, p, div, span, h1, h2, h3 {
+  font-family: 'Noto Sans Devanagari', sans-serif !important;
+}
+
+This font must apply to ALL elements including:
+- Main header "आयुर्वेद विभाग राजस्थान सरकार"
+- Title "उपस्थिति पत्रक"
+- All table cells including vertical writing-mode cells
+- Certification paragraph
+- Signature block
+- Note field
+
+═══════════════════════════════════════════════════════
+SECTION 3 — ATTENDANCE CELL DISPLAY
+═══════════════════════════════════════════════════════
+
+Attendance status cells must display text vertically.
+Apply this CSS to every attendance date TD cell:
+
+td.attendance-cell {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  white-space: nowrap;
+  font-size: 11px;
+  padding: 4px 2px;
+  text-align: center;
+  vertical-align: middle;
+  width: 22px;
+  min-height: 90px;
+  overflow: visible;
+  font-family: 'Noto Sans Devanagari', sans-serif !important;
+}
+
+Full words like "उपस्थित", "अनुपस्थित", "अवकाश", "CL", "EL"
+must never be truncated. Row height minimum 90px.
+
+═══════════════════════════════════════════════════════
+SECTION 4 — SUMMARY COLUMN HEADERS
+═══════════════════════════════════════════════════════
+
+The rightmost summary column headers are getting cut off.
+Apply vertical text to these header cells too:
+
+th.summary-header {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  min-height: 90px;
+  overflow: visible;
+  white-space: nowrap;
+  font-family: 'Noto Sans Devanagari', sans-serif !important;
+}
+
+═══════════════════════════════════════════════════════
+SECTION 5 — SUMMARY COUNT LOGIC
+═══════════════════════════════════════════════════════
+
+The three rightmost columns must show correct totals per employee.
+Calculate as follows:
+
+presentCount = attendance.filter(d => 
+  d.status === "उपस्थित" || d.status === "P").length
+
+clCount = attendance.filter(d => 
+  d.status === "CL").length
+
+leaveCount = attendance.filter(d => 
+  d.status === "अवकाश" || d.status === "EL" || 
+  d.status === "अनुपस्थित").length
+
+Display these three counts in the last 3 columns of each row.
+
+═══════════════════════════════════════════════════════
+SECTION 6 — EMPLOYEE DATA BINDING
+═══════════════════════════════════════════════════════
+
+Each employee row must show:
+- Serial number (क्र.सं.)
+- Full employee name (नाम कार्मिक)
+- Designation / Post (पद) — check field names:
+  could be post, designation, pad, role, dept
+- Attendance status for each date in the range
+- Summary counts (present, CL, leave)
+
+The employee list must be fully loaded BEFORE the 
+PDF or print is triggered. Add this check:
+
+if (!employees || employees.length === 0) {
+  alert('कर्मचारी डेटा लोड नहीं हुआ।');
+  return;
+}
+
+═══════════════════════════════════════════════════════
+SECTION 7 — HEADER FIELDS
+═══════════════════════════════════════════════════════
+
+All header fields must bind correctly:
+
+- Office name: render exactly what the user typed
+  (do NOT validate or auto-replace)
+- Signatory name: render exactly what the user typed
+- क्रमांक - उपस्थिति: bind from wscode / office code field
+- CODE No.: bind from office code / settings
+- दिनांक: bind today's date in DD.MM.YYYY format
+- Date range: show full range as
+  "उपस्थिति अवधि: [start] से [end] तक"
+
+═══════════════════════════════════════════════════════
+SECTION 8 — NOTE AND CERTIFICATION FIELDS
+═══════════════════════════════════════════════════════
+
+Note field:
+- Display below attendance table as "नोट: [user text]"
+- Render EXACTLY what the user typed — do not modify
+- If blank, hide it with display:none in print/PDF only
+
+Certification paragraph:
+- Must read: "प्रमाणित किया जाता है कि उपस्थिति पत्रक का 
+  मिलान उपस्थिति पंजिका से कर लिया गया है, साथ ही कोई 
+  भी कार्मिक बिना सक्षम स्तर से अवकाश स्वीकृत कराए 
+  उपस्थिति पत्रक में उल्लिखित अवधि के दौरान अनुपस्थित 
+  नहीं रहा है।"
+- Must render in clean Devanagari font, no broken characters
+
+═══════════════════════════════════════════════════════
+SECTION 9 — PAGE LAYOUT
+═══════════════════════════════════════════════════════
+
+- Page orientation: A4 Landscape
+- All table borders visible: border: 1px solid #000
+- border-collapse: collapse on all tables
+- overflow: visible on all cells
+- No content clipping anywhere
+- PDF filename format: 
+  Upasthiti_Patrak_[startdate]_to_[enddate].pdf
+
+═══════════════════════════════════════════════════════
+STRICT RULES — DO NOT CHANGE THESE
+═══════════════════════════════════════════════════════
+
+1. Note and office name fields — user typed values,
+   render exactly as entered, never modify or validate
+2. Summary count logic if already correct — keep it
+3. Date range display if already correct — keep it
+4. Vertical writing-mode on attendance cells — keep it,
+   just make sure font works inside it
+5. The browser preview layout and structure — do not touch
+6. All existing data bindings that work — do not touch
+
+═══════════════════════════════════════════════════════
+PRIORITY ORDER FOR IMPLEMENTATION
+═══════════════════════════════════════════════════════
+
+Fix in this order:
+1. PDF export method (Section 1) — fixes everything at once
+2. Hindi font (Section 2) — if preview also has font issues
+3. Attendance cell vertical text (Section 3)
+4. Employee data binding (Section 6)
+5. Header fields (Section 7)
+6. Everything else
+
+The goal: PDF must look IDENTICAL to the browser preview.

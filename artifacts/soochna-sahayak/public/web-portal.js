@@ -773,115 +773,79 @@ function showHomeScreen() {
       if (typeof showToast === 'function') showToast('\u26a0\ufe0f उपस्थिति अवधि आवश्यक है', 3000);
       return;
     }
-    if (typeof html2pdf === 'undefined') {
+    if (typeof html2canvas === 'undefined' || !window.jspdf) {
       if (typeof showToast === 'function') showToast('\u26a0\ufe0f PDF लाइब्रेरी लोड हो रही है...', 3000);
       return;
     }
+
     var overlay = document.getElementById('overlay');
     if (overlay) overlay.classList.add('active');
     var el = document.getElementById('att-doc');
 
+    /* Switch to PDF-render mode so print-only elements appear */
     el.classList.add('att4-pdf-mode');
 
-    /* Wait 2 rAF + 200ms so the browser fully repaints with pdf-mode CSS
-       before html2canvas reads any computed display values */
-    var startExport = function() {
-
-    var doExport = function() {
-      var opt = {
-        margin:      [5, 5, 5, 5],
-        filename:    'Upasthiti_Patrak_' + fmtD(state.from) + '_to_' + fmtD(state.to) + '.pdf',
-        image:       { type: 'jpeg', quality: 1.0 },
-        html2canvas: {
-          scale: 3,
-          useCORS: true,
-          allowTaint: true,
-          letterRendering: true,
-          scrollY: 0,
-          width: 1122,
-          windowWidth: 1122,
-          logging: false,
-          foreignObjectRendering: false,
-          imageTimeout: 0,
-          onclone: function(clonedDoc) {
-            /* 1. Universal font rule — highest specificity wins */
-            var fontRule = clonedDoc.createElement('style');
-            fontRule.textContent = [
-              "* {",
-              "  font-family: 'Noto Sans Devanagari', 'Noto Serif Devanagari', sans-serif !important;",
-              "}"
-            ].join('\n');
-            clonedDoc.head.insertBefore(fontRule, clonedDoc.head.firstChild);
-
-            /* 2. Inline font-family on EVERY element — belt-and-suspenders */
-            clonedDoc.querySelectorAll('*').forEach(function(el) {
-              if (el.style) {
-                el.style.setProperty(
-                  'font-family',
-                  "'Noto Sans Devanagari', 'Noto Serif Devanagari', sans-serif",
-                  'important'
-                );
-              }
-            });
-
-            /* 3. Wait for font to settle in this rendering context */
-            return new Promise(function(resolve) { setTimeout(resolve, 1000); });
-          }
-        },
-        jsPDF:       { unit: 'mm', format: 'a4', orientation: 'landscape' },
-        pagebreak:   { mode: 'avoid-all' }
-      };
-      html2pdf().set(opt).from(el).save().then(function() {
-        el.classList.remove('att4-pdf-mode');
-        if (window.soundFX) window.soundFX.success();
-        try {
-          if (typeof saveReportToHistory === 'function') {
-            saveReportToHistory({
-              type:     'att',
-              title:    'उपस्थिति पत्रक',
-              subtitle: state.officeName,
-              period:   fmtD(state.from) + ' \u2013 ' + fmtD(state.to),
-              snapshot: JSON.stringify({
-                officeName: state.officeName, kramank: state.kramank,
-                codeNo: state.codeNo, date: state.date,
-                from: state.from, to: state.to,
-                note: state.note, staff: state.staff
-              })
-            });
-            if (typeof renderHistorySection === 'function') renderHistorySection();
-          }
-        } catch(e) { /* ignore */ }
-        if (overlay) overlay.classList.remove('active');
-      }).catch(function() {
-        el.classList.remove('att4-pdf-mode');
-        if (overlay) overlay.classList.remove('active');
-      });
-    };
-
-    var runExport = function() {
-      if (document.fonts && document.fonts.load) {
-        Promise.all([
-          document.fonts.load('900 14pt "Noto Serif Devanagari"', 'आयुर्वेद विभाग राजस्थान सरकार'),
-          document.fonts.load('700 10pt "Noto Serif Devanagari"', 'हस्ताक्षर प्रभारी उपस्थिति'),
-          document.fonts.load('400 8pt "Noto Serif Devanagari"', 'प्रमाणित किया जाता है'),
-          document.fonts.load('700 8pt "Noto Sans Devanagari"', 'उपस्थित अवकाश'),
-          document.fonts.load('600 6pt "Noto Sans Devanagari"', 'उपस्थित CL Day off'),
-          document.fonts.load('400 8pt "Noto Sans Devanagari"', 'कार्मिक पदनाम')
-        ]).then(doExport).catch(doExport);
-      } else {
-        doExport();
-      }
-    };
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(runExport);
-    } else {
-      runExport();
-    }
-    }; /* end startExport */
-
+    /* Two animation frames ensure the browser fully repaints before capture */
     requestAnimationFrame(function() {
       requestAnimationFrame(function() {
-        setTimeout(startExport, 200);
+        /* Wait for all fonts (already loaded in live browser context) and a
+           short settle delay for the pdf-mode CSS repaint */
+        document.fonts.ready.then(function() {
+          return new Promise(function(r) { setTimeout(r, 1500); });
+        }).then(function() {
+          /* ── Capture the LIVE element — no clone, fonts are preserved ── */
+          return html2canvas(el, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff',
+            scrollX: 0,
+            scrollY: -window.scrollY,
+            windowWidth:  el.scrollWidth,
+            windowHeight: el.scrollHeight,
+            logging: false
+          });
+        }).then(function(canvas) {
+          el.classList.remove('att4-pdf-mode');
+
+          var imgData = canvas.toDataURL('image/png');
+          var jsPDF   = window.jspdf.jsPDF;
+          var pdfW    = canvas.width  / 2;
+          var pdfH    = canvas.height / 2;
+
+          var pdf = new jsPDF({
+            orientation: pdfW > pdfH ? 'landscape' : 'portrait',
+            unit: 'px',
+            format: [pdfW, pdfH]
+          });
+          pdf.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
+          pdf.save('Upasthiti_Patrak_' + fmtD(state.from) + '_to_' + fmtD(state.to) + '.pdf');
+
+          if (window.soundFX) window.soundFX.success();
+          try {
+            if (typeof saveReportToHistory === 'function') {
+              saveReportToHistory({
+                type:     'att',
+                title:    'उपस्थिति पत्रक',
+                subtitle: state.officeName,
+                period:   fmtD(state.from) + ' \u2013 ' + fmtD(state.to),
+                snapshot: JSON.stringify({
+                  officeName: state.officeName, kramank: state.kramank,
+                  codeNo: state.codeNo, date: state.date,
+                  from: state.from, to: state.to,
+                  note: state.note, staff: state.staff
+                })
+              });
+              if (typeof renderHistorySection === 'function') renderHistorySection();
+            }
+          } catch(e) { /* ignore */ }
+          if (overlay) overlay.classList.remove('active');
+        }).catch(function(err) {
+          console.error('PDF export error:', err);
+          el.classList.remove('att4-pdf-mode');
+          if (overlay) overlay.classList.remove('active');
+          if (typeof showToast === 'function') showToast('\u274c PDF export \u0935\u093f\u092b\u0932', 4000);
+        });
       });
     });
   });
