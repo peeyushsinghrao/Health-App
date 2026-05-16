@@ -2108,13 +2108,28 @@ body.scrolled::after {
   -webkit-writing-mode: horizontal-tb !important;
   display: block !important;
   white-space: nowrap !important;
-  font-size: 5pt !important;
+  font-size: 6pt !important;
   line-height: 1.2 !important;
   max-height: none !important;
   overflow: visible !important;
   width: max-content !important;
   z-index: 1 !important;
   color: inherit !important;
+  font-family: 'Noto Sans Devanagari', sans-serif !important;
+}
+
+/* Force Noto Devanagari on entire attendance document — overrides DM Sans / Lora */
+#att-doc,
+#att-doc *,
+.att4-doc-page,
+.att4-doc-page * {
+  font-family: 'Noto Sans Devanagari', sans-serif !important;
+}
+
+/* Also force on att4-pdf-mode */
+.att4-pdf-mode,
+.att4-pdf-mode * {
+  font-family: 'Noto Sans Devanagari', sans-serif !important;
 }
 
 /* =========================================================
@@ -2223,9 +2238,10 @@ body.scrolled::after {
     writing-mode: horizontal-tb !important;
     display: block !important;
     white-space: nowrap !important;
-    font-size: 5pt !important;
+    font-size: 6pt !important;
     width: max-content !important;
     overflow: visible !important;
+    font-family: 'Noto Sans Devanagari', sans-serif !important;
   }
 
   #att-doc-table td {

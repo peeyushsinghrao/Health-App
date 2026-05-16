@@ -791,8 +791,13 @@ function showHomeScreen() {
         /* Wait for all fonts (already loaded in live browser context) and a
            short settle delay for the pdf-mode CSS repaint */
         document.fonts.ready.then(function() {
-          return new Promise(function(r) { setTimeout(r, 1500); });
+          return new Promise(function(r) { setTimeout(r, 2000); });
         }).then(function() {
+          /* Force Noto Devanagari on every node right before capture —
+             overrides any inherited DM Sans / Lora from the design system */
+          el.querySelectorAll('*').forEach(function(node) {
+            node.style.fontFamily = "'Noto Sans Devanagari', sans-serif";
+          });
           /* ── Capture the LIVE element — no clone, fonts are preserved ── */
           return html2canvas(el, {
             scale: 2,

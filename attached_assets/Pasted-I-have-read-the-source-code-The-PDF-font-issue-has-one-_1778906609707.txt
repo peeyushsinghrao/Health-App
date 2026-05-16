@@ -1,0 +1,91 @@
+I have read the source code. The PDF font issue has one specific 
+root cause. Fix ONLY what is listed below. Touch nothing else.
+
+═══════════════════════════════════════════════════
+ROOT CAUSE FOUND
+═══════════════════════════════════════════════════
+
+In globals.css, the design system fonts are:
+  --font-display: "Lora", serif;
+  --font-body: "DM Sans", sans-serif;
+
+The attendance doc element (id="att-doc", class="att4-doc-page") 
+inherits these fonts. Noto Sans Devanagari IS imported via 
+Google Fonts at the top of globals.css but it is NEVER applied 
+to the attendance sheet elements — so Devanagari text falls back 
+to Lora/DM Sans which cannot render conjunct Hindi characters.
+
+html2canvas captures the live DOM fonts. Since the live DOM is 
+already using Lora/DM Sans instead of Noto Devanagari, the PDF 
+output is identical to what html2canvas sees — broken glyphs.
+
+═══════════════════════════════════════════════════
+FIX 1 — globals.css
+═══════════════════════════════════════════════════
+
+Add these rules to globals.css after the existing 
+att-day-cell-span block (around line 2115):
+
+/* Force Noto Devanagari on entire attendance document */
+#att-doc,
+#att-doc *,
+.att4-doc-page,
+.att4-doc-page * {
+  font-family: 'Noto Sans Devanagari', sans-serif !important;
+}
+
+/* Also force on the rotated day-cell spans specifically */
+.att-day-cell-span {
+  font-family: 'Noto Sans Devanagari', sans-serif !important;
+}
+
+/* Force on att4-pdf-mode too */
+.att4-pdf-mode,
+.att4-pdf-mode * {
+  font-family: 'Noto Sans Devanagari', sans-serif !important;
+}
+
+═══════════════════════════════════════════════════
+FIX 2 — web-portal.js PDF export function
+═══════════════════════════════════════════════════
+
+The current export uses html2canvas on the live element. 
+This is correct. But we need to force the font on the 
+element right before capture.
+
+Inside the att-btn-pdf click handler, just before the 
+html2canvas() call, add:
+
+/* Force Noto font on every node before capture */
+el.querySelectorAll('*').forEach(function(node) {
+  node.style.fontFamily = "'Noto Sans Devanagari', sans-serif";
+});
+
+And increase the settle timeout from 1500 to 2000:
+  setTimeout(r, 2000)
+
+═══════════════════════════════════════════════════
+FIX 3 — Attendance cell font size
+═══════════════════════════════════════════════════
+
+In globals.css, the .att-day-cell-span has font-size: 5pt
+This is too small for Hindi words like "उपस्थित".
+
+Change it to:
+  font-size: 6pt !important;
+
+And in the print media query version also change to 6pt.
+
+═══════════════════════════════════════════════════
+DO NOT CHANGE ANYTHING ELSE
+═══════════════════════════════════════════════════
+
+- Do not change the html2canvas export logic
+- Do not change the jsPDF settings  
+- Do not change any data bindings
+- Do not change any layout or table structure
+- Do not change the font import at top of globals.css
+- Do not change --font-display or --font-body variables
+  (they are used by the rest of the app correctly)
+- Only add the targeted CSS rules above and the 
+  querySelectorAll font override before canvas capture
