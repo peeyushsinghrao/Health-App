@@ -88,7 +88,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  
+
   body {
     background-color: var(--bg-base);
     margin: 0;
@@ -129,11 +129,11 @@
   .font-display {
     font-family: var(--font-display);
   }
-  
+
   .font-body {
     font-family: var(--font-body);
   }
-  
+
   .font-mono {
     font-family: var(--font-mono);
   }
@@ -2127,7 +2127,7 @@ body.scrolled::after {
   .att4-pdf-mode * {
     font-family: 'Noto Sans Devanagari', sans-serif !important;
   }
-  
+
 
   * Also force on att4-pdf-mode */
 .att4-pdf-mode,
@@ -2204,7 +2204,6 @@ body.scrolled::after {
     size: A4 landscape;
     margin: 8mm;
   }
-
   select {
     display: none !important;
   }
