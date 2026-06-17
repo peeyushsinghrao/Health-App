@@ -511,16 +511,28 @@ export default function Home() {
             <div className="overflow-x-auto rounded-xl border border-[var(--border)] mt-2">
               <table className="w-full text-left border-collapse" style={{ minWidth: '980px' }}>
                 <thead>
-                  <tr className="bg-[var(--bg-elevated)] text-[var(--text-secondary)] text-[10px] uppercase tracking-[0.03em] [&>th]:p-2 [&>th]:border-b [&>th]:border-[var(--border)] [&>th]:text-center [&>th]:leading-snug">
-                    <th style={{ width: '32px' }}>1<br/>क्र.सं.</th>
-                    <th style={{ minWidth: '130px' }}>2<br/>नाम योग प्रशिक्षक</th>
-                    <th style={{ width: '110px' }}>3<br/>महिला / पुरुष</th>
-                    <th style={{ width: '78px' }}>4<br/>दिवस संख्या</th>
-                    <th style={{ width: '90px' }}>5<br/>जन सामान्य योग घंटे<br/><span className="text-[9px] font-normal normal-case text-[var(--text-muted)]">(पुरुष: max 31)</span></th>
-                    <th style={{ width: '85px' }}>6<br/>IEC घंटे<br/><span className="text-[9px] font-normal normal-case text-[var(--text-muted)]">(max 2)</span></th>
-                    <th style={{ width: '85px' }}>7<br/>कुल निष्पादित घंटे</th>
-                    <th style={{ width: '85px' }}>8<br/>दर/घंटे</th>
-                    <th style={{ width: '90px' }}>9<br/>कुल भुगतान राशि</th>
+                  <tr className="bg-[var(--bg-elevated)] text-[var(--text-secondary)] text-[11px] font-bold [&>th]:py-1 [&>th]:px-2 [&>th]:border [&>th]:border-[var(--border)] [&>th]:text-center">
+                    <th style={{ width: '32px' }}>1</th>
+                    <th style={{ minWidth: '130px' }}>2</th>
+                    <th style={{ width: '110px' }}>3</th>
+                    <th style={{ width: '80px' }}>4</th>
+                    <th style={{ width: '90px' }}>5</th>
+                    <th style={{ width: '85px' }}>6</th>
+                    <th style={{ width: '80px' }}>7</th>
+                    <th style={{ width: '80px' }}>8</th>
+                    <th style={{ width: '90px' }}>9</th>
+                    <th style={{ width: '32px' }} className="no-print">—</th>
+                  </tr>
+                  <tr className="bg-[var(--bg-elevated)] text-[var(--text-secondary)] text-[10px] [&>th]:p-2 [&>th]:border [&>th]:border-[var(--border)] [&>th]:text-center [&>th]:leading-snug">
+                    <th style={{ width: '32px' }}>क्र.सं.</th>
+                    <th style={{ minWidth: '130px', textAlign: 'left' }}>नाम योग प्रशिक्षक</th>
+                    <th style={{ width: '110px' }}>महिला / पुरुष</th>
+                    <th style={{ width: '80px' }}>दिवस संख्या<br/><span className="font-normal text-[9px]">(स्वतः)</span></th>
+                    <th style={{ width: '90px' }}>जन सामान्य योग घंटे</th>
+                    <th style={{ width: '85px' }}>IEC कार्यक्रम घंटे<br/><span className="font-normal text-[9px]">(पुरुष: max 2)</span></th>
+                    <th style={{ width: '80px' }}>कुल घंटे</th>
+                    <th style={{ width: '80px' }}>दर ₹250/-</th>
+                    <th style={{ width: '90px' }}>कुल भुगतान राशि (₹)</th>
                     <th style={{ width: '32px' }} className="no-print">—</th>
                   </tr>
                 </thead>
@@ -564,64 +576,73 @@ export default function Home() {
                   {/* ── YOGA DOC PAGE ── */}
                   <div id="yog-doc-page" className="doc-page" style={{ fontFamily: "'Noto Sans Devanagari', serif", fontSize: '8pt' }}>
 
-                    {/* Fixed dept header */}
-                    <div style={{ textAlign: 'center', marginBottom: '4px' }}>
-                      <div style={{ fontWeight: 700, fontSize: '9.5pt', letterSpacing: '0.02em' }}>
-                        आयुर्वेद विभाग राजस्थान सरकार
-                      </div>
+                    {/* Line 1: Dept name */}
+                    <div style={{ textAlign: 'center', fontWeight: 700, fontSize: '11pt', letterSpacing: '0.03em', marginBottom: '2px' }}>
+                      आयुर्वेद विभाग राजस्थान सरकार
                     </div>
-                    <div style={{ textAlign: 'center', fontSize: '8pt', marginBottom: '6px', borderBottom: '1px solid #000', paddingBottom: '4px' }}>
-                      कार्यालय आयुष्मान आरोग्य मंदिर राजकीय{' '}
+                    {/* Line 2: Office name */}
+                    <div style={{ textAlign: 'center', fontSize: '8.5pt', marginBottom: '5px', borderBottom: '1px solid #000', paddingBottom: '4px' }}>
+                      कार्यालय — आयुष्मान आरोग्य मंदिर राजकीय{' '}
                       <span id="yog-doc-center" style={{ fontWeight: 700 }}>____________________</span>
                     </div>
-
-                    {/* Kramank & Date */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '7.5pt', marginBottom: '6px' }}>
-                      <span>क्रमांक - <span id="yog-doc-kramank">__________</span></span>
-                      <span>दिनांक - <span id="yog-doc-date">__________</span></span>
+                    {/* Line 3: Kramank & Date */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '8pt', marginBottom: '5px' }}>
+                      <span>क्रमांक: <span id="yog-doc-kramank">__________</span></span>
+                      <span>दिनांक: <span id="yog-doc-date">__________</span></span>
+                    </div>
+                    {/* Line 4: Form title with मानदेय */}
+                    <div style={{ textAlign: 'center', fontWeight: 700, fontSize: '10pt', margin: '5px 0 2px', textDecoration: 'underline', letterSpacing: '0.03em' }}>
+                      योग प्रशिक्षक मानदेय उपस्थिति पत्रक
+                    </div>
+                    {/* Line 5: Month */}
+                    <div style={{ textAlign: 'center', fontSize: '8.5pt', marginBottom: '8px' }}>
+                      माह — <span id="yog-doc-month" style={{ fontWeight: 600 }}>__________</span>
                     </div>
 
-                    {/* Title */}
-                    <div style={{ textAlign: 'center', fontWeight: 700, fontSize: '10pt', margin: '6px 0 2px', textDecoration: 'underline', letterSpacing: '0.03em' }}>
-                      योग प्रशिक्षक उपस्थिति पत्रक
-                    </div>
-                    <div style={{ textAlign: 'center', fontSize: '8pt', marginBottom: '8px' }}>
-                      माह - <span id="yog-doc-month" style={{ fontWeight: 600 }}>__________</span>
-                    </div>
-
-                    {/* Table matching PDF column structure */}
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '6.5pt', marginTop: '4px' }}>
+                    {/* Table — fixed layout, locked column widths per PLAN sec 8.3 */}
+                    <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', fontSize: '6.5pt', marginTop: '4px' }}>
+                      <colgroup>
+                        <col style={{ width: '5%' }} />
+                        <col style={{ width: '20%' }} />
+                        <col style={{ width: '12%' }} />
+                        <col style={{ width: '8%' }} />
+                        <col style={{ width: '12%' }} />
+                        <col style={{ width: '10%' }} />
+                        <col style={{ width: '8%' }} />
+                        <col style={{ width: '10%' }} />
+                        <col style={{ width: '15%' }} />
+                      </colgroup>
                       <thead>
-                        <tr style={{ background: '#f0ece4' }}>
-                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', width: '20px' }}>क्र.<br/>सं.</th>
-                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', minWidth: '70px' }}>नाम योग प्रशिक्षक</th>
-                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', width: '52px' }}>महिला /<br/>पुरुष</th>
-                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', width: '44px' }}>माह के दौरान दिवस की संख्या जिसमें योग करवाया गया</th>
-                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', width: '50px' }}>जन सामान्य को कराए गए योग शिक्षण के कुल घंटे</th>
-                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', width: '50px' }}>आईईसी प्रोग्राम हेतु कुल निष्पादित कार्य संपादित घंटे</th>
-                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', width: '44px' }}>कुल निष्पादित घंटे</th>
-                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', width: '46px' }}>निर्धारित दर प्रति घंटे</th>
-                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', width: '52px' }}>कुल भुगतान योग राशि जिसकी अनुशंसा की जाती है</th>
-                        </tr>
-                        <tr style={{ background: '#f8f6f2' }}>
+                        <tr style={{ background: '#f0f0f0' }}>
                           {[1,2,3,4,5,6,7,8,9].map(n => (
-                            <td key={n} style={{ border: '1px solid #000', padding: '1px 2px', textAlign: 'center', fontWeight: 600, fontSize: '6pt' }}>{n}</td>
+                            <th key={n} style={{ border: '1px solid #000', padding: '2px', textAlign: 'center', fontWeight: 700, fontSize: '7pt' }}>{n}</th>
                           ))}
+                        </tr>
+                        <tr style={{ background: '#f0f0f0' }}>
+                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', fontSize: '6.5pt' }}>क्र.सं.</th>
+                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', fontSize: '6.5pt' }}>नाम योग प्रशिक्षक</th>
+                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', fontSize: '6.5pt' }}>महिला / पुरुष</th>
+                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', fontSize: '6.5pt' }}>दिवस संख्या</th>
+                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', fontSize: '6.5pt' }}>जन सामान्य योग घंटे</th>
+                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', fontSize: '6.5pt' }}>IEC कार्यक्रम घंटे</th>
+                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', fontSize: '6.5pt' }}>कुल घंटे</th>
+                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', fontSize: '6.5pt' }}>दर ₹250/-</th>
+                          <th style={{ border: '1px solid #000', padding: '3px 2px', textAlign: 'center', fontSize: '6.5pt' }}>कुल भुगतान राशि (₹)</th>
                         </tr>
                       </thead>
                       <tbody id="yog-doc-tbody" />
                     </table>
 
-                    {/* Certification */}
+                    {/* Certification — exact official text */}
                     <div style={{ marginTop: '10px', fontSize: '7pt', lineHeight: 1.7, textAlign: 'justify' }}>
-                      प्रमाणित किया जाता है कि उपर्युक्त टेबल के कॉलम संख्या 4 में उल्लेखित दिवस में योग प्रशिक्षक द्वारा प्रतिदिन एक घंटे से अधिक कार्य संपादित किया गया एवं में उनके कार्य से संतुष्ट हूँ। कॉलम संख्या 9 में अंकित राशि के भुगतान की अनुशंसा की जाती है।
+                      प्रमाणित किया जाता है कि उपर्युक्त टेबल में उल्लेखित दिवसों में योग प्रशिक्षक द्वारा प्रतिदिन एक घंटे से अधिक कार्य संपादित किया गया एवं उनके कार्य से संतुष्ट हूँ। कॉलम संख्या 9 में अंकित राशि के भुगतान की अनुशंसा की जाती है।
                     </div>
 
-                    {/* Signature */}
+                    {/* Signature — right-aligned */}
                     <div style={{ marginTop: '28px', textAlign: 'right', fontSize: '7.5pt' }}>
                       <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '160px' }}>
                         <div style={{ height: '40px', borderBottom: '1.5px solid #000', marginBottom: '4px' }} />
-                        <div style={{ fontWeight: 700 }}>प्रभारी</div>
+                        <div style={{ fontWeight: 700 }}>हस्ताक्षर प्रभारी अधिकारी</div>
                         <div id="yog-doc-seal" style={{ fontSize: '7pt', marginTop: '2px', fontStyle: 'italic' }} />
                       </div>
                     </div>

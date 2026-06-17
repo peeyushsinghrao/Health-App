@@ -2066,12 +2066,18 @@ window.showHomeScreen = showHomeScreen;
     };
   }
 
+  var MALE_CAP = 8000;
+  var FEMALE_CAP = 5000;
+  var RATE_PER_HOUR = 250;
+  var MAX_IEC_MALE = 2;
+  var CERT_TEXT = "प्रमाणित किया जाता है कि उपर्युक्त टेबल में उल्लेखित दिवसों में योग प्रशिक्षक द्वारा प्रतिदिन एक घंटे से अधिक कार्य संपादित किया गया एवं उनके कार्य से संतुष्ट हूँ। कॉलम संख्या 9 में अंकित राशि के भुगतान की अनुशंसा की जाती है।";
+
   var yogState = {
     centerName: "",
     kramank: "",
     date: "",
     monthVal: 0,
-    rows: [{ naam: "", gender: "पुरुष", days: "", hoursYog: "", hoursIEC: "" }],
+    rows: [{ naam: "", gender: "पुरुष", hoursYog: "", hoursIEC: "" }],
   };
 
   function populateYogMonthSelect() {
@@ -2104,24 +2110,28 @@ window.showHomeScreen = showHomeScreen;
   function calcYogRow(row) {
     var isFemale = row.gender === "महिला";
     var meta = getSelectedMonthMeta();
-    var days = Math.min(parseInt(row.days, 10) || 0, meta.days);
-    var maxYog = isFemale ? 20 : 31;
-    var hoursYog = Math.min(parseFloat(row.hoursYog) || 0, maxYog);
+    var daysInMonth = meta.days;
+    var hoursYog = Math.max(0, Math.floor(parseFloat(row.hoursYog) || 0));
+    hoursYog = Math.min(hoursYog, daysInMonth);
     var hoursIEC = 0;
     if (!isFemale) {
-      hoursIEC = Math.min(parseFloat(row.hoursIEC) || 0, 2);
+      hoursIEC = Math.max(0, Math.floor(parseFloat(row.hoursIEC) || 0));
+      hoursIEC = Math.min(hoursIEC, MAX_IEC_MALE);
     }
-    var maxTotal = isFemale ? 20 : 33;
-    var totalHours = Math.min(hoursYog + hoursIEC, maxTotal);
-    var maxPayment = isFemale ? 5000 : 8000;
-    var payment = Math.min(totalHours * 250, maxPayment);
+    var totalHours = hoursYog + hoursIEC;
+    var rawPayment = totalHours * RATE_PER_HOUR;
+    var cap = isFemale ? FEMALE_CAP : MALE_CAP;
+    var isCapped = rawPayment > cap;
+    var payment = isCapped ? cap : rawPayment;
     return {
-      days: days,
+      daysInMonth: daysInMonth,
       hoursYog: hoursYog,
       hoursIEC: hoursIEC,
       totalHours: totalHours,
-      rate: 250,
+      rate: RATE_PER_HOUR,
+      rawPayment: rawPayment,
       payment: payment,
+      isCapped: isCapped,
       isFemale: isFemale,
     };
   }
@@ -2134,125 +2144,84 @@ window.showHomeScreen = showHomeScreen;
 
     yogState.rows.forEach(function (row, idx) {
       var calc = calcYogRow(row);
+      var col5Raw = row.hoursYog === "" ? "" : String(Math.floor(parseFloat(row.hoursYog) || 0));
+      var col5Err = col5Raw !== "" && (parseInt(col5Raw, 10) < 0 || parseInt(col5Raw, 10) > meta.days);
+      var col6Raw = row.hoursIEC === "" ? "" : String(Math.floor(parseFloat(row.hoursIEC) || 0));
+      var col6Err = !calc.isFemale && col6Raw !== "" && parseInt(col6Raw, 10) > MAX_IEC_MALE;
+
       html += "<tr>";
-      // Col 1: क्र.सं.
-      html += '<td style="font-weight:600">' + (idx + 1) + "</td>";
-      // Col 2: नाम
-      html +=
-        '<td><input class="form-input-base yog-inp" style="min-width:120px;font-size:12px" ' +
-        'type="text" data-idx="' +
-        idx +
-        '" data-field="naam" ' +
-        'value="' +
-        esc(row.naam) +
-        '" placeholder="नाम दर्ज करें"></td>';
-      // Col 3: Gender dropdown
-      html +=
-        '<td><select class="form-input-base yog-sel" style="font-size:12px" ' +
-        'data-idx="' +
-        idx +
-        '" data-field="gender">' +
-        '<option value="पुरुष"' +
-        (row.gender === "पुरुष" ? " selected" : "") +
-        ">पुरुष</option>" +
-        '<option value="महिला"' +
-        (row.gender === "महिला" ? " selected" : "") +
-        ">महिला</option>" +
+      // Col 1
+      html += '<td style="text-align:center;font-weight:600">' + (idx + 1) + "</td>";
+      // Col 2: Name
+      html += '<td><input class="form-input-base yog-inp" style="min-width:120px;font-size:12px;text-align:left" ' +
+        'type="text" data-idx="' + idx + '" data-field="naam" ' +
+        'value="' + esc(row.naam) + '" placeholder="नाम दर्ज करें"></td>';
+      // Col 3: Gender
+      html += '<td><select class="form-input-base yog-sel" style="font-size:12px" ' +
+        'data-idx="' + idx + '" data-field="gender">' +
+        '<option value="पुरुष"' + (row.gender === "पुरुष" ? " selected" : "") + ">पुरुष</option>" +
+        '<option value="महिला"' + (row.gender === "महिला" ? " selected" : "") + ">महिला</option>" +
         "</select></td>";
-      // Col 4: Days (max = total days in selected month)
-      html +=
-        '<td><input class="form-input-base yog-inp" style="font-size:12px;text-align:center" ' +
-        'type="number" min="0" max="' +
-        meta.days +
-        '" ' +
-        'data-idx="' +
-        idx +
-        '" data-field="days" ' +
-        'value="' +
-        (row.days || "") +
-        '" placeholder="0"></td>';
-      // Col 5: editable for BOTH genders (max 20 for female, max 31 for male)
-      html +=
-        '<td><input class="form-input-base yog-inp" style="font-size:12px;text-align:center" ' +
-        'type="number" min="0" max="' +
-        (calc.isFemale ? 20 : 31) +
-        '" step="0.5" ' +
-        'data-idx="' +
-        idx +
-        '" data-field="hoursYog" ' +
-        'value="' +
-        (row.hoursYog || "") +
-        '" placeholder="0"></td>';
-      if (calc.isFemale) {
-        // Col 6: NA for female
-        html +=
-          '<td style="color:var(--text-muted);font-style:italic;font-size:12px;background:var(--bg-elevated)">NA</td>';
-      } else {
-        // Col 6: IEC hours editable for male (max 2)
-        html +=
-          '<td><input class="form-input-base yog-inp" style="font-size:12px;text-align:center" ' +
-          'type="number" min="0" max="2" step="0.5" ' +
-          'data-idx="' +
-          idx +
-          '" data-field="hoursIEC" ' +
-          'value="' +
-          (row.hoursIEC || "") +
-          '" placeholder="0"></td>';
-      }
-      // Col 7: auto-calculated total for BOTH genders
-      html +=
-        '<td style="font-weight:600;color:var(--accent-primary)">' +
-        calc.totalHours +
+      // Col 4: Read-only auto — days in selected month
+      html += '<td style="text-align:center;background:#f5f5f5;font-size:12px;padding:6px 4px;color:var(--text-secondary);font-weight:600">' +
+        meta.days + "</td>";
+      // Col 5: integer, 0 – meta.days
+      html += '<td><input class="form-input-base yog-inp" style="font-size:12px;text-align:center;' +
+        (col5Err ? "border-color:#dc2626;" : "") + '" ' +
+        'type="number" min="0" max="' + meta.days + '" step="1" ' +
+        'data-idx="' + idx + '" data-field="hoursYog" ' +
+        'value="' + col5Raw + '" placeholder="0">' +
+        (col5Err ? '<div style="color:#dc2626;font-size:9px;line-height:1.2;margin-top:1px">0–' + meta.days + ' के बीच होना चाहिए</div>' : "") +
         "</td>";
-      // Col 8: fixed rate
-      html +=
-        '<td style="color:var(--text-secondary);font-size:11px">₹250/-</td>';
-      // Col 9: payment
-      html +=
-        '<td style="font-weight:700;color:var(--accent-primary)">₹' +
-        calc.payment.toLocaleString("en-IN") +
-        "/-</td>";
-      html +=
-        '<td class="no-print"><button class="rm-btn" ' +
-        'onclick="window._yogRemoveRow(' +
-        idx +
-        ')" ' +
-        (yogState.rows.length <= 1 ? "disabled" : "") +
-        ">✕</button></td>";
+      // Col 6: N/A (female) or integer 0-2 (male)
+      if (calc.isFemale) {
+        html += '<td style="text-align:center;background:#e0e0e0;color:#888;font-style:italic;font-size:12px;pointer-events:none;cursor:not-allowed">N/A</td>';
+      } else {
+        html += '<td><input class="form-input-base yog-inp" style="font-size:12px;text-align:center;' +
+          (col6Err ? "border-color:#dc2626;" : "") + '" ' +
+          'type="number" min="0" max="2" step="1" ' +
+          'data-idx="' + idx + '" data-field="hoursIEC" ' +
+          'value="' + col6Raw + '" placeholder="0">' +
+          (col6Err ? '<div style="color:#dc2626;font-size:9px;line-height:1.2;margin-top:1px">IEC घंटे अधिकतम 2 हो सकते हैं</div>' : "") +
+          "</td>";
+      }
+      // Col 7: read-only computed total
+      html += '<td style="text-align:center;background:#f5f5f5;font-size:12px;padding:6px 4px;font-weight:600">' +
+        calc.totalHours + "</td>";
+      // Col 8: fixed rate — read-only
+      html += '<td style="text-align:center;background:#f5f5f5;font-size:12px;padding:6px 4px">₹250/-</td>';
+      // Col 9: computed payment — amber with indicator if capped
+      var capStyle = calc.isCapped
+        ? "color:#d97706;font-weight:700"
+        : "font-weight:700;color:var(--accent-primary)";
+      var capSuffix = calc.isCapped
+        ? ' <span style="font-size:9px;color:#d97706">(सीमित)</span>'
+        : "";
+      html += '<td style="text-align:right;background:#f5f5f5;font-size:12px;padding:6px 4px">' +
+        '<span style="' + capStyle + '">₹' + calc.payment.toLocaleString("en-IN") + '/-</span>' + capSuffix + "</td>";
+      // Remove button
+      html += '<td class="no-print"><button class="rm-btn" onclick="window._yogRemoveRow(' + idx + ')" ' +
+        (yogState.rows.length <= 1 ? "disabled" : "") + ">✕</button></td>";
       html += "</tr>";
     });
 
     tbody.innerHTML = html;
-
-    var addBtn = document.getElementById("yog-add-row-btn");
-    if (addBtn) addBtn.style.display = yogState.rows.length >= 2 ? "none" : "";
+    document.getElementById("yog-add-row-btn") && (document.getElementById("yog-add-row-btn").style.display = "");
 
     tbody.querySelectorAll(".yog-inp").forEach(function (inp) {
       inp.addEventListener("input", function () {
         var idx = parseInt(this.dataset.idx, 10);
         yogState.rows[idx][this.dataset.field] = this.value;
-        // Update calculated cells in-place — avoids re-render which would destroy focus
         var calc = calcYogRow(yogState.rows[idx]);
-        // Clamp days field to the current month's max days
-        if (this.dataset.field === "days") {
-          var maxD = getSelectedMonthMeta().days;
-          if ((parseFloat(this.value) || 0) > maxD) {
-            this.value = String(maxD);
-            yogState.rows[idx].days = String(maxD);
-          }
-        }
         var trs = tbody.querySelectorAll("tr");
         if (trs[idx]) {
           var tds = trs[idx].querySelectorAll("td");
-          // td[6] = col 7 (auto total) for BOTH genders now
-          if (tds[6]) tds[6].textContent = calc.totalHours || 0;
-          // td[8] = col 9 (payment) for both genders
+          // td index: 0=क्र, 1=नाम, 2=gender, 3=col4, 4=col5, 5=col6, 6=col7, 7=col8, 8=col9, 9=del
+          if (tds[6]) tds[6].textContent = calc.totalHours;
           if (tds[8]) {
-            tds[8].textContent = calc.payment
-              ? "₹" + calc.payment.toLocaleString("en-IN") + "/-"
-              : "—";
-            tds[8].style.fontWeight = "700";
-            tds[8].style.color = "var(--accent-primary)";
+            var cs = calc.isCapped ? "color:#d97706;font-weight:700" : "font-weight:700;color:var(--accent-primary)";
+            var csuf = calc.isCapped ? ' <span style="font-size:9px;color:#d97706">(सीमित)</span>' : "";
+            tds[8].innerHTML = '<span style="' + cs + '">₹' + calc.payment.toLocaleString("en-IN") + '/-</span>' + csuf;
           }
         }
         if (!window._debouncedRenderYogDoc)
@@ -2285,8 +2254,7 @@ window.showHomeScreen = showHomeScreen;
 
   function renderYogDoc() {
     var elCenter = document.getElementById("yog-doc-center");
-    if (elCenter)
-      elCenter.textContent = yogState.centerName || "____________________";
+    if (elCenter) elCenter.textContent = yogState.centerName || "____________________";
 
     var elKr = document.getElementById("yog-doc-kramank");
     if (elKr) elKr.textContent = yogState.kramank || "__________";
@@ -2296,9 +2264,7 @@ window.showHomeScreen = showHomeScreen;
       if (yogState.date) {
         var d = new Date(yogState.date + "T00:00:00");
         elDate.textContent = d.toLocaleDateString("hi-IN", {
-          day: "2-digit",
-          month: "long",
-          year: "numeric",
+          day: "2-digit", month: "long", year: "numeric",
         });
       } else {
         elDate.textContent = "__________";
@@ -2306,78 +2272,38 @@ window.showHomeScreen = showHomeScreen;
     }
 
     var elMonth = document.getElementById("yog-doc-month");
-    if (elMonth)
-      elMonth.textContent = getSelectedMonthMeta().label || "__________";
+    if (elMonth) elMonth.textContent = getSelectedMonthMeta().label || "__________";
 
     var elSeal = document.getElementById("yog-doc-seal");
-    if (elSeal)
-      elSeal.textContent = yogState.centerName ? yogState.centerName : "";
+    if (elSeal) elSeal.textContent = yogState.centerName || "";
 
     var docTbody = document.getElementById("yog-doc-tbody");
     if (!docTbody) return;
 
-    var C =
-      "border:1px solid #000;padding:3px 2px;text-align:center;vertical-align:middle;font-size:6.5pt;";
-    var CL =
-      "border:1px solid #000;padding:3px 3px;text-align:left;vertical-align:middle;font-size:6.5pt;";
-    var CN =
-      "border:1px solid #000;padding:3px 2px;text-align:center;vertical-align:middle;font-size:6.5pt;color:#888;font-style:italic;";
+    var meta = getSelectedMonthMeta();
+    var C = "border:1px solid #000;padding:3px 2px;text-align:center;vertical-align:middle;font-size:6.5pt;";
+    var CL = "border:1px solid #000;padding:3px 3px;text-align:left;vertical-align:middle;font-size:6.5pt;";
+    var CR = "border:1px solid #000;padding:3px 3px;text-align:right;vertical-align:middle;font-size:6.5pt;font-weight:700;";
+    var CN = "border:1px solid #000;padding:3px 2px;text-align:center;vertical-align:middle;font-size:6.5pt;color:#888;font-style:italic;";
 
-    var rows = yogState.rows
-      .map(function (row, idx) {
-        var calc = calcYogRow(row);
-        // col 5 & 6: NA for female; col 7: totalHours (directly entered for female)
-        // col 5: shows hoursYog for both genders (female col 5 is now editable)
-        var col5 = '<td style="' + C + '">' + (row.hoursYog || "—") + "</td>";
-        // col 6: NA for female, IEC hours for male
-        var col6 = calc.isFemale
-          ? '<td style="' + CN + '">NA</td>'
-          : '<td style="' + C + '">' + (row.hoursIEC || "—") + "</td>";
-        var col7 =
-          '<td style="' +
-          C +
-          'font-weight:700;">' +
-          (calc.totalHours || "—") +
-          "</td>";
-        return (
-          "<tr>" +
-          '<td style="' +
-          C +
-          '">' +
-          (idx + 1) +
-          "</td>" +
-          '<td style="' +
-          CL +
-          '">' +
-          esc(row.naam || "") +
-          "</td>" +
-          '<td style="' +
-          C +
-          '">' +
-          row.gender +
-          " योग प्रशिक्षक</td>" +
-          '<td style="' +
-          C +
-          '">' +
-          (row.days || "—") +
-          "</td>" +
-          col5 +
-          col6 +
-          col7 +
-          '<td style="' +
-          C +
-          '">₹250/-</td>' +
-          '<td style="' +
-          C +
-          'font-weight:700;">' +
-          (calc.payment
-            ? "₹" + calc.payment.toLocaleString("en-IN") + "/-"
-            : "—") +
-          "</td>" +
-          "</tr>"
-        );
-      })
-      .join("");
+    var rows = yogState.rows.map(function (row, idx) {
+      var calc = calcYogRow(row);
+      var col6 = calc.isFemale
+        ? '<td style="' + CN + '">N/A</td>'
+        : '<td style="' + C + '">' + (calc.hoursIEC || 0) + "</td>";
+      var payStr = "₹" + calc.payment.toLocaleString("en-IN") + "/-";
+      return "<tr>" +
+        '<td style="' + C + '">' + (idx + 1) + "</td>" +
+        '<td style="' + CL + '">' + esc(row.naam || "") + "</td>" +
+        '<td style="' + C + '">' + row.gender + " योग प्रशिक्षक</td>" +
+        '<td style="' + C + '">' + meta.days + "</td>" +
+        '<td style="' + C + '">' + (calc.hoursYog || 0) + "</td>" +
+        col6 +
+        '<td style="' + C + 'font-weight:700;">' + (calc.totalHours || 0) + "</td>" +
+        '<td style="' + C + '">₹250/-</td>' +
+        '<td style="' + CR + '">' + payStr + "</td>" +
+        "</tr>";
+    }).join("");
     docTbody.innerHTML = rows;
   }
 
@@ -2424,14 +2350,7 @@ window.showHomeScreen = showHomeScreen;
     var btn = document.getElementById("yog-add-row-btn");
     if (!btn) return;
     btn.addEventListener("click", function () {
-      if (yogState.rows.length >= 2) return;
-      yogState.rows.push({
-        naam: "",
-        gender: "पुरुष",
-        days: "",
-        hoursYog: "",
-        hoursIEC: "",
-      });
+      yogState.rows.push({ naam: "", gender: "पुरुष", hoursYog: "", hoursIEC: "" });
       renderYogTable();
       renderYogDoc();
     });
@@ -2442,45 +2361,53 @@ window.showHomeScreen = showHomeScreen;
       showToast("⚠️ PDF लाइब्रेरी लोड नहीं हुई");
       return;
     }
+    // Pre-PDF validation gate
+    var errors = [];
+    if (!yogState.centerName || !yogState.centerName.trim()) errors.push("केंद्र का नाम भरें");
+    if (!yogState.kramank || !yogState.kramank.trim()) errors.push("क्रमांक भरें");
+    if (!yogState.date) errors.push("दिनांक भरें");
+    if (!yogState.rows.length) errors.push("कम से कम एक योग प्रशिक्षक जोड़ें");
+    yogState.rows.forEach(function (row, i) {
+      if (!row.naam || !row.naam.trim()) errors.push("पंक्ति " + (i + 1) + ": प्रशिक्षक का नाम भरें");
+    });
+    var errBox = document.getElementById("yog-err-box");
+    if (errors.length > 0) {
+      if (errBox) {
+        errBox.innerHTML = errors.map(function (e) { return "• " + e; }).join("<br>");
+        errBox.style.display = "";
+      }
+      showToast("⚠️ " + errors[0]);
+      return;
+    }
+    if (errBox) errBox.style.display = "none";
     var meta = getSelectedMonthMeta();
     var overlay = document.getElementById("overlay");
-    if (overlay) {
-      overlay.style.opacity = "1";
-      overlay.style.pointerEvents = "auto";
-    }
-    window
-      .html2pdf()
-      .set({
-        margin: [8, 8, 8, 8],
-        filename: "Yog_Shikshak_" + meta.label.replace(" ", "_") + ".pdf",
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-      })
-      .from(document.getElementById("yog-doc-page"))
-      .save()
-      .then(function () {
-        if (overlay) {
-          overlay.style.opacity = "0";
-          overlay.style.pointerEvents = "none";
-        }
-        if (window.soundFX) window.soundFX.success();
-        showToast("✅ PDF सहेजा गया");
-        saveReportToHistory({
-          type: "yog",
-          title: "योग प्रशिक्षक",
-          subtitle: yogState.centerName || "केंद्र",
-          period: meta.label,
-          snapshot: JSON.stringify({
-            centerName: yogState.centerName,
-            kramank: yogState.kramank,
-            date: yogState.date,
-            monthVal: yogState.monthVal,
-            rows: yogState.rows,
-          }),
-        });
-        renderHistorySection();
+    if (overlay) { overlay.style.opacity = "1"; overlay.style.pointerEvents = "auto"; }
+    window.html2pdf().set({
+      margin: [15, 15, 15, 15],
+      filename: "Yog_Shikshak_" + meta.label.replace(" ", "_") + ".pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    }).from(document.getElementById("yog-doc-page")).save().then(function () {
+      if (overlay) { overlay.style.opacity = "0"; overlay.style.pointerEvents = "none"; }
+      if (window.soundFX) window.soundFX.success();
+      showToast("✅ PDF सहेजा गया");
+      saveReportToHistory({
+        type: "yog",
+        title: "योग प्रशिक्षक",
+        subtitle: yogState.centerName || "केंद्र",
+        period: meta.label,
+        snapshot: JSON.stringify({
+          centerName: yogState.centerName,
+          kramank: yogState.kramank,
+          date: yogState.date,
+          monthVal: yogState.monthVal,
+          rows: yogState.rows,
+        }),
       });
+      renderHistorySection();
+    });
   }
 
   function printYogDoc() {
@@ -2518,33 +2445,11 @@ window.showHomeScreen = showHomeScreen;
     var wb = XLSX.utils.book_new();
     var wsData = [
       ["आयुर्वेद विभाग राजस्थान सरकार"],
-      [
-        "कार्यालय आयुष्मान आरोग्य मंदिर राजकीय - " +
-          (yogState.centerName || ""),
-      ],
-      [
-        "योग प्रशिक्षक उपस्थिति पत्रक",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "माह: " + meta.label,
-      ],
+      ["कार्यालय आयुष्मान आरोग्य मंदिर राजकीय — " + (yogState.centerName || "")],
+      ["क्रमांक: " + (yogState.kramank || ""), "", "", "", "", "", "", "", "दिनांक: " + (yogState.date || "")],
+      ["योग प्रशिक्षक मानदेय उपस्थिति पत्रक", "", "", "", "", "", "", "", "माह: " + meta.label],
       [],
-      [
-        "क्र.सं.",
-        "नाम योग प्रशिक्षक",
-        "महिला / पुरुष",
-        "दिवस संख्या",
-        "जन सामान्य योग घंटे",
-        "IEC कार्यक्रम घंटे",
-        "कुल निष्पादित घंटे",
-        "निर्धारित दर/घंटे",
-        "कुल भुगतान राशि",
-      ],
+      ["क्र.सं.", "नाम योग प्रशिक्षक", "महिला / पुरुष", "दिवस संख्या", "जन सामान्य योग घंटे", "IEC कार्यक्रम घंटे", "कुल घंटे", "दर ₹250/-", "कुल भुगतान राशि (₹)"],
     ];
     yogState.rows.forEach(function (row, idx) {
       var calc = calcYogRow(row);
@@ -2552,35 +2457,20 @@ window.showHomeScreen = showHomeScreen;
         idx + 1,
         row.naam || "",
         row.gender + " योग प्रशिक्षक",
-        row.days || "",
-        row.hoursYog || "",
-        calc.isFemale ? "NA" : row.hoursIEC || "",
+        meta.days,
+        calc.hoursYog,
+        calc.isFemale ? "N/A" : calc.hoursIEC,
         calc.totalHours,
         "₹250/-",
-        calc.payment ? "₹" + calc.payment + "/-" : "",
+        "₹" + calc.payment.toLocaleString("en-IN") + "/-",
       ]);
     });
     wsData.push([]);
-    wsData.push([
-      "प्रमाणित किया जाता है कि उपर्युक्त टेबल के कॉलम संख्या 4 में उल्लेखित दिवसों में योग प्रशिक्षक द्वारा प्रतिदिन एक घंटे से अधिक कार्य सम्पादित किया गया।",
-    ]);
+    wsData.push([CERT_TEXT]);
     var ws = XLSX.utils.aoa_to_sheet(wsData);
-    ws["!cols"] = [
-      { wch: 6 },
-      { wch: 28 },
-      { wch: 20 },
-      { wch: 14 },
-      { wch: 18 },
-      { wch: 18 },
-      { wch: 20 },
-      { wch: 18 },
-      { wch: 20 },
-    ];
+    ws["!cols"] = [{ wch: 6 }, { wch: 28 }, { wch: 20 }, { wch: 14 }, { wch: 18 }, { wch: 18 }, { wch: 14 }, { wch: 14 }, { wch: 20 }];
     XLSX.utils.book_append_sheet(wb, ws, "योग प्रशिक्षक");
-    XLSX.writeFile(
-      wb,
-      "Yog_Shikshak_" + meta.label.replace(" ", "_") + ".xlsx",
-    );
+    XLSX.writeFile(wb, "Yog_Shikshak_" + meta.label.replace(" ", "_") + ".xlsx");
     if (window.soundFX) window.soundFX.success();
     showToast("✅ Excel सहेजा गया");
   }
