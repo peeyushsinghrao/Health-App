@@ -446,6 +446,15 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Preview mode banner — shown when Preview toggle is ON */}
+        <div id="att-preview-banner" style={{ display: 'none', alignItems: 'center', justifyContent: 'space-between', background: '#1e3a2f', color: '#fff', padding: '8px 20px', fontSize: '12px', gap: '12px' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ background: '#22c55e', borderRadius: '50%', width: '8px', height: '8px', display: 'inline-block' }} />
+            <strong>PDF प्रीव्यू मोड</strong> — यह दृश्य हूबहू PDF जैसा है
+          </span>
+          <span style={{ fontSize: '11px', opacity: 0.75 }}>संपादन के लिए "संपादन" बटन दबाएं</span>
+        </div>
+
         {/* ── A4 Landscape document area ── */}
         <div className="att4-doc-area">
           <div id="att-doc" className="att4-doc-page">

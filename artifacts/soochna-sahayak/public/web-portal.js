@@ -1047,9 +1047,27 @@ function showHomeScreen() {
       }, 100);
   });
 
+  /* Toggle between edit view and PDF-identical preview */
+  var _previewOn = false;
   bind("att-btn-preview", "click", function () {
+    _previewOn = !_previewOn;
     var doc = document.getElementById("att-doc");
-    if (doc) doc.scrollIntoView({ behavior: "smooth", block: "start" });
+    var btn = document.getElementById("att-btn-preview");
+    var formWrap = document.querySelector(".att4-form-wrap");
+    var banner = document.getElementById("att-preview-banner");
+    if (!doc) return;
+    if (_previewOn) {
+      doc.classList.add("att4-pdf-mode");
+      if (btn) { btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> संपादन'; }
+      if (formWrap) formWrap.style.display = "none";
+      if (banner) { banner.style.display = "flex"; }
+      doc.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      doc.classList.remove("att4-pdf-mode");
+      if (btn) { btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Preview'; }
+      if (formWrap) formWrap.style.display = "";
+      if (banner) { banner.style.display = "none"; }
+    }
   });
 
   bind("att-btn-print", "click", function () {
@@ -1073,6 +1091,16 @@ function showHomeScreen() {
       return;
     }
 
+    /* Exit preview-toggle mode before capture so we manage pdf-mode ourselves */
+    if (_previewOn) {
+      _previewOn = false;
+      var _btn2 = document.getElementById("att-btn-preview");
+      if (_btn2) { _btn2.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Preview'; }
+      var _fw2 = document.querySelector(".att4-form-wrap");
+      if (_fw2) _fw2.style.display = "";
+      var _bn2 = document.getElementById("att-preview-banner");
+      if (_bn2) _bn2.style.display = "none";
+    }
     var overlay = document.getElementById("overlay");
     if (overlay) overlay.classList.add("active");
     var el = document.getElementById("att-doc");

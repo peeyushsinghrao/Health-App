@@ -331,6 +331,11 @@
   margin-top: 8px; border-radius: 4px;
 }
 
+/* ── Preview mode: doc area gets a subtle green glow when in PDF preview ── */
+#att-doc.att4-pdf-mode {
+  box-shadow: 0 0 0 3px #22c55e44, 0 6px 32px rgba(0,0,0,0.22);
+}
+
 /* ── PDF export mode ── applied to #att-doc before html2pdf capture ── */
 #att-doc.att4-pdf-mode .no-print        { display: none !important; }
 #att-doc.att4-pdf-mode .print-only      { display: block !important; }
