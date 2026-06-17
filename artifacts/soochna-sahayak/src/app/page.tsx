@@ -115,13 +115,12 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Staff Attendance Card */}
+          {/* Staff Attendance Card — Coming Soon */}
           <div
-            className="home-card group card cursor-pointer"
-            data-tooltip="Staff Attendance Tracker"
-            onClick={() => { (window as any).showPanel?.('staff-att-panel'); }}
+            className="home-card group card"
+            style={{ opacity: 0.6, cursor: 'not-allowed', pointerEvents: 'none' }}
           >
-            <div className="absolute top-6 right-6 badge badge-primary">सक्रिय</div>
+            <div className="absolute top-6 right-6" style={{ background: '#f59e0b', color: '#fff', fontSize: '10px', fontWeight: 700, padding: '3px 10px', borderRadius: '99px', letterSpacing: '0.05em' }}>जल्द आ रहा है</div>
             <div className="card-icon-wrap w-[46px] h-[46px] rounded-[10px] bg-[var(--accent-light)] flex items-center justify-center mb-6 text-[var(--accent-primary)]">
               <Users size={22} strokeWidth={1.5} />
             </div>
@@ -130,8 +129,7 @@ export default function Home() {
               कार्मिक उपस्थिति पत्रक तैयार करें
             </p>
             <div className="flex items-center justify-between pt-4 border-t border-[var(--border)]">
-              <span className="text-[11px] font-medium text-[var(--accent-primary)] uppercase tracking-wider">Track Attendance</span>
-              <ArrowRight size={18} className="card-arrow text-[var(--text-muted)]" />
+              <span className="text-[11px] font-medium text-[var(--text-muted)] uppercase tracking-wider">Coming Soon</span>
             </div>
           </div>
 
